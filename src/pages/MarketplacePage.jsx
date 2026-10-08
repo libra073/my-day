@@ -4,26 +4,32 @@ import { useAppContext } from '../context/AppContext';
 import ProviderCard from '../components/ProviderCard';
 import { Search, X, Sparkles } from 'lucide-react';
 
-const CATEGORIES = [
-  { id: '', name: 'All Categories', icon: '✨' },
-  { id: 'kumbi', name: 'Kumbi (Venues)', icon: '🏰' },
-  { id: 'wapambaji', name: 'Wapambaji (Decorators)', icon: '🎨' },
-  { id: 'entertainment', name: 'MCs & Entertainment', icon: '🎤' },
-  { id: 'catering', name: 'Catering', icon: '🍽️' },
-  { id: 'saloon', name: 'Saloon & Beauty', icon: '💇' },
-  { id: 'transport', name: 'Transport', icon: '🚗' },
-];
-
-const LOCATIONS = ['All Locations', 'Dar es Salaam', 'Arusha', 'Mwanza', 'Zanzibar'];
-
 function MarketplacePage() {
-  const { providers } = useAppContext();
+  const { providers, t } = useAppContext();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || '');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
-  const [sortBy, setSortBy] = useState('recommended'); // 'recommended' | 'price-asc' | 'price-desc' | 'rating'
+  const [sortBy, setSortBy] = useState('recommended');
+
+  const CATEGORIES = [
+    { id: '', name: t('all_categories'), icon: '✨' },
+    { id: 'kumbi', name: t('cat_venues_title'), icon: '🏰' },
+    { id: 'wapambaji', name: t('cat_decorators_title'), icon: '🎨' },
+    { id: 'entertainment', name: t('cat_entertainment_title'), icon: '🎤' },
+    { id: 'catering', name: t('cat_catering_title'), icon: '🍽️' },
+    { id: 'saloon', name: t('cat_saloon_title'), icon: '💇' },
+    { id: 'transport', name: t('cat_transport_title'), icon: '🚗' },
+  ];
+
+  const LOCATIONS = [
+    { id: 'All Locations', label: t('all_locations') },
+    { id: 'Dar es Salaam', label: t('dar_es_salaam') },
+    { id: 'Arusha', label: t('arusha') },
+    { id: 'Mwanza', label: t('mwanza') },
+    { id: 'Zanzibar', label: t('zanzibar') }
+  ];
 
   const handleCategorySelect = (catId) => {
     setActiveCategory(catId);
@@ -55,7 +61,6 @@ function MarketplacePage() {
       return matchesCategory && matchesLocation && matchesSearch;
     });
 
-    // Sorting logic
     if (sortBy === 'price-asc') {
       result.sort((a, b) => (a.pricePerDay || a.pricePerPerson || a.pricePerEvent || 0) - (b.pricePerDay || b.pricePerPerson || b.pricePerEvent || 0));
     } else if (sortBy === 'price-desc') {
@@ -68,30 +73,32 @@ function MarketplacePage() {
   }, [providers, activeCategory, selectedLocation, searchTerm, sortBy]);
 
   return (
-    <div className="container py-8">
+    <div className="container" style={{ padding: '2rem 1.25rem' }}>
       {/* Header Banner */}
       <div style={{ textAlign: 'center', maxWidth: '750px', margin: '0 auto 2rem' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.4rem',
-          background: 'var(--color-primary-light)',
-          color: 'var(--color-primary-dark)',
-          padding: '0.35rem 0.9rem',
+          background: '#FFFFFF',
+          color: 'var(--color-accent)',
+          padding: '0.4rem 1rem',
           borderRadius: 'var(--radius-pill)',
           fontSize: '0.8rem',
           fontWeight: 700,
           marginBottom: '0.75rem',
-          border: '1px solid rgba(212, 175, 55, 0.3)'
+          boxShadow: 'var(--shadow-xs)',
         }}>
-          <Sparkles size={14} /> Verified Tanzania Wedding Directory
+          <Sparkles size={14} color="var(--color-primary)" /> {t('verified_directory')}
         </div>
 
-        <h1 style={{ fontSize: '2.5rem', color: 'var(--color-dark)', marginBottom: '0.5rem' }}>
-          Explore Wedding Service Professionals
+        <h1 style={{ fontSize: '2.5rem', color: 'var(--color-text)', marginBottom: '0.5rem', fontWeight: 800 }}>
+          {t('explore_vendors')}
         </h1>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem' }}>
-          Discover, compare packages, verify real customer reviews, check date availability, and reserve with 30% deposit guarantee.
+          {t('nav_browse') === 'Tafuta Huduma'
+            ? 'Gundua, linganisha vifurushi, thibitisha hakiki halisi za wateja, kagua upatikanaji wa tarehe, na uweke akiba kwa dhamana ya malipo ya awali ya 30%.'
+            : 'Discover, compare packages, verify real customer reviews, check date availability, and reserve with 30% deposit guarantee.'}
         </p>
       </div>
 
@@ -111,20 +118,20 @@ function MarketplacePage() {
               key={cat.id}
               onClick={() => handleCategorySelect(cat.id)}
               style={{
-                background: isActive ? 'var(--color-dark)' : '#ffffff',
-                color: isActive ? '#ffffff' : 'var(--color-text)',
-                border: isActive ? '1px solid var(--color-dark)' : '1px solid var(--color-border)',
-                padding: '0.55rem 1.1rem',
+                background: isActive ? 'var(--color-primary)' : '#FFFFFF',
+                color: isActive ? '#FFFFFF' : 'var(--color-text)',
+                border: isActive ? '1px solid transparent' : '1px solid var(--color-border)',
+                padding: '0.6rem 1.2rem',
                 borderRadius: 'var(--radius-pill)',
                 fontSize: '0.85rem',
-                fontWeight: isActive ? 700 : 500,
+                fontWeight: isActive ? 800 : 600,
                 whiteSpace: 'nowrap',
-                boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+                boxShadow: isActive ? 'var(--shadow-glow)' : 'var(--shadow-xs)',
                 cursor: 'pointer',
-                transition: 'var(--transition)'
+                transition: 'var(--transition)',
               }}
             >
-              <span>{cat.icon}</span>
+              <span style={{ marginRight: '0.25rem' }}>{cat.icon}</span>
               <span>{cat.name}</span>
             </button>
           );
@@ -133,7 +140,7 @@ function MarketplacePage() {
 
       {/* Search & Filter Controls Bar */}
       <div style={{
-        background: '#ffffff',
+        background: '#FFFFFF',
         borderRadius: 'var(--radius-lg)',
         padding: '1.25rem',
         border: '1px solid var(--color-border)',
@@ -141,12 +148,11 @@ function MarketplacePage() {
         marginBottom: '2rem'
       }}>
         <form onSubmit={handleSearchSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', alignItems: 'center' }}>
-          {/* Keyword Search Input */}
           <div style={{ position: 'relative' }}>
-            <Search size={18} color="#999" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
+            <Search size={18} color="var(--color-text-dim)" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Search vendor name, location..."
+              placeholder={t('search_placeholder')}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               style={{ paddingLeft: '2.5rem' }}
@@ -162,7 +168,7 @@ function MarketplacePage() {
                   transform: 'translateY(-50%)',
                   background: 'none',
                   border: 'none',
-                  color: '#999',
+                  color: 'var(--color-text-dim)',
                   padding: 0,
                   boxShadow: 'none'
                 }}
@@ -172,63 +178,57 @@ function MarketplacePage() {
             )}
           </div>
 
-          {/* Location Filter Dropdown */}
           <div>
-            <select
-              value={selectedLocation}
-              onChange={e => setSelectedLocation(e.target.value)}
-            >
-              {LOCATIONS.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+            <select value={selectedLocation} onChange={e => setSelectedLocation(e.target.value)}>
+              {LOCATIONS.map(loc => <option key={loc.id} value={loc.id}>{loc.label}</option>)}
             </select>
           </div>
 
-          {/* Sort By Dropdown */}
           <div>
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-            >
-              <option value="recommended">Sort by: Recommended</option>
-              <option value="rating">Sort by: Highest Rated ★</option>
-              <option value="price-asc">Sort by: Price Low to High</option>
-              <option value="price-desc">Sort by: Price High to Low</option>
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+              <option value="recommended">{t('sort_recommended')}</option>
+              <option value="rating">{t('sort_rating')}</option>
+              <option value="price-asc">{t('sort_price_asc')}</option>
+              <option value="price-desc">{t('sort_price_desc')}</option>
             </select>
           </div>
 
-          {/* Submit Search button */}
           <button
             type="submit"
             style={{
               background: 'var(--color-primary)',
-              color: '#ffffff',
+              color: '#FFFFFF',
               fontWeight: 700,
-              padding: '0.7rem'
+              padding: '0.75rem',
+              boxShadow: 'var(--shadow-glow)',
+              borderRadius: 'var(--radius-pill)',
             }}
           >
-            Filter Vendors ({filteredProviders.length})
+            {t('filter_btn')} ({filteredProviders.length})
           </button>
         </form>
       </div>
 
       {/* Results Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.25rem', color: 'var(--color-dark)' }}>
-          Available Service Providers <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>({filteredProviders.length} listings found)</span>
+        <h2 style={{ fontSize: '1.25rem', color: 'var(--color-text)', fontWeight: 800 }}>
+          {t('available_providers')} <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>({filteredProviders.length} {t('listings_found')})</span>
         </h2>
       </div>
 
       {/* Vendor Cards Grid */}
       {filteredProviders.length === 0 ? (
         <div style={{
-          background: '#ffffff',
+          background: '#FFFFFF',
           borderRadius: 'var(--radius-lg)',
           padding: '4rem 2rem',
           textAlign: 'center',
-          border: '1px dashed var(--color-border)'
+          border: '1px dashed var(--color-border)',
+          boxShadow: 'var(--shadow-xs)'
         }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-          <h3 style={{ fontSize: '1.4rem', color: 'var(--color-dark)', marginBottom: '0.5rem' }}>No vendors matched your search</h3>
-          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>Try clearing keyword filters or selecting a different service category.</p>
+          <h3 style={{ fontSize: '1.4rem', color: 'var(--color-text)', marginBottom: '0.5rem', fontWeight: 700 }}>{t('no_vendors_match')}</h3>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>{t('try_clearing')}</p>
           <button
             onClick={() => {
               setActiveCategory('');
@@ -238,7 +238,7 @@ function MarketplacePage() {
             }}
             className="button button-outline"
           >
-            Reset All Filters
+            {t('reset_filters')}
           </button>
         </div>
       ) : (

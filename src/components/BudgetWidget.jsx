@@ -4,15 +4,14 @@ import { useAppContext } from '../context/AppContext';
 import { Heart, ChevronUp, ChevronDown, ArrowRight } from 'lucide-react';
 
 function BudgetWidget() {
-  const { role, wedding, bookings } = useAppContext();
+  const { role, wedding, bookings, t } = useAppContext();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
-  // Show only for couples on non-dashboard pages
-  if (role !== 'customer' || location.pathname === '/dashboard') return null;
+  // Show only for couples on non-dashboard and non-planner pages
+  if (role !== 'customer' || location.pathname === '/dashboard' || location.pathname === '/planner') return null;
 
   const totalBookedAmount = bookings.reduce((sum, b) => sum + b.price, 0);
-  const remainingBudget = Math.max(0, wedding.budget - totalBookedAmount);
   const usagePct = Math.min(100, Math.round((totalBookedAmount / (wedding.budget || 1)) * 100));
 
   return (
@@ -21,11 +20,10 @@ function BudgetWidget() {
       bottom: '1.5rem',
       right: '1.5rem',
       zIndex: 800,
-      background: 'rgba(11, 37, 28, 0.95)',
-      backdropFilter: 'blur(12px)',
-      color: '#ffffff',
+      background: '#FFFFFF',
+      color: 'var(--color-text)',
       borderRadius: 'var(--radius-lg)',
-      border: '1px solid rgba(212, 175, 55, 0.3)',
+      border: '1px solid var(--color-border)',
       boxShadow: 'var(--shadow-lg)',
       width: collapsed ? 'auto' : '300px',
       overflow: 'hidden',
@@ -35,36 +33,36 @@ function BudgetWidget() {
         onClick={() => setCollapsed(!collapsed)}
         style={{
           padding: '0.75rem 1rem',
-          background: 'rgba(255,255,255,0.06)',
+          background: 'var(--color-surface-soft)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           cursor: 'pointer',
-          borderBottom: collapsed ? 'none' : '1px solid rgba(255,255,255,0.1)'
+          borderBottom: collapsed ? 'none' : '1px solid var(--color-border)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: 700 }}>
-          <Heart size={16} color="var(--color-primary)" />
-          <span>{wedding.title || "Wedding Budget Tracker"}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text)' }}>
+          <Heart size={16} color="var(--color-primary)" fill="var(--color-primary)" />
+          <span>{t('widget_title')}</span>
         </div>
-        <button style={{ background: 'none', border: 'none', color: '#fff', padding: 0, boxShadow: 'none' }}>
+        <button style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', padding: 0, boxShadow: 'none' }}>
           {collapsed ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
       </div>
 
       {!collapsed && (
         <div style={{ padding: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'rgba(255,255,255,0.75)', marginBottom: '0.35rem' }}>
-            <span>Target Budget:</span>
-            <strong>TSh {wedding.budget.toLocaleString()}</strong>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.35rem' }}>
+            <span>{t('widget_target')}</span>
+            <strong style={{ color: 'var(--color-text)' }}>TSh {wedding.budget.toLocaleString()}</strong>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'rgba(255,255,255,0.75)', marginBottom: '0.5rem' }}>
-            <span>Committed Services:</span>
-            <strong style={{ color: 'var(--color-primary)' }}>TSh {totalBookedAmount.toLocaleString()}</strong>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+            <span>{t('widget_committed')}</span>
+            <strong style={{ color: 'var(--color-primary-hover)' }}>TSh {totalBookedAmount.toLocaleString()}</strong>
           </div>
 
-          <div style={{ height: 6, background: 'rgba(255,255,255,0.15)', borderRadius: 3, overflow: 'hidden', marginBottom: '0.85rem' }}>
-            <div style={{ width: `${usagePct}%`, height: '100%', background: 'linear-gradient(90deg, #D4AF37, #C87D85)', borderRadius: 3 }}></div>
+          <div style={{ height: 7, background: '#E6D9CC', borderRadius: 4, overflow: 'hidden', marginBottom: '0.85rem' }}>
+            <div style={{ width: `${usagePct}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 4, boxShadow: 'var(--shadow-glow)' }}></div>
           </div>
 
           <Link
@@ -75,15 +73,16 @@ function BudgetWidget() {
               justifyContent: 'center',
               gap: '0.35rem',
               background: 'var(--color-primary)',
-              color: '#ffffff',
-              padding: '0.45rem',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.8rem',
+              color: '#FFFFFF',
+              padding: '0.55rem',
+              borderRadius: 'var(--radius-pill)',
+              fontSize: '0.82rem',
               fontWeight: 700,
-              textAlign: 'center'
+              textAlign: 'center',
+              boxShadow: 'var(--shadow-glow)',
             }}
           >
-            Open Event Dashboard <ArrowRight size={14} />
+            {t('widget_open')} <ArrowRight size={14} />
           </Link>
         </div>
       )}

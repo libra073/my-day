@@ -142,6 +142,41 @@ export const providers = [
     contact: '+255 733 111 222',
     unavailableDates: [],
   },
+
+  // Photography & Videography
+  {
+    id: 'photo-1',
+    category: 'photography',
+    name: 'LensCraft Wedding Studios',
+    location: 'Dar es Salaam (Kinondoni)',
+    rating: 4.9,
+    reviewsCount: 47,
+    isFeatured: true,
+    image: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=800&q=80',
+    pricePerEvent: 600000,
+    packages: [
+      { id: 'photo-essential', name: 'Essential Wedding Coverage', price: 600000, description: 'Full day photography, 300+ edited digital high-res photos, 1 photobook.' },
+      { id: 'photo-cinema', name: 'Cinematic Photo & 4K Drone Video', price: 1500000, description: '2 photographers, 1 drone videographer, cinematic wedding highlight reel, premium photo album.' }
+    ],
+    contact: '+255 765 888 123',
+    unavailableDates: [],
+  },
+  {
+    id: 'photo-2',
+    category: 'photography',
+    name: 'Kibo Moments Photography & Films',
+    location: 'Arusha & Moshi',
+    rating: 4.8,
+    reviewsCount: 33,
+    isFeatured: false,
+    image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80',
+    pricePerEvent: 450000,
+    packages: [
+      { id: 'photo-standard', name: 'Standard Wedding Package', price: 450000, description: 'Full coverage of church ceremony and reception, online gallery delivery.' }
+    ],
+    contact: '+255 784 112 334',
+    unavailableDates: [],
+  },
 ];
 
 export const reviews = [

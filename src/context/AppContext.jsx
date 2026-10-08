@@ -1,9 +1,32 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import initialData from '../data/initialData';
+import { translations } from '../i18n/translations';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  // i18n initialization
+  const [language, setLanguageState] = useState(() => {
+    return localStorage.getItem('myday_lang') || 'en';
+  });
+
+  const setLanguage = (lang) => {
+    setLanguageState(lang);
+    localStorage.setItem('myday_lang', lang);
+  };
+
+  const t = (key, defaultValue) => {
+    const langDict = translations[language] || translations['en'];
+    if (langDict && langDict[key] !== undefined) {
+      return langDict[key];
+    }
+    const fallbackDict = translations['en'];
+    if (fallbackDict && fallbackDict[key] !== undefined) {
+      return fallbackDict[key];
+    }
+    return defaultValue !== undefined ? defaultValue : key;
+  };
+
   const [role, setRole] = useState('customer'); // 'customer' | 'provider' | 'admin'
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [user, setUser] = useState({
@@ -119,6 +142,9 @@ export const AppProvider = ({ children }) => {
   };
 
   const value = {
+    language,
+    setLanguage,
+    t,
     role,
     user,
     isLoggedIn,

@@ -3,16 +3,16 @@ import { useAppContext } from '../context/AppContext';
 import { X, Heart, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 
 const VENDOR_CATEGORIES = [
-  { id: 'kumbi', name: 'Kumbi (Venues)' },
-  { id: 'wapambaji', name: 'Wapambaji (Decorators)' },
-  { id: 'entertainment', name: 'MCs & Entertainment' },
-  { id: 'catering', name: 'Catering' },
-  { id: 'saloon', name: 'Saloon & Beauty' },
-  { id: 'transport', name: 'Transport' },
+  { id: 'kumbi', nameKey: 'cat_venues_title', defaultName: 'Kumbi (Venues)' },
+  { id: 'wapambaji', nameKey: 'cat_decorators_title', defaultName: 'Wapambaji (Decorators)' },
+  { id: 'entertainment', nameKey: 'cat_entertainment_title', defaultName: 'MCs & Entertainment' },
+  { id: 'catering', nameKey: 'cat_catering_title', defaultName: 'Catering' },
+  { id: 'saloon', nameKey: 'cat_saloon_title', defaultName: 'Saloon & Beauty' },
+  { id: 'transport', nameKey: 'cat_transport_title', defaultName: 'Transport' },
 ];
 
 function AuthModal({ onClose, onSuccess }) {
-  const { loginUser, registerUser, switchRole } = useAppContext();
+  const { loginUser, registerUser, switchRole, t } = useAppContext();
 
   const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
   const [selectedRole, setSelectedRole] = useState('customer'); // 'customer' | 'provider' | 'admin'
@@ -38,11 +38,11 @@ function AuthModal({ onClose, onSuccess }) {
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Passwords do not match. Please verify your password.');
+      alert(t('auth_validation_mismatch'));
       return;
     }
     if (!agreeTerms) {
-      alert('Please agree to the Terms and Conditions to proceed.');
+      alert(t('auth_validation_terms'));
       return;
     }
 
@@ -67,7 +67,7 @@ function AuthModal({ onClose, onSuccess }) {
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(11, 37, 28, 0.75)',
+      background: 'rgba(59, 43, 31, 0.65)',
       backdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
@@ -76,8 +76,8 @@ function AuthModal({ onClose, onSuccess }) {
       padding: '1rem'
     }}>
       <div style={{
-        background: '#ffffff',
-        borderRadius: 'var(--radius-lg)',
+        background: '#FFFFFF',
+        borderRadius: 'var(--radius-xl)',
         maxWidth: '480px',
         width: '100%',
         padding: '2rem',
@@ -93,8 +93,8 @@ function AuthModal({ onClose, onSuccess }) {
             position: 'absolute',
             top: '1.25rem',
             right: '1.25rem',
-            background: 'var(--color-muted)',
-            color: 'var(--color-dark)',
+            background: 'var(--color-surface-soft)',
+            color: 'var(--color-text)',
             padding: '0.4rem',
             borderRadius: '50%',
             boxShadow: 'none'
@@ -109,23 +109,23 @@ function AuthModal({ onClose, onSuccess }) {
             width: 48,
             height: 48,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-            color: '#fff',
+            background: 'var(--color-primary)',
+            color: '#FFFFFF',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '0.5rem',
-            boxShadow: 'var(--shadow-sm)'
+            boxShadow: 'var(--shadow-glow)'
           }}>
-            <Heart size={24} />
+            <Heart size={24} fill="#FFFFFF" />
           </div>
-          <h2 style={{ fontSize: '1.6rem', color: 'var(--color-dark)', marginBottom: '0.2rem' }}>
-            {activeTab === 'login' ? 'Welcome Back to MY DAY' : 'Join MY DAY Wedding Platform'}
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--color-text)', marginBottom: '0.2rem', fontWeight: 800 }}>
+            {activeTab === 'login' ? t('auth_welcome') : t('auth_join')}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
             {activeTab === 'login'
-              ? 'Access your wedding profile, bookings, and budget dashboard'
-              : 'Create an account as a Couple or Partner Vendor'}
+              ? t('auth_access_profile')
+              : t('auth_create_account')}
           </p>
         </div>
 
@@ -133,9 +133,9 @@ function AuthModal({ onClose, onSuccess }) {
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          background: 'var(--color-muted)',
+          background: 'var(--color-surface-soft)',
           padding: '0.25rem',
-          borderRadius: 'var(--radius)',
+          borderRadius: 'var(--radius-pill)',
           marginBottom: '1.5rem'
         }}>
           <button
@@ -143,83 +143,83 @@ function AuthModal({ onClose, onSuccess }) {
             onClick={() => setActiveTab('login')}
             style={{
               background: activeTab === 'login' ? '#ffffff' : 'transparent',
-              color: activeTab === 'login' ? 'var(--color-dark)' : 'var(--color-text-muted)',
+              color: activeTab === 'login' ? 'var(--color-text)' : 'var(--color-text-muted)',
               fontWeight: 700,
               fontSize: '0.88rem',
               padding: '0.55rem',
-              borderRadius: '0.5rem',
+              borderRadius: 'var(--radius-pill)',
               boxShadow: activeTab === 'login' ? 'var(--shadow-xs)' : 'none'
             }}
           >
-            Sign In
+            {t('auth_signin')}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('register')}
             style={{
               background: activeTab === 'register' ? '#ffffff' : 'transparent',
-              color: activeTab === 'register' ? 'var(--color-dark)' : 'var(--color-text-muted)',
+              color: activeTab === 'register' ? 'var(--color-text)' : 'var(--color-text-muted)',
               fontWeight: 700,
               fontSize: '0.88rem',
               padding: '0.55rem',
-              borderRadius: '0.5rem',
+              borderRadius: 'var(--radius-pill)',
               boxShadow: activeTab === 'register' ? 'var(--shadow-xs)' : 'none'
             }}
           >
-            Create Account
+            {t('auth_create_account_tab')}
           </button>
         </div>
 
         {/* Account Role Selector */}
         <div style={{ marginBottom: '1.25rem' }}>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', marginBottom: '0.4rem' }}>
-            Account Role
+            {t('auth_role_label')}
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.4rem' }}>
             <button
               type="button"
               onClick={() => setSelectedRole('customer')}
               style={{
-                background: selectedRole === 'customer' ? 'var(--color-primary)' : 'var(--color-muted)',
+                background: selectedRole === 'customer' ? 'var(--color-primary)' : 'var(--color-surface-soft)',
                 color: selectedRole === 'customer' ? '#ffffff' : 'var(--color-text)',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                padding: '0.5rem 0.25rem',
-                borderRadius: 'var(--radius-sm)',
+                padding: '0.55rem 0.25rem',
+                borderRadius: 'var(--radius-pill)',
                 boxShadow: 'none'
               }}
             >
-              💍 Couple
+              {t('auth_role_couple')}
             </button>
             <button
               type="button"
               onClick={() => setSelectedRole('provider')}
               style={{
-                background: selectedRole === 'provider' ? 'var(--color-dark)' : 'var(--color-muted)',
+                background: selectedRole === 'provider' ? 'var(--color-accent)' : 'var(--color-surface-soft)',
                 color: selectedRole === 'provider' ? '#ffffff' : 'var(--color-text)',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                padding: '0.5rem 0.25rem',
-                borderRadius: 'var(--radius-sm)',
+                padding: '0.55rem 0.25rem',
+                borderRadius: 'var(--radius-pill)',
                 boxShadow: 'none'
               }}
             >
-              🏰 Vendor
+              {t('auth_role_vendor')}
             </button>
             <button
               type="button"
               onClick={() => setSelectedRole('admin')}
               style={{
-                background: selectedRole === 'admin' ? '#C62828' : 'var(--color-muted)',
+                background: selectedRole === 'admin' ? '#C53030' : 'var(--color-surface-soft)',
                 color: selectedRole === 'admin' ? '#ffffff' : 'var(--color-text)',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                padding: '0.5rem 0.25rem',
-                borderRadius: 'var(--radius-sm)',
+                padding: '0.55rem 0.25rem',
+                borderRadius: 'var(--radius-pill)',
                 boxShadow: 'none'
               }}
             >
-              ⚡ Admin
+              {t('auth_role_admin')}
             </button>
           </div>
         </div>
@@ -228,11 +228,11 @@ function AuthModal({ onClose, onSuccess }) {
         {activeTab === 'login' && (
           <form onSubmit={handleLoginSubmit}>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                Email Address or Phone Number
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>
+                {t('auth_email_or_phone')}
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color="#888" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <Mail size={16} color="var(--color-text-dim)" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
                   type="email"
                   placeholder="name@example.com"
@@ -246,13 +246,13 @@ function AuthModal({ onClose, onSuccess }) {
 
             <div style={{ marginBottom: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Password</label>
-                <a href="#forgot" onClick={e => { e.preventDefault(); alert('Password reset link sent to your email address!'); }} style={{ fontSize: '0.78rem', color: 'var(--color-primary-dark)' }}>
-                  Forgot password?
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)' }}>{t('auth_password_label')}</label>
+                <a href="#forgot" onClick={e => { e.preventDefault(); alert(t('auth_link_sent')); }} style={{ fontSize: '0.78rem', color: 'var(--color-primary-hover)' }}>
+                  {t('auth_forgot')}
                 </a>
               </div>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color="#888" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <Lock size={16} color="var(--color-text-dim)" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
@@ -264,7 +264,7 @@ function AuthModal({ onClose, onSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#888', padding: 0, boxShadow: 'none' }}
+                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-text-dim)', padding: 0, boxShadow: 'none' }}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -280,38 +280,40 @@ function AuthModal({ onClose, onSuccess }) {
                 fontWeight: 700,
                 fontSize: '0.95rem',
                 padding: '0.85rem',
+                borderRadius: 'var(--radius-pill)',
+                boxShadow: 'var(--shadow-glow)',
                 marginBottom: '1.25rem'
               }}
             >
-              Sign In to MY DAY
+              {t('auth_sign_in_btn')}
             </button>
 
             {/* Quick Demo Login Presets */}
-            <div style={{ borderTop: '1px solid #EAE7E1', paddingTop: '1rem' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Quick Demo Presets
+            <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+                {t('auth_quick_demo')}
               </div>
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 <button
                   type="button"
                   onClick={() => handleQuickDemoLogin('customer')}
-                  style={{ flex: 1, background: '#FAF9F6', border: '1px solid #DDD', color: '#333', fontSize: '0.75rem', padding: '0.4rem', boxShadow: 'none' }}
+                  style={{ flex: 1, background: 'var(--color-surface-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.45rem', borderRadius: 'var(--radius-pill)', boxShadow: 'none' }}
                 >
-                  Demo Couple
+                  {t('auth_demo_couple')}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleQuickDemoLogin('provider')}
-                  style={{ flex: 1, background: '#FAF9F6', border: '1px solid #DDD', color: '#333', fontSize: '0.75rem', padding: '0.4rem', boxShadow: 'none' }}
+                  style={{ flex: 1, background: 'var(--color-surface-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.45rem', borderRadius: 'var(--radius-pill)', boxShadow: 'none' }}
                 >
-                  Demo Vendor
+                  {t('auth_demo_vendor')}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleQuickDemoLogin('admin')}
-                  style={{ flex: 1, background: '#FAF9F6', border: '1px solid #DDD', color: '#333', fontSize: '0.75rem', padding: '0.4rem', boxShadow: 'none' }}
+                  style={{ flex: 1, background: 'var(--color-surface-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.45rem', borderRadius: 'var(--radius-pill)', boxShadow: 'none' }}
                 >
-                  Demo Admin
+                  {t('auth_demo_admin')}
                 </button>
               </div>
             </div>
@@ -322,11 +324,11 @@ function AuthModal({ onClose, onSuccess }) {
         {activeTab === 'register' && (
           <form onSubmit={handleRegisterSubmit}>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                {selectedRole === 'customer' ? 'Couple / Full Name' : selectedRole === 'provider' ? 'Business Name' : 'Administrator Name'}
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>
+                {selectedRole === 'customer' ? t('auth_name_couple') : selectedRole === 'provider' ? t('auth_name_vendor') : t('auth_name_admin')}
               </label>
               <div style={{ position: 'relative' }}>
-                <User size={16} color="#888" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <User size={16} color="var(--color-text-dim)" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
                   type="text"
                   placeholder={selectedRole === 'customer' ? 'E.g. John & Sarah' : 'E.g. Imperial Floral & Decor'}
@@ -341,13 +343,13 @@ function AuthModal({ onClose, onSuccess }) {
             {selectedRole === 'provider' && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Category</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>{t('auth_category_label')}</label>
                   <select value={vendorCategory} onChange={e => setVendorCategory(e.target.value)}>
-                    {VENDOR_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {VENDOR_CATEGORIES.map(c => <option key={c.id} value={c.id}>{t(c.nameKey)}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>City</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>{t('auth_city_label')}</label>
                   <input
                     type="text"
                     value={vendorLocation}
@@ -360,7 +362,7 @@ function AuthModal({ onClose, onSuccess }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Email Address</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>{t('auth_email_label')}</label>
                 <input
                   type="email"
                   placeholder="email@example.com"
@@ -370,7 +372,7 @@ function AuthModal({ onClose, onSuccess }) {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Phone Number</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>{t('auth_phone_label')}</label>
                 <input
                   type="text"
                   placeholder="+255 700 000 000"
@@ -383,7 +385,7 @@ function AuthModal({ onClose, onSuccess }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Password</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>{t('auth_password_label')}</label>
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -393,7 +395,7 @@ function AuthModal({ onClose, onSuccess }) {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Confirm Password</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>{t('auth_confirm_password')}</label>
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -412,7 +414,7 @@ function AuthModal({ onClose, onSuccess }) {
                 onChange={e => setAgreeTerms(e.target.checked)}
                 style={{ width: 'auto' }}
               />
-              <label htmlFor="terms">I agree to MY DAY's Terms of Service and Privacy Policy</label>
+              <label htmlFor="terms">{t('auth_agree_terms')}</label>
             </div>
 
             <button
@@ -423,10 +425,12 @@ function AuthModal({ onClose, onSuccess }) {
                 color: '#ffffff',
                 fontWeight: 700,
                 fontSize: '0.95rem',
-                padding: '0.85rem'
+                padding: '0.85rem',
+                borderRadius: 'var(--radius-pill)',
+                boxShadow: 'var(--shadow-glow)',
               }}
             >
-              Create Account & Launch Profile
+              {t('auth_create_btn')}
             </button>
           </form>
         )}

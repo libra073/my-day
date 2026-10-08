@@ -64,8 +64,8 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(0, 0, 0, 0.65)',
-      backdropFilter: 'blur(5px)',
+      background: 'rgba(59, 43, 31, 0.65)',
+      backdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -74,58 +74,52 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
     }}>
       <div style={{
         background: '#ffffff',
-        borderRadius: 'var(--radius)',
+        borderRadius: 'var(--radius-xl)',
         maxWidth: '520px',
         width: '100%',
         padding: '1.75rem',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+        boxShadow: 'var(--shadow-lg)',
         position: 'relative'
       }}>
         <button
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            background: '#F4F2EE',
-            color: '#555',
-            padding: '0.35rem 0.5rem',
-            borderRadius: '50%'
+            top: '1.25rem',
+            right: '1.25rem',
+            background: 'var(--color-surface-soft)',
+            color: 'var(--color-text)',
+            padding: '0.4rem',
+            borderRadius: '50%',
+            boxShadow: 'none'
           }}
         >
           <X size={18} />
         </button>
 
-        <h2 style={{ fontSize: '1.4rem', marginBottom: '0.25rem' }}>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.25rem', color: 'var(--color-text)', fontWeight: 800 }}>
           Reserve {provider.name}
         </h2>
-        <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1.25rem' }}>
-          {provider.location} • Category: <strong style={{ textTransform: 'capitalize' }}>{provider.category}</strong>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
+          {provider.location} • Category: <strong style={{ textTransform: 'capitalize', color: 'var(--color-text)' }}>{provider.category}</strong>
         </p>
 
         <form onSubmit={handleBookingSubmit}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>
               Wedding Event Date
             </label>
             <input
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.75rem',
-                border: '1px solid #D1CDC6',
-                borderRadius: '0.5rem',
-                fontSize: '0.9rem'
-              }}
               required
             />
           </div>
 
           {provider.category === 'catering' && (
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>
                 Estimated Guest Count
               </label>
               <input
@@ -134,13 +128,6 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
                 max="5000"
                 value={guests}
                 onChange={e => setGuests(parseInt(e.target.value) || 0)}
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.75rem',
-                  border: '1px solid #D1CDC6',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.9rem'
-                }}
                 required
               />
             </div>
@@ -148,19 +135,12 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
 
           {provider.packages && provider.packages.length > 0 && (
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>
                 Select Package
               </label>
               <select
                 value={pkgId}
                 onChange={e => setPkgId(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.75rem',
-                  border: '1px solid #D1CDC6',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.9rem'
-                }}
               >
                 {provider.packages.map(p => (
                   <option key={p.id} value={p.id}>
@@ -172,7 +152,7 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
           )}
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--color-text)' }}>
               Special Notes / Instructions for Vendor
             </label>
             <textarea
@@ -180,32 +160,25 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
               placeholder="E.g. Color theme preference, dietary restrictions, arrival time..."
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.75rem',
-                border: '1px solid #D1CDC6',
-                borderRadius: '0.5rem',
-                fontSize: '0.85rem'
-              }}
             />
           </div>
 
           <div style={{
-            background: 'var(--color-bg)',
-            border: '1px solid #EAE7E1',
-            borderRadius: '0.5rem',
+            background: 'var(--color-surface-soft)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
             padding: '1rem',
             marginBottom: '1.25rem'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#555', marginBottom: '0.35rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '0.35rem' }}>
               <span>Rate Basis:</span>
-              <span>{calculationLabel}</span>
+              <span style={{ fontWeight: 600 }}>{calculationLabel}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 700, color: 'var(--color-dark)', marginBottom: '0.35rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.35rem' }}>
               <span>Total Service Cost:</span>
-              <span style={{ color: 'var(--color-primary)' }}>TSh {unitPrice.toLocaleString()}</span>
+              <span style={{ color: 'var(--color-primary-hover)' }}>TSh {unitPrice.toLocaleString()}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, color: '#2E7D32', paddingTop: '0.35rem', borderTop: '1px dashed #DDD' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-success)', paddingTop: '0.35rem', borderTop: '1px dashed var(--color-border)' }}>
               <span>Initial 30% Deposit Required:</span>
               <span>TSh {depositAmount.toLocaleString()}</span>
             </div>
@@ -216,10 +189,12 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
               type="submit"
               style={{
                 flex: 1,
-                background: 'var(--color-dark)',
-                color: '#fff',
-                fontWeight: 600,
-                padding: '0.75rem'
+                background: 'var(--color-primary)',
+                color: '#ffffff',
+                fontWeight: 700,
+                padding: '0.85rem',
+                borderRadius: 'var(--radius-pill)',
+                boxShadow: 'var(--shadow-glow)'
               }}
             >
               Reserve & Proceed to Payment
