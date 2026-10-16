@@ -88,7 +88,7 @@ function AdminDashboardPage() {
       {activeTab === 'overview' && (
         <div style={{ ...glassCard, padding: '1.5rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--color-text)', fontWeight: 800 }}>Registered Vendors Directory & Approvals</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1rem' }}>
             {providers.map(p => (
               <div key={p.id} style={{
                 border: '1px solid var(--color-border)', padding: '1rem', borderRadius: 'var(--radius-sm)', background: 'var(--color-surface-soft)',
@@ -119,8 +119,8 @@ function AdminDashboardPage() {
           {bookings.length === 0 ? (
             <p style={{ color: 'var(--color-text-muted)', padding: '1rem 0' }}>No transactions recorded on platform yet.</p>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
+            <div style={{ width: '100%', maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+              <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ background: 'var(--color-surface-soft)', borderBottom: '1px solid var(--color-border)' }}>
                     {['Booking ID', 'Category', 'Event Date', 'Gross Value', 'Deposit (30%)', 'Platform Fee (5%)', 'Status'].map(h => (

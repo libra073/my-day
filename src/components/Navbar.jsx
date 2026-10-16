@@ -1,298 +1,464 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthModal from './AuthModal';
-import { Heart, Sparkles, User, Bookmark, LogOut } from 'lucide-react';
+import NotificationBell from './NotificationBell';
+import { Heart, Sparkles, User, LogOut, Menu, X, ChevronRight } from 'lucide-react';
 
-const roles = [
-  { id: 'customer', label: 'Couple (John & Sarah)', icon: '💍' },
+const accounts = [
+  { id: 'groom', label: 'Groom (John - Host)', icon: '🤵' },
+  { id: 'bride', label: 'Bride (Sarah - Partner)', icon: '👰' },
+  { id: 'planner', label: 'Planner (Neema)', icon: '📋' },
   { id: 'provider', label: 'Vendor (Grand Imperial)', icon: '🏰' },
   { id: 'admin', label: 'MY DAY Admin', icon: '⚡' },
 ];
 
 function Navbar() {
-  const { role, switchRole, user, isLoggedIn, logoutUser, bookings, language, setLanguage, t } = useAppContext();
+  const { role, activeAccountKey, switchAccount, user, isLoggedIn, logoutUser, bookings, language, setLanguage, t } = useAppContext();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const headerRef = useRef(null);
+  const progressRef = useRef(null);
+  const isHiddenRef = useRef(false);
+  const isScrolledRef = useRef(false);
 
+  // Close mobile drawer on route transition
   useEffect(() => {
-    let lastScrollY = window.scrollY;
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY === 0) {
-        setIsBannerVisible(true);
-        lastScrollY = currentScrollY;
-        return;
-      }
-
-      const diff = currentScrollY - lastScrollY;
-
-      if (Math.abs(diff) > 15) {
-        if (diff > 0) {
-          setIsBannerVisible(false);
-        } else {
-          setIsBannerVisible(true);
-        }
-        lastScrollY = currentScrollY;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      document.body.style.overflow = '';
     };
+  }, [mobileMenuOpen]);
+
+  // Stable, zero-shake scroll behaviour:
+  // - Top safe-zone (y <= 120): Always fully visible, never hides
+  // - Hysteresis on isScrolled (scrolled at > 40px, unscrolled at < 15px)
+  // - Accumulated delta buffer prevents micro-scroll flapping and trackpad vibration
+  useEffect(() => {
+    let lastY = typeof window !== 'undefined' ? window.scrollY : 0;
+    let accumulatedDelta = 0;
+    let ticking = false;
+
+    const update = () => {
+      const y = Math.max(0, window.scrollY);
+      const diff = y - lastY;
+
+      // 1. Scrolled state with 25px hysteresis gap to eliminate bouncing
+      const nextScrolled = y > 40 ? true : (y < 15 ? false : isScrolledRef.current);
+      if (nextScrolled !== isScrolledRef.current) {
+        isScrolledRef.current = nextScrolled;
+        setIsScrolled(nextScrolled);
+      }
+
+      // 2. Hide/Show logic with top safe-zone and accumulated delta buffer
+      const hasFocusInside = headerRef.current && headerRef.current.matches(':focus-within');
+      let nextHidden = isHiddenRef.current;
+
+      if (y <= 120 || hasFocusInside) {
+        nextHidden = false;
+        accumulatedDelta = 0;
+      } else {
+        // If scroll direction reversed, reset accumulated delta
+        if ((diff > 0 && accumulatedDelta < 0) || (diff < 0 && accumulatedDelta > 0)) {
+          accumulatedDelta = 0;
+        }
+        accumulatedDelta += diff;
+
+        // Require at least 18px continuous downward scroll to hide
+        if (accumulatedDelta > 18) {
+          nextHidden = true;
+        }
+        // Require at least 12px continuous upward scroll to reveal
+        else if (accumulatedDelta < -12) {
+          nextHidden = false;
+        }
+      }
+
+      if (nextHidden !== isHiddenRef.current) {
+        isHiddenRef.current = nextHidden;
+        setIsHidden(nextHidden);
+      }
+
+      lastY = y;
+
+      // 3. Scroll progress bar
+      if (progressRef.current) {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const ratio = max > 0 ? Math.min(y / max, 1) : 0;
+        progressRef.current.style.transform = `scaleX(${ratio})`;
+      }
+
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleRoleChange = (e) => {
-    const newRole = e.target.value;
-    switchRole(newRole);
-    if (newRole === 'customer') navigate('/dashboard');
-    if (newRole === 'provider') navigate('/provider');
-    if (newRole === 'admin') navigate('/admin');
+  const handleAccountSelect = (accId) => {
+    switchAccount(accId);
+    if (accId === 'groom' || accId === 'bride' || accId === 'planner') navigate('/dashboard');
+    if (accId === 'provider') navigate('/provider');
+    if (accId === 'admin') navigate('/admin');
   };
 
-  const navLinkStyle = (path) => ({
-    color: location.pathname === path ? 'var(--color-text)' : 'var(--color-text-inverse)',
-    fontSize: '0.88rem',
-    fontWeight: location.pathname === path ? 700 : 500,
-    padding: '0.45rem 0.9rem',
-    borderRadius: 'var(--radius-pill)',
-    background: location.pathname === path ? '#FFFFFF' : 'transparent',
-    boxShadow: location.pathname === path ? '0 2px 8px rgba(0, 0, 0, 0.15)' : 'none',
-    transition: 'var(--transition)',
-  });
+  const handleAccountChange = (e) => {
+    handleAccountSelect(e.target.value);
+  };
+
+  const linkClass = (path, extra = '') =>
+    `nav-link ${extra} ${location.pathname === path ? 'active' : ''}`.trim();
+
+  const currentActiveKey = activeAccountKey || (role === 'provider' ? 'provider' : role === 'admin' ? 'admin' : 'groom');
 
   return (
+    <>
     <header
-      style={{
-        background: 'var(--color-header-bg)',
-        backdropFilter: 'var(--glass-blur)',
-        WebkitBackdropFilter: 'var(--glass-blur)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        position: 'sticky',
-        top: isBannerVisible ? 0 : -40,
-        zIndex: 900,
-        transition: 'top 300ms ease-in-out',
-        willChange: 'top',
-      }}
+      ref={headerRef}
+      className={`site-header${isScrolled ? ' is-scrolled' : ''}${isHidden ? ' is-hidden' : ''}`}
     >
-      {/* Top Notification & Role Switcher Banner */}
-      <div
-        style={{
-          background: 'rgba(0, 0, 0, 0.15)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-          color: 'var(--color-text-inverse)',
-          fontSize: '0.8rem',
-          minHeight: '40px',
-          display: 'flex',
-          alignItems: 'center',
-          opacity: isBannerVisible ? 1 : 0,
-          overflow: 'hidden',
-          transition: 'opacity 300ms ease-in-out',
-          boxSizing: 'border-box',
-          padding: '4px 0',
-        }}
-      >
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}>
-            <Sparkles size={14} color="var(--color-accent)" />
+      {/* Luxury utility strip: demo roles + language */}
+      <div className="site-strip">
+        <div className="site-strip-inner">
+          <div className="strip-badge-premium">
+            <span className="live-dot-pulse" aria-hidden="true" />
+            <Sparkles size={13} color="var(--color-primary)" />
             <span>{t('hero_badge')}</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <span style={{ opacity: 0.8, fontWeight: 500 }}>{t('quick_demo')}</span>
-            <select
-              value={role}
-              onChange={handleRoleChange}
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: 'var(--color-text-inverse)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '0.35rem',
-                padding: '0.15rem 0.4rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              {roles.map(r => (
-                <option key={r.id} value={r.id} style={{ background: '#FFFFFF', color: '#3B2B1F' }}>
-                  {r.icon} {r.label}
-                </option>
-              ))}
-            </select>
+          <div className="strip-controls-premium">
+            {/* Desktop / Tablet Interactive Role Pills */}
+            <div className="demo-roles-group" role="group" aria-label="Demo role selector">
+              <span className="demo-roles-tag">{t('quick_demo')}</span>
+              {accounts.map(a => {
+                const isSelected = currentActiveKey === a.id;
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => handleAccountSelect(a.id)}
+                    className={`role-pill-btn ${isSelected ? 'is-active' : ''}`}
+                  >
+                    <span>{a.icon}</span>
+                    <span>{a.label}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-            <span style={{ opacity: 0.3 }}>|</span>
+            {/* Mobile Fallback Select */}
+            <div className="mobile-role-select">
+              <select
+                className="strip-select"
+                aria-label="Switch demo account"
+                value={currentActiveKey}
+                onChange={handleAccountChange}
+              >
+                {accounts.map(a => (
+                  <option key={a.id} value={a.id}>{a.icon} {a.label}</option>
+                ))}
+              </select>
+            </div>
 
-            {/* Language Selector Dropdown */}
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              style={{
-                background: 'transparent',
-                color: 'var(--color-text-inverse)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '0.35rem',
-                padding: '0.1rem 0.35rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                outline: 'none',
-              }}
-            >
-              <option value="en" style={{ background: '#FFFFFF', color: '#3B2B1F' }}>🇬🇧 English</option>
-              <option value="sw" style={{ background: '#FFFFFF', color: '#3B2B1F' }}>🇹🇿 Kiswahili</option>
-            </select>
+            {/* Language Toggle Pills */}
+            <div className="lang-toggle-pills" role="group" aria-label="Language selector">
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`lang-toggle-btn ${language === 'en' ? 'is-active' : ''}`}
+                title="Switch to English"
+              >
+                🇬🇧 EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('sw')}
+                className={`lang-toggle-btn ${language === 'sw' ? 'is-active' : ''}`}
+                title="Badili kwa Kiswahili"
+              >
+                🇹🇿 SW
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Navbar */}
-      <nav className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: 72, flexWrap: 'wrap', gap: '0.5rem', padding: '0.5rem 1.25rem' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
-          <div style={{
-            width: 42,
-            height: 42,
-            borderRadius: '50%',
-            background: 'var(--color-primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#FFFFFF',
-            fontWeight: 800,
-            boxShadow: 'var(--shadow-glow)',
-          }}>
-            <Heart size={22} fill="#FFFFFF" />
-          </div>
-          <div>
-            <span style={{ fontSize: '1.5rem', fontWeight: 900, fontFamily: 'var(--font-header)', color: 'var(--color-text-inverse)', letterSpacing: '0.03em' }}>
-              MY DAY
-            </span>
-            <div style={{ fontSize: '0.65rem', color: 'var(--color-primary-light)', marginTop: '-4px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
+      {/* Main compact navbar */}
+      <nav className="nav-main" aria-label="Main navigation">
+        <Link to="/" className="nav-brand">
+          <span className="nav-logo"><Heart size={18} fill="#FFFFFF" color="#FFFFFF" /></span>
+          <span>
+            <span className="nav-brand-name">MY DAY</span>
+            <span className="nav-brand-tag">
               {t('nav_browse') === 'Tafuta Huduma' ? 'Soko la Harusi' : 'Wedding Marketplace'}
-            </div>
-          </div>
+            </span>
+          </span>
         </Link>
 
-        <div className="nav-desktop-links" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-          <Link to="/" style={navLinkStyle('/')}>
-            {t('nav_home')}
-          </Link>
-          <Link to="/planner" style={{
-            ...navLinkStyle('/planner'),
-            color: location.pathname === '/planner' ? 'var(--color-accent)' : '#F5A623',
-            fontWeight: 800,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem'
-          }}>
-            <Sparkles size={14} color="#F5A623" />
+        <div className="nav-links">
+          <Link to="/" className={linkClass('/')}>{t('nav_home')}</Link>
+          <Link to="/planner" className={linkClass('/planner', 'nav-link-ai')}>
+            <Sparkles size={13} />
             <span>{t('ai_planner', 'AI Planner')}</span>
           </Link>
-          <Link to="/marketplace" style={navLinkStyle('/marketplace')}>
-            {t('nav_browse')}
-          </Link>
-          <Link to="/wedding" style={navLinkStyle('/wedding')}>
-            {t('nav_profile')}
-          </Link>
+          <Link to="/marketplace" className={linkClass('/marketplace')}>{t('nav_browse')}</Link>
+          <Link to="/wedding" className={linkClass('/wedding')}>{t('nav_profile')}</Link>
 
           {role === 'customer' && (
             <>
-              <Link to="/dashboard" style={navLinkStyle('/dashboard')}>
-                {t('nav_dashboard')}
-              </Link>
-              <Link to="/bookings" style={{ ...navLinkStyle('/bookings'), display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Bookmark size={14} /> {t('nav_bookings')} ({bookings.length})
+              <Link to="/dashboard" className={linkClass('/dashboard')}>{t('nav_dashboard')}</Link>
+              <Link to="/bookings" className={linkClass('/bookings')}>
+                {t('nav_bookings')}{bookings.length > 0 ? ` (${bookings.length})` : ''}
               </Link>
             </>
           )}
 
-          <Link to="/become-vendor" style={navLinkStyle('/become-vendor')}>
-            {t('nav_become_vendor')}
-          </Link>
-          <Link to="/contact" style={navLinkStyle('/contact')}>
-            {t('nav_contact')}
-          </Link>
+          <Link to="/become-vendor" className={linkClass('/become-vendor')}>{t('nav_become_vendor')}</Link>
+          <Link to="/contact" className={linkClass('/contact')}>{t('nav_contact')}</Link>
 
           {role === 'provider' && (
-            <Link to="/provider" style={{
-              background: 'var(--color-accent)',
-              color: '#FFFFFF',
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              boxShadow: 'var(--shadow-sm)',
-            }}>
-              {t('nav_provider_portal')}
-            </Link>
+            <Link to="/provider" className={linkClass('/provider', 'nav-link-role')}>{t('nav_provider_portal')}</Link>
           )}
-
           {role === 'admin' && (
-            <Link to="/admin" style={{
-              background: '#C53030',
-              color: '#ffffff',
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-            }}>
-              {t('nav_admin_console')}
-            </Link>
+            <Link to="/admin" className={linkClass('/admin', 'nav-link-admin')}>{t('nav_admin_console')}</Link>
           )}
+        </div>
+
+        <div className="nav-actions">
+          <NotificationBell />
 
           {isLoggedIn ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: '#FFFFFF',
-              padding: '0.4rem 0.85rem',
-              borderRadius: 'var(--radius-pill)',
-              border: '1px solid var(--color-border)',
-              boxShadow: 'var(--shadow-xs)'
-            }}>
-              <User size={15} color="var(--color-primary)" />
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-text)' }}>{user.name}</span>
-              <button
-                onClick={logoutUser}
-                title={t('nav_logout')}
-                style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', padding: '0.2rem', boxShadow: 'none', display: 'inline-flex' }}
-              >
+            <div className="nav-user">
+              <User size={14} color="var(--color-primary-hover)" />
+              <span>{user.name}</span>
+              <button onClick={logoutUser} title={t('nav_logout')} aria-label={t('nav_logout')} className="nav-logout">
                 <LogOut size={14} />
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              style={{
-                background: 'var(--color-primary)',
-                color: '#FFFFFF',
-                padding: '0.5rem 1.1rem',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                boxShadow: 'var(--shadow-glow)',
-              }}
-            >
-              <User size={15} /> {t('nav_login_register')}
+            <button onClick={() => setShowAuthModal(true)} className="nav-login">
+              <User size={14} /> {t('nav_login_register')}
             </button>
           )}
+          {/* Mobile Hamburger Menu Toggle */}
+          <button
+            type="button"
+            className="nav-mobile-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </nav>
 
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
+      <div className="nav-progress" ref={progressRef} aria-hidden="true" />
     </header>
+
+    {/* Mobile Navigation Drawer Backdrop & Panel */}
+    {mobileMenuOpen && (
+      <div
+        className="mobile-nav-backdrop"
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+    )}
+
+    <aside
+      className={`mobile-nav-drawer ${mobileMenuOpen ? 'is-open' : ''}`}
+      aria-label="Mobile navigation menu"
+    >
+      <div className="mobile-nav-header">
+        <Link to="/" onClick={() => setMobileMenuOpen(false)} className="nav-brand">
+          <span className="nav-logo"><Heart size={16} fill="#FFFFFF" color="#FFFFFF" /></span>
+          <span className="nav-brand-name">MY DAY</span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(false)}
+          className="mobile-nav-close"
+          aria-label="Close menu"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      {/* Quick Demo Role & Language Switchers inside Drawer */}
+      <div className="mobile-nav-utility">
+        <div className="mobile-nav-section-title">Demo Account Role</div>
+        <select
+          className="strip-select"
+          aria-label="Switch demo account"
+          value={currentActiveKey}
+          onChange={(e) => {
+            handleAccountSelect(e.target.value);
+            setMobileMenuOpen(false);
+          }}
+          style={{ width: '100%', marginBottom: '0.75rem', padding: '0.45rem 1rem' }}
+        >
+          {accounts.map(a => (
+            <option key={a.id} value={a.id}>{a.icon} {a.label}</option>
+          ))}
+        </select>
+
+        <div className="mobile-nav-section-title">Language / Lugha</div>
+        <div className="lang-toggle-pills" style={{ width: '100%' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage('en')}
+            className={`lang-toggle-btn ${language === 'en' ? 'is-active' : ''}`}
+            style={{ flex: 1, padding: '0.35rem 0.6rem', textAlign: 'center' }}
+          >
+            🇬🇧 English
+          </button>
+          <button
+            type="button"
+            onClick={() => setLanguage('sw')}
+            className={`lang-toggle-btn ${language === 'sw' ? 'is-active' : ''}`}
+            style={{ flex: 1, padding: '0.35rem 0.6rem', textAlign: 'center' }}
+          >
+            🇹🇿 Kiswahili
+          </button>
+        </div>
+      </div>
+
+      {/* Primary Navigation Links */}
+      <nav className="mobile-nav-links">
+        <div className="mobile-nav-section-title">Navigation</div>
+        
+        <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${location.pathname === '/' ? 'active' : ''}`}>
+          <span>🏠 {t('nav_home')}</span>
+          <ChevronRight size={16} className="mobile-nav-chevron" />
+        </Link>
+
+        <Link to="/planner" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item mobile-nav-item-ai ${location.pathname === '/planner' ? 'active' : ''}`}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Sparkles size={16} color="#F5A623" />
+            <strong>{t('ai_planner', 'AI Planner')}</strong>
+          </span>
+          <ChevronRight size={16} className="mobile-nav-chevron" />
+        </Link>
+
+        <Link to="/marketplace" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${location.pathname === '/marketplace' ? 'active' : ''}`}>
+          <span>🔍 {t('nav_browse')}</span>
+          <ChevronRight size={16} className="mobile-nav-chevron" />
+        </Link>
+
+        <Link to="/wedding" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${location.pathname === '/wedding' ? 'active' : ''}`}>
+          <span>💍 {t('nav_profile')}</span>
+          <ChevronRight size={16} className="mobile-nav-chevron" />
+        </Link>
+
+        {role === 'customer' && (
+          <>
+            <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${location.pathname === '/dashboard' ? 'active' : ''}`}>
+              <span>📊 {t('nav_dashboard')}</span>
+              <ChevronRight size={16} className="mobile-nav-chevron" />
+            </Link>
+            <Link to="/bookings" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${location.pathname === '/bookings' ? 'active' : ''}`}>
+              <span>📅 {t('nav_bookings')} {bookings.length > 0 ? `(${bookings.length})` : ''}</span>
+              <ChevronRight size={16} className="mobile-nav-chevron" />
+            </Link>
+          </>
+        )}
+
+        <Link to="/become-vendor" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${location.pathname === '/become-vendor' ? 'active' : ''}`}>
+          <span>🤝 {t('nav_become_vendor')}</span>
+          <ChevronRight size={16} className="mobile-nav-chevron" />
+        </Link>
+
+        <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item ${location.pathname === '/contact' ? 'active' : ''}`}>
+          <span>💬 {t('nav_contact')}</span>
+          <ChevronRight size={16} className="mobile-nav-chevron" />
+        </Link>
+
+        {role === 'provider' && (
+          <Link to="/provider" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item mobile-nav-item-role ${location.pathname === '/provider' ? 'active' : ''}`}>
+            <span>🏰 {t('nav_provider_portal')}</span>
+            <ChevronRight size={16} className="mobile-nav-chevron" />
+          </Link>
+        )}
+
+        {role === 'admin' && (
+          <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className={`mobile-nav-item mobile-nav-item-admin ${location.pathname === '/admin' ? 'active' : ''}`}>
+            <span>⚡ {t('nav_admin_console')}</span>
+            <ChevronRight size={16} className="mobile-nav-chevron" />
+          </Link>
+        )}
+      </nav>
+
+      {/* Account actions in mobile footer */}
+      <div className="mobile-nav-footer">
+        {isLoggedIn ? (
+          <div className="mobile-nav-user-box">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <div className="mobile-nav-user-avatar">
+                <User size={16} color="#FFFFFF" />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {user.name}
+                </div>
+                <div style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {user.email || 'Verified Account'}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                logoutUser();
+                setMobileMenuOpen(false);
+              }}
+              className="mobile-nav-logout-btn"
+              title={t('nav_logout')}
+            >
+              <LogOut size={15} /> {t('nav_logout')}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setShowAuthModal(true);
+              setMobileMenuOpen(false);
+            }}
+            className="btn-pill-amber"
+            style={{ width: '100%', justifyContent: 'center', padding: '0.75rem 1rem' }}
+          >
+            <User size={16} /> {t('nav_login_register')}
+          </button>
+        )}
+      </div>
+    </aside>
+
+    {showAuthModal && (
+      <AuthModal onClose={() => setShowAuthModal(false)} />
+    )}
+    </>
   );
 }
 

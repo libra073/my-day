@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "node server/server.js",
+    "test": "node tests/business_schedule.test.mjs && node tests/phase1_workspace.test.mjs && node tests/phase2_features.test.mjs && node tests/phase3_bookings_payments_security.test.mjs && node tests/aiPlannerIntelligence.test.mjs",
+    "test:e2e": "node tests/full_cross_device_qa.mjs",
+    "test:ai": "node tests/qa_runner.mjs",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"

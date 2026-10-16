@@ -247,7 +247,23 @@ function AuthModal({ onClose, onSuccess }) {
             <div style={{ marginBottom: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)' }}>{t('auth_password_label')}</label>
-                <a href="#forgot" onClick={e => { e.preventDefault(); alert(t('auth_link_sent')); }} style={{ fontSize: '0.78rem', color: 'var(--color-primary-hover)' }}>
+                <a
+                  href="#forgot"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!email) {
+                      alert('Please enter your email address in the field above first.');
+                      return;
+                    }
+                    try {
+                      const res = await api.forgotPassword(email);
+                      alert(res.message || t('auth_link_sent'));
+                    } catch (err) {
+                      alert(err.message || 'Could not process password reset request.');
+                    }
+                  }}
+                  style={{ fontSize: '0.78rem', color: 'var(--color-primary-hover)' }}
+                >
                   {t('auth_forgot')}
                 </a>
               </div>

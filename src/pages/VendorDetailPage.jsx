@@ -5,19 +5,25 @@ import StarRating from '../components/StarRating';
 import AvailabilityCalendar from '../components/AvailabilityCalendar';
 import BookingModal from '../components/BookingModal';
 import PaymentModal from '../components/PaymentModal';
-import { MapPin, Phone, CheckCircle, ShieldCheck, ArrowLeft } from 'lucide-react';
+import AppointmentModal from '../components/AppointmentModal';
+import { getEffectiveVendorSchedule, getCurrentOfficeStatus } from '../services/businessSchedule';
+import { MapPin, Phone, CheckCircle, ShieldCheck, ArrowLeft, Clock, CalendarCheck } from 'lucide-react';
 
 function VendorDetailPage() {
   const { category, id } = useParams();
   const navigate = useNavigate();
-  const { providers, wedding } = useAppContext();
+  const { providers, wedding, t, language } = useAppContext();
 
   const provider = providers.find(p => p.id === id);
 
   const [selectedDate, setSelectedDate] = useState(wedding.date || '2026-12-25');
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [activePaymentBooking, setActivePaymentBooking] = useState(null);
+
+  const vendorSchedule = provider ? getEffectiveVendorSchedule(provider) : null;
+  const vendorStatus = vendorSchedule ? getCurrentOfficeStatus(new Date(), vendorSchedule) : null;
 
   if (!provider) {
     return (
@@ -40,7 +46,7 @@ function VendorDetailPage() {
         <ArrowLeft size={16} /> Back to Marketplace
       </Link>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+      <div className="vendor-detail-grid">
         {/* Main Details Left Column */}
         <div>
           <div style={{ ...glassCard, padding: '1.75rem', marginBottom: '1.5rem' }}>
@@ -181,6 +187,83 @@ function VendorDetailPage() {
               }}>
                 Reserve Now (30% Deposit)
               </button>
+              <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                ✨ Couples can book & reserve dates 24/7 anytime.
+              </div>
+            </div>
+
+            {/* Vendor Business Operating Schedule Card */}
+            <div style={{
+              ...glassCard,
+              padding: '1.25rem',
+              marginTop: '1rem',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text)' }}>
+                  <Clock size={16} color="var(--color-primary)" /> Business Hours
+                </span>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.55rem',
+                  borderRadius: 'var(--radius-pill)',
+                  background: vendorStatus?.isOpen ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.12)',
+                  color: vendorStatus?.isOpen ? '#15803d' : '#b91c1c',
+                  border: `1px solid ${vendorStatus?.isOpen ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.25)'}`,
+                }}>
+                  ● {vendorStatus?.isOpen ? 'Open Now' : 'Closed Now'}
+                </span>
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
+                Timezone: <strong>Africa/Dar_es_Salaam (EAT, UTC+3)</strong>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.82rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--color-text-muted)' }}>Monday – Friday:</span>
+                  <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
+                    {vendorSchedule?.workingHours?.open || '08:00'} – {vendorSchedule?.workingHours?.close || '17:00'} EAT
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--color-text-muted)' }}>Saturday:</span>
+                  <span style={{ fontWeight: 600, color: vendorSchedule?.workingDays?.includes(6) ? 'var(--color-text)' : 'var(--color-text-muted)' }}>
+                    {vendorSchedule?.workingDays?.includes(6)
+                      ? `${vendorSchedule.specialHours?.['6']?.open || vendorSchedule.workingHours.open} – ${vendorSchedule.specialHours?.['6']?.close || vendorSchedule.workingHours.close} EAT`
+                      : 'Closed'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--color-text-muted)' }}>Sunday:</span>
+                  <span style={{ fontWeight: 600, color: vendorSchedule?.workingDays?.includes(0) ? 'var(--color-text)' : 'var(--color-text-muted)' }}>
+                    {vendorSchedule?.workingDays?.includes(0) ? 'Open' : 'Closed'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAppointmentModal(true)}
+                style={{
+                  width: '100%',
+                  background: 'var(--color-surface-soft)',
+                  color: 'var(--color-primary-hover)',
+                  border: '1px solid var(--color-primary)',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  padding: '0.65rem',
+                  borderRadius: 'var(--radius)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  cursor: 'pointer',
+                  transition: 'var(--transition)',
+                }}
+              >
+                <CalendarCheck size={16} /> Book Consultation / Tasting
+              </button>
             </div>
           </div>
         </div>
@@ -188,6 +271,16 @@ function VendorDetailPage() {
 
       {showBookingModal && (
         <BookingModal provider={provider} selectedPackage={selectedPackage} onClose={() => setShowBookingModal(false)} onSuccess={handleBookingSuccess} />
+      )}
+      {showAppointmentModal && (
+        <AppointmentModal
+          provider={provider}
+          onClose={() => setShowAppointmentModal(false)}
+          onSuccess={(newAppt) => {
+            setShowAppointmentModal(false);
+            alert(`Appointment scheduled successfully with ${provider.name} for ${newAppt.date} at ${newAppt.startTime} EAT!`);
+          }}
+        />
       )}
       {activePaymentBooking && (
         <PaymentModal bookingId={activePaymentBooking.bookingId} amount={activePaymentBooking.depositAmount} onClose={() => setActivePaymentBooking(null)} onSuccess={handlePaymentSuccess} />

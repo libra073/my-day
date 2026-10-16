@@ -7,6 +7,7 @@ import PaymentModal from './PaymentModal';
 import { MapPin, Heart, ShieldCheck } from 'lucide-react';
 
 export default function ProviderCard({ provider }) {
+  const { t } = useAppContext();
   const { id, name, location, category, image, rating = 4.8, reviewsCount = 18, isFeatured } = provider;
 
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -16,15 +17,15 @@ export default function ProviderCard({ provider }) {
   // Price formatting
   let priceDisplay = '';
   if (category === 'kumbi') {
-    priceDisplay = `TSh ${(provider.pricePerDay || 2000000).toLocaleString()}/day`;
+    priceDisplay = `TSh ${(provider.pricePerDay || 2000000).toLocaleString()}/${t('per_day')}`;
   } else if (category === 'catering') {
-    priceDisplay = `TSh ${(provider.pricePerPerson || 25000).toLocaleString()}/person`;
+    priceDisplay = `TSh ${(provider.pricePerPerson || 25000).toLocaleString()}/${t('per_person')}`;
   } else if (category === 'transport') {
-    priceDisplay = `TSh ${(provider.pricePerDay || 500000).toLocaleString()}/day`;
+    priceDisplay = `TSh ${(provider.pricePerDay || 500000).toLocaleString()}/${t('per_day')}`;
   } else if (provider.pricePerEvent) {
-    priceDisplay = `TSh ${provider.pricePerEvent.toLocaleString()}/event`;
+    priceDisplay = `TSh ${provider.pricePerEvent.toLocaleString()}/${t('per_event')}`;
   } else if (provider.packages && provider.packages.length) {
-    priceDisplay = `From TSh ${provider.packages[0].price.toLocaleString()}`;
+    priceDisplay = `${t('from_price')} TSh ${provider.packages[0].price.toLocaleString()}`;
   } else {
     priceDisplay = `TSh 500,000`;
   }
@@ -89,7 +90,7 @@ export default function ProviderCard({ provider }) {
             textTransform: 'uppercase',
             letterSpacing: '0.04em'
           }}>
-            Featured
+            {t('featured')}
           </span>
         )}
 
@@ -110,7 +111,7 @@ export default function ProviderCard({ provider }) {
           alignItems: 'center',
           gap: '0.3rem'
         }}>
-          <ShieldCheck size={14} color="#2E7D32" /> Verified Vendor
+          <ShieldCheck size={14} color="#2E7D32" /> {t('verified')}
         </span>
 
         {/* Favorite Heart Button */}
@@ -171,10 +172,10 @@ export default function ProviderCard({ provider }) {
               <span>{location}</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.82rem', fontWeight: 700, color: '#3D2C1F' }}>
-              <StarRating rating={rating} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.84rem', fontWeight: 700, color: '#3D2C1F' }}>
+              <StarRating rating={rating} size={15} showText={false} />
               <span>{rating}</span>
-              <span style={{ fontSize: '0.72rem', color: 'var(--color-text-dim)', fontWeight: 400 }}>({reviewsCount})</span>
+              <span style={{ fontSize: '0.74rem', color: 'var(--color-text-dim)', fontWeight: 500 }}>({reviewsCount})</span>
             </div>
           </div>
         </div>
@@ -182,7 +183,7 @@ export default function ProviderCard({ provider }) {
         {/* Pricing & Booking Action Footer */}
         <div style={{ borderTop: '1px solid #F0E8DF', paddingTop: '0.85rem', marginTop: '0.5rem' }}>
           <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-            Starting Price
+            {t('starting_price')}
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.2rem' }}>
@@ -204,7 +205,7 @@ export default function ProviderCard({ provider }) {
                   boxShadow: 'none'
                 }}
               >
-                View
+                {t('view_profile')}
               </Link>
 
               <button 
@@ -216,7 +217,7 @@ export default function ProviderCard({ provider }) {
                   fontWeight: 800
                 }}
               >
-                Book Now
+                {t('book_now')}
               </button>
             </div>
           </div>

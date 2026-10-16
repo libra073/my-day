@@ -16,13 +16,21 @@ import BecomeVendorPage from './pages/BecomeVendorPage';
 import ContactUsPage from './pages/ContactUsPage';
 import ProviderDashboardPage from './pages/ProviderDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import AcceptInvitationPage from './pages/AcceptInvitationPage';
 
 function App() {
   const { role } = useAppContext();
 
   // Guard routes based on active role
   const ProtectedRoute = ({ allowedRoles, children }) => {
-    return allowedRoles.includes(role) ? children : <Navigate to="/" replace />;
+    // Admin has superuser access to view and verify all role workspaces
+    const hasAccess = allowedRoles.includes(role) || role === 'admin';
+    if (!hasAccess) {
+      if (role === 'provider') return <Navigate to="/provider" replace />;
+      if (role === 'admin') return <Navigate to="/admin" replace />;
+      return <Navigate to="/dashboard" replace />;
+    }
+    return children;
   };
 
   return (
@@ -35,6 +43,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/planner" element={<AIChatPage />} />
               <Route path="/wedding" element={<WeddingProfilePage />} />
+              <Route path="/invite/:token" element={<AcceptInvitationPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
               <Route path="/vendor/:category/:id" element={<VendorDetailPage />} />
               <Route path="/bookings" element={<MyBookingsPage />} />

@@ -52,26 +52,37 @@ function PaymentModal({ bookingId, amount, isFullPayment = false, onClose, onSuc
   const selectedMethodObj = PAYMENT_PROVIDERS.find(p => p.id === selectedGateway);
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(59, 43, 31, 0.65)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1100,
-      padding: '1rem'
-    }}>
-      <div style={{
-        background: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        maxWidth: '480px',
-        width: '100%',
-        padding: '1.75rem',
-        boxShadow: 'var(--shadow-lg)',
-        position: 'relative'
-      }}>
+    <div
+      className="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(59, 43, 31, 0.65)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1100,
+        padding: '1rem'
+      }}
+    >
+      <div
+        className="modal-card glass-card"
+        style={{
+          background: '#ffffff',
+          borderRadius: 'var(--radius-xl)',
+          maxWidth: '480px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          padding: 'clamp(1.2rem, 3.5vw, 1.75rem)',
+          boxShadow: 'var(--shadow-lg)',
+          position: 'relative'
+        }}
+      >
         {step !== 'processing' && (
           <button
             onClick={onClose}

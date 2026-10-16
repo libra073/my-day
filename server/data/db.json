@@ -1,0 +1,512 @@
+{
+  "users": [
+    {
+      "id": "usr-groom",
+      "name": "John Msuya (Groom)",
+      "email": "john@myday.co.tz",
+      "phone": "+255 777 123 456",
+      "passwordHash": "1add719f49377929ec3de175eea81504b19364d4403aca86431cd42e729e5d54",
+      "globalRole": "customer",
+      "createdAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "usr-bride",
+      "name": "Sarah Kimaro (Bride)",
+      "email": "sarah@myday.co.tz",
+      "phone": "+255 777 654 321",
+      "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
+      "globalRole": "customer",
+      "createdAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "usr-planner",
+      "name": "Neema Wedding Planners",
+      "email": "neema@planning.co.tz",
+      "phone": "+255 714 888 777",
+      "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
+      "globalRole": "customer",
+      "createdAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "prov-1",
+      "name": "Grand Imperial Hall",
+      "email": "info@grandimperial.co.tz",
+      "phone": "+255 777 999 888",
+      "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
+      "globalRole": "provider",
+      "createdAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "admin-1",
+      "name": "MY DAY Superadmin",
+      "email": "admin@myday.co.tz",
+      "phone": "+255 22 210 0900",
+      "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
+      "globalRole": "admin",
+      "createdAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "usr-1a6dec11caff",
+      "name": "Stranger",
+      "email": "stranger@external.tz",
+      "phone": "",
+      "passwordHash": "599ba15d5aca9bb948240bef219f22115cdf159e34176ed004651c2c2dc13ca3",
+      "globalRole": "customer",
+      "createdAt": "2026-10-16T20:38:53.243Z"
+    }
+  ],
+  "workspaces": [
+    {
+      "id": "wed-1",
+      "title": "John & Sarah's Wedding",
+      "ownerId": "usr-groom",
+      "bride": "Sarah",
+      "groom": "John",
+      "date": "2026-12-25",
+      "location": "Dar es Salaam",
+      "guests": 300,
+      "budget": 15000000,
+      "currency": "TZS",
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    }
+  ],
+  "workspace_members": [
+    {
+      "id": "wm-1",
+      "workspaceId": "wed-1",
+      "userId": "usr-groom",
+      "role": "owner",
+      "joinedAt": "2026-10-16T20:38:52.963Z",
+      "invitedBy": null
+    },
+    {
+      "id": "wm-2",
+      "workspaceId": "wed-1",
+      "userId": "usr-bride",
+      "role": "partner",
+      "joinedAt": "2026-10-16T20:38:52.963Z",
+      "invitedBy": "usr-groom"
+    }
+  ],
+  "invitations": [],
+  "sessions": [
+    {
+      "token": "token-bride-session",
+      "userId": "usr-bride",
+      "expiresAt": "2026-11-15T20:38:52.963Z"
+    },
+    {
+      "token": "token-planner-session",
+      "userId": "usr-planner",
+      "expiresAt": "2026-11-15T20:38:52.963Z"
+    },
+    {
+      "token": "token-provider-session",
+      "userId": "prov-1",
+      "expiresAt": "2026-11-15T20:38:52.963Z"
+    },
+    {
+      "token": "token-admin-session",
+      "userId": "admin-1",
+      "expiresAt": "2026-11-15T20:38:52.963Z"
+    },
+    {
+      "token": "myday_sess_0b640196078ac3d4eaa9facfe25723f3a3c521bb04798662",
+      "userId": "usr-groom",
+      "expiresAt": "2026-11-15T20:38:53.180Z"
+    },
+    {
+      "token": "myday_sess_44fdd8609818d4be387fa638350a10ae94142d6cfc369e53",
+      "userId": "usr-1a6dec11caff",
+      "expiresAt": "2026-11-15T20:38:53.243Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "workspaceId": "wed-1",
+      "title": "Book Grand Imperial Reception Hall",
+      "description": "Verify sound limits, air conditioning, and confirm down payment terms.",
+      "assigneeId": "usr-groom",
+      "assigneeName": "John Msuya (Groom)",
+      "dueDate": "2026-10-30",
+      "priority": "high",
+      "status": "pending",
+      "comments": [
+        {
+          "id": "c-1",
+          "userId": "usr-bride",
+          "userName": "Sarah Kimaro (Bride)",
+          "text": "Please ask about generator fuel policy for evening power cuts.",
+          "createdAt": "2026-10-16T20:38:52.963Z"
+        }
+      ],
+      "activityHistory": [
+        {
+          "id": "act-1",
+          "action": "created",
+          "userId": "usr-groom",
+          "userName": "John Msuya (Groom)",
+          "timestamp": "2026-10-16T20:38:52.963Z",
+          "details": "Task created with high priority"
+        }
+      ],
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z",
+      "completedAt": null,
+      "version": 1
+    },
+    {
+      "id": "task-2",
+      "workspaceId": "wed-1",
+      "title": "Confirm Food Tasting Menu for 300 Guests",
+      "description": "Coordinate with catering team for pilau, biryani, roast beef, and dessert options.",
+      "assigneeId": "usr-bride",
+      "assigneeName": "Sarah Kimaro (Bride)",
+      "dueDate": "2026-11-15",
+      "priority": "high",
+      "status": "pending",
+      "comments": [],
+      "activityHistory": [
+        {
+          "id": "act-2",
+          "action": "created",
+          "userId": "usr-bride",
+          "userName": "Sarah Kimaro (Bride)",
+          "timestamp": "2026-10-16T20:38:52.963Z",
+          "details": "Task created"
+        }
+      ],
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z",
+      "completedAt": null,
+      "version": 1
+    }
+  ],
+  "decisions": [
+    {
+      "id": "dec-1",
+      "workspaceId": "wed-1",
+      "title": "Wedding Color Theme & Palette",
+      "description": "Select the primary decorative colors for reception stage, chair sashes, and floral arches.",
+      "category": "decor",
+      "status": "agreed",
+      "options": [
+        {
+          "id": "opt-1",
+          "text": "Royal Emerald Green & Warm Gold",
+          "votes": [
+            "usr-groom",
+            "usr-bride"
+          ]
+        },
+        {
+          "id": "opt-2",
+          "text": "Blush Pink & Champagne Rose",
+          "votes": []
+        },
+        {
+          "id": "opt-3",
+          "text": "Navy Blue & Crisp Silver",
+          "votes": []
+        }
+      ],
+      "decisionNotes": "Agreed on Emerald Green & Warm Gold. Matches Grand Imperial ballroom chandeliers.",
+      "decidedBy": "usr-bride",
+      "decidedAt": "2026-10-16T20:38:52.963Z",
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "dec-2",
+      "workspaceId": "wed-1",
+      "title": "DJ Band vs Live Acoustic Saxophone MC",
+      "description": "Decide entertainment style for guest arrival cocktail hour and dancing.",
+      "category": "entertainment",
+      "status": "open",
+      "options": [
+        {
+          "id": "opt-4",
+          "text": "Full Live Band + Modern DJ mix",
+          "votes": [
+            "usr-groom"
+          ]
+        },
+        {
+          "id": "opt-5",
+          "text": "Solo Saxophonist + Master DJ",
+          "votes": [
+            "usr-bride"
+          ]
+        }
+      ],
+      "decisionNotes": "",
+      "decidedBy": null,
+      "decidedAt": null,
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "workspaceId": "wed-1",
+      "title": "Emergency Vendor Contacts & Protocols",
+      "content": "Police escort contact: +255 777 000 111. Backup generator technician on standby from 2 PM to 1 AM.",
+      "category": "general",
+      "pinned": true,
+      "authorId": "usr-groom",
+      "authorName": "John Msuya (Groom)",
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    }
+  ],
+  "budget_categories": [
+    {
+      "id": "bcat-venue",
+      "workspaceId": "wed-1",
+      "name": "Kumbi (Venue)",
+      "icon": "🏰",
+      "allocatedAmount": 4000000,
+      "order": 1
+    },
+    {
+      "id": "bcat-catering",
+      "workspaceId": "wed-1",
+      "name": "Catering & Beverages",
+      "icon": "🍽️",
+      "allocatedAmount": 5000000,
+      "order": 2
+    },
+    {
+      "id": "bcat-decor",
+      "workspaceId": "wed-1",
+      "name": "Wapambaji (Decorations)",
+      "icon": "🎨",
+      "allocatedAmount": 2500000,
+      "order": 3
+    },
+    {
+      "id": "bcat-entertainment",
+      "workspaceId": "wed-1",
+      "name": "MC & Entertainment",
+      "icon": "🎤",
+      "allocatedAmount": 1500000,
+      "order": 4
+    },
+    {
+      "id": "bcat-saloon",
+      "workspaceId": "wed-1",
+      "name": "Saloon & Makeup",
+      "icon": "💇",
+      "allocatedAmount": 1000000,
+      "order": 5
+    },
+    {
+      "id": "bcat-transport",
+      "workspaceId": "wed-1",
+      "name": "Luxury Transport",
+      "icon": "🚗",
+      "allocatedAmount": 1000000,
+      "order": 6
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp-1",
+      "workspaceId": "wed-1",
+      "categoryId": "bcat-venue",
+      "title": "Grand Imperial Hall Deposit",
+      "estimatedAmount": 2500000,
+      "actualAmount": 2500000,
+      "paidAmount": 750000,
+      "status": "deposit_paid",
+      "vendorId": "venue-1",
+      "addedBy": "usr-groom",
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "exp-2",
+      "workspaceId": "wed-1",
+      "categoryId": "bcat-decor",
+      "title": "Floral Arches & Stage Backdrop",
+      "estimatedAmount": 1800000,
+      "actualAmount": 1600000,
+      "paidAmount": 500000,
+      "status": "deposit_paid",
+      "vendorId": "decor-1",
+      "addedBy": "usr-bride",
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "workspaceId": "wed-1",
+      "userId": "usr-groom",
+      "type": "task_assigned",
+      "title": "Task Assigned",
+      "message": "You were assigned to \"Book Grand Imperial Reception Hall\"",
+      "read": false,
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "entityId": "task-1",
+      "entityType": "task"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "app-1",
+      "workspaceId": "wed-1",
+      "vendorId": "prov-1",
+      "customerId": "usr-groom",
+      "customerName": "John Msuya (Groom)",
+      "title": "Grand Ballroom Acoustics & Menu Tasting",
+      "startIso": "2026-10-20T07:00:00.000Z",
+      "endIso": "2026-10-20T08:30:00.000Z",
+      "status": "confirmed",
+      "allowException": false,
+      "exceptionReason": null,
+      "notes": "Tour of main hall and food tasting with catering chef",
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    }
+  ],
+  "vendor_schedules": [
+    {
+      "vendorId": "prov-1",
+      "useDefault": false,
+      "timezone": "Africa/Dar_es_Salaam",
+      "weeklyHours": {
+        "0": null,
+        "1": {
+          "open": "08:00",
+          "close": "17:00"
+        },
+        "2": {
+          "open": "08:00",
+          "close": "17:00"
+        },
+        "3": {
+          "open": "08:00",
+          "close": "17:00"
+        },
+        "4": {
+          "open": "08:00",
+          "close": "17:00"
+        },
+        "5": {
+          "open": "08:00",
+          "close": "17:00"
+        },
+        "6": {
+          "open": "09:00",
+          "close": "14:00"
+        }
+      },
+      "daysOff": [
+        0
+      ],
+      "holidays": [
+        "2026-12-25",
+        "2026-12-26"
+      ],
+      "specialHours": [
+        {
+          "date": "2026-11-28",
+          "open": "09:00",
+          "close": "13:00",
+          "reason": "Tasting Showcase"
+        }
+      ],
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "bk-demo-1",
+      "customerId": "usr-groom",
+      "providerId": "venue-1",
+      "category": "kumbi",
+      "packageId": "standard",
+      "weddingId": "wed-1",
+      "date": "2026-12-25",
+      "price": 2500000,
+      "deposit": 750000,
+      "paidAmount": 750000,
+      "commission": 125000,
+      "status": "confirmed",
+      "createdAt": "2026-10-16T20:38:52.963Z",
+      "updatedAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "bk-1792183133189-59a07e69",
+      "customerId": "usr-groom",
+      "providerId": "venue-2",
+      "category": "kumbi",
+      "packageId": "standard",
+      "weddingId": "wed-1",
+      "date": "2026-11-20",
+      "price": 1800000,
+      "deposit": 540000,
+      "paidAmount": 1800000,
+      "commission": 90000,
+      "status": "confirmed",
+      "createdAt": "2026-10-16T20:38:53.189Z",
+      "updatedAt": "2026-10-16T20:38:53.204Z"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay-demo-1",
+      "bookingId": "bk-demo-1",
+      "amount": 750000,
+      "gateway": "mpesa",
+      "txnRef": "TXN-982341",
+      "status": "success",
+      "createdAt": "2026-10-16T20:38:52.963Z"
+    },
+    {
+      "id": "pay-1792183133189-7af78456",
+      "bookingId": "bk-1792183133189-59a07e69",
+      "customerId": "usr-groom",
+      "amount": 540000,
+      "gateway": "mpesa",
+      "txnRef": "TXN-689375",
+      "status": "success",
+      "createdAt": "2026-10-16T20:38:53.189Z"
+    },
+    {
+      "id": "pay-1792183133196-51462487",
+      "bookingId": "bk-1792183133189-59a07e69",
+      "customerId": "usr-groom",
+      "amount": 1260000,
+      "gateway": "tigopesa",
+      "txnRef": "TXN-199293",
+      "status": "success",
+      "createdAt": "2026-10-16T20:38:53.196Z"
+    },
+    {
+      "id": "pay-hook-1792183133204",
+      "bookingId": "bk-1792183133189-59a07e69",
+      "customerId": "usr-groom",
+      "amount": 1800000,
+      "gateway": "mpesa",
+      "txnRef": "TXN-MPESA-WEBHOOK-99",
+      "status": "success",
+      "createdAt": "2026-10-16T20:38:53.204Z"
+    }
+  ],
+  "password_resets": [
+    {
+      "token": "rst-05ca172503b4e02e8609fa8888467ca5",
+      "userId": "usr-groom",
+      "email": "john@myday.co.tz",
+      "expiresAt": "2026-10-16T21:38:53.063Z",
+      "used": true,
+      "createdAt": "2026-10-16T20:38:53.063Z"
+    }
+  ]
+}

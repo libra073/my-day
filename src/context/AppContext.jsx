@@ -1,8 +1,52 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import initialData from '../data/initialData';
 import { translations } from '../i18n/translations';
+import api from '../services/api';
 
 const AppContext = createContext();
+
+const PRESET_ACCOUNTS = {
+  groom: {
+    id: 'usr-groom',
+    name: 'John Msuya (Groom)',
+    email: 'john@myday.co.tz',
+    phone: '+255 777 123 456',
+    role: 'customer',
+    token: 'token-groom-session'
+  },
+  bride: {
+    id: 'usr-bride',
+    name: 'Sarah Kimaro (Bride)',
+    email: 'sarah@myday.co.tz',
+    phone: '+255 777 654 321',
+    role: 'customer',
+    token: 'token-bride-session'
+  },
+  planner: {
+    id: 'usr-planner',
+    name: 'Neema Wedding Planners',
+    email: 'neema@planning.co.tz',
+    phone: '+255 714 888 777',
+    role: 'customer',
+    token: 'token-planner-session'
+  },
+  provider: {
+    id: 'prov-1',
+    name: 'Grand Imperial Hall',
+    email: 'info@grandimperial.co.tz',
+    phone: '+255 777 999 888',
+    role: 'provider',
+    token: 'token-provider-session'
+  },
+  admin: {
+    id: 'admin-1',
+    name: 'MY DAY Superadmin',
+    email: 'admin@myday.co.tz',
+    phone: '+255 766 466 187',
+    role: 'admin',
+    token: 'token-admin-session'
+  }
+};
 
 export const AppProvider = ({ children }) => {
   // i18n initialization
@@ -29,27 +73,48 @@ export const AppProvider = ({ children }) => {
 
   const [role, setRole] = useState('customer'); // 'customer' | 'provider' | 'admin'
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [user, setUser] = useState({
-    id: 'cust-1',
-    name: 'John & Sarah',
-    email: 'john.sarah@myday.co.tz',
-    phone: '+255 777 123 456',
-    role: 'customer'
-  });
+  const [activeAccountKey, setActiveAccountKey] = useState('groom');
+  const [user, setUser] = useState(PRESET_ACCOUNTS.groom);
 
+  // Active Wedding Workspace
   const [wedding, setWedding] = useState({
     id: 'wed-1',
     title: "John & Sarah's Wedding",
-    bride: 'John',
-    groom: 'Sarah',
+    bride: 'Sarah',
+    groom: 'John',
     date: '2026-12-25',
     location: 'Dar es Salaam',
     guests: 300,
     budget: 15000000,
+    currency: 'TZS',
     description: '',
     image: null,
     cart: [],
+    userRole: 'owner',
+    permissions: {
+      canEditWorkspace: true,
+      canInviteMembers: true,
+      canChangeRoles: true,
+      canRemoveMembers: true,
+      canManageBudget: true,
+      canManageVendors: true,
+      canManageTasks: true,
+      canViewFinancials: true,
+    }
   });
+
+  // Collaboration state
+  const [workspaceMembers, setWorkspaceMembers] = useState([]);
+  const [pendingInvitations, setPendingInvitations] = useState([]);
+  const [workspaceLoading, setWorkspaceLoading] = useState(false);
+
+  // Phase 2 state: Checklist tasks, decisions, notes, budget, notifications
+  const [tasks, setTasks] = useState([]);
+  const [decisions, setDecisions] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [budgetData, setBudgetData] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
 
   const [providers, setProviders] = useState(initialData.providers);
   const [bookings, setBookings] = useState([]);
@@ -57,48 +122,209 @@ export const AppProvider = ({ children }) => {
   const [commissionRate, setCommissionRate] = useState(0.05);
 
   const calculateCart = () => {
-    const total = wedding.cart.reduce((sum, item) => sum + item.price, 0);
+    const total = (wedding.cart || []).reduce((sum, item) => sum + item.price, 0);
     const deposit = Math.round(total * 0.3);
     return { total, deposit };
   };
 
-  const switchRole = newRole => {
-    setRole(newRole);
-    if (newRole === 'customer') {
-      setUser({ id: 'cust-1', name: 'John & Sarah', email: 'john.sarah@myday.co.tz', phone: '+255 777 123 456', role: 'customer' });
-    } else if (newRole === 'provider') {
-      setUser({ id: 'prov-1', name: 'Grand Imperial Hall', email: 'info@grandimperial.co.tz', phone: '+255 777 999 888', role: 'provider' });
-    } else if (newRole === 'admin') {
-      setUser({ id: 'admin-1', name: 'MY DAY Superadmin', email: 'admin@myday.co.tz', phone: '+255 22 210 0900', role: 'admin' });
+  // Sync workspace and all Phase 2 collections from server
+  const refreshWorkspace = useCallback(async (workspaceId = wedding.id) => {
+    try {
+      setWorkspaceLoading(true);
+      const res = await api.getWorkspace(workspaceId);
+      if (res.workspace) {
+        setWedding(prev => ({
+          ...prev,
+          ...res.workspace,
+          cart: prev.cart || []
+        }));
+      }
+
+      // Fetch members
+      const membersRes = await api.getMembers(workspaceId).catch(() => ({}));
+      if (membersRes.members) {
+        setWorkspaceMembers(membersRes.members);
+      }
+
+      // Fetch pending invitations if user has invite permission
+      if (res.workspace?.permissions?.canInviteMembers) {
+        const invitesRes = await api.getInvitations(workspaceId).catch(() => ({}));
+        if (invitesRes.invitations) {
+          setPendingInvitations(invitesRes.invitations);
+        }
+      }
+
+      // Fetch tasks
+      const tasksRes = await api.getTasks(workspaceId).catch(() => ({}));
+      if (tasksRes.tasks) {
+        setTasks(tasksRes.tasks);
+      }
+
+      // Fetch decisions
+      const decisionsRes = await api.getDecisions(workspaceId).catch(() => ({}));
+      if (decisionsRes.decisions) {
+        setDecisions(decisionsRes.decisions);
+      }
+
+      // Fetch notes
+      const notesRes = await api.getNotes(workspaceId).catch(() => ({}));
+      if (notesRes.notes) {
+        setNotes(notesRes.notes);
+      }
+
+      // Fetch budget if user has view financial permission
+      if (res.workspace?.permissions?.canViewFinancials) {
+        const budgetRes = await api.getBudget(workspaceId).catch(() => ({}));
+        if (budgetRes.summary) {
+          setBudgetData(budgetRes);
+        }
+      }
+
+      // Fetch notifications
+      const notifsRes = await api.getNotifications(workspaceId).catch(() => ({}));
+      if (notifsRes.notifications) {
+        setNotifications(notifsRes.notifications);
+        setUnreadNotifCount(notifsRes.unreadCount || 0);
+      }
+
+      // Fetch bookings from server
+      const bookingsRes = await api.getBookings().catch(() => ({}));
+      if (bookingsRes.bookings && bookingsRes.bookings.length > 0) {
+        setBookings(bookingsRes.bookings);
+      }
+    } catch (err) {
+      console.warn('Could not load workspace from server, using local state:', err.message);
+    } finally {
+      setWorkspaceLoading(false);
     }
+  }, [wedding.id]);
+
+  // Initial fetch on mount or user change
+  useEffect(() => {
+    api.setToken(user.token);
+    refreshWorkspace();
+  }, [user.token, refreshWorkspace]);
+
+  // Switch between preset accounts (Groom, Bride, Planner, Provider, Admin)
+  const switchAccount = (accountKey) => {
+    const target = PRESET_ACCOUNTS[accountKey] || PRESET_ACCOUNTS.groom;
+    setActiveAccountKey(accountKey);
+    setRole(target.role);
+    setUser(target);
     setIsLoggedIn(true);
+    api.setToken(target.token);
   };
 
-  const loginUser = ({ email, role: targetRole, name }) => {
+  // Legacy role switch compatibility
+  const switchRole = newRole => {
+    if (newRole === 'customer') {
+      switchAccount('groom');
+    } else if (newRole === 'provider') {
+      switchAccount('provider');
+    } else if (newRole === 'admin') {
+      switchAccount('admin');
+    }
+  };
+
+  const loginUser = async ({ email, role: targetRole, name, password }) => {
+    try {
+      if (password) {
+        const res = await api.login(email, password);
+        setUser(res.user);
+        setRole(res.user.globalRole || targetRole);
+        setIsLoggedIn(true);
+        refreshWorkspace();
+        return;
+      }
+    } catch (e) {
+      console.warn('Online login failed, using client state:', e.message);
+    }
+
     setRole(targetRole);
-    setUser({
+    const newUser = {
       id: `usr-${Date.now()}`,
-      name: name || (targetRole === 'customer' ? 'John & Sarah' : targetRole === 'provider' ? 'Imperial Vendor' : 'Platform Admin'),
+      name: name || (targetRole === 'customer' ? 'Wedding Collaborator' : targetRole === 'provider' ? 'Imperial Vendor' : 'Platform Admin'),
       email: email || 'user@myday.co.tz',
-      role: targetRole
-    });
+      role: targetRole,
+      token: `token-custom-${Date.now()}`
+    };
+    setUser(newUser);
     setIsLoggedIn(true);
   };
 
-  const registerUser = (userObj) => {
+  const registerUser = async (userObj) => {
+    try {
+      if (userObj.password) {
+        const res = await api.register({
+          name: userObj.name,
+          email: userObj.email,
+          password: userObj.password,
+          phone: userObj.phone,
+          role: userObj.role || 'customer'
+        });
+        setUser(res.user);
+        setRole(res.user.globalRole || 'customer');
+        setIsLoggedIn(true);
+        refreshWorkspace();
+        return;
+      }
+    } catch (e) {
+      console.warn('Online registration failed, using client state:', e.message);
+    }
+
     setRole(userObj.role || 'customer');
-    setUser({
+    const newUser = {
       id: `usr-${Date.now()}`,
       name: userObj.name || 'New Member',
       email: userObj.email,
       phone: userObj.phone || '',
-      role: userObj.role || 'customer'
-    });
+      role: userObj.role || 'customer',
+      token: `token-custom-${Date.now()}`
+    };
+    setUser(newUser);
     setIsLoggedIn(true);
   };
 
   const logoutUser = () => {
     setIsLoggedIn(false);
+    api.setToken(null);
+  };
+
+  // Collaboration actions
+  const inviteMember = async ({ email, role: memberRole, expiresInHours = 48 }) => {
+    const res = await api.createInvitation(wedding.id, { email, role: memberRole, expiresInHours });
+    await refreshWorkspace();
+    return res.invitation;
+  };
+
+  const changeMemberRole = async (memberId, newRole) => {
+    const res = await api.updateMemberRole(wedding.id, memberId, newRole);
+    await refreshWorkspace();
+    return res;
+  };
+
+  const removeMember = async (memberId) => {
+    const res = await api.removeMember(wedding.id, memberId);
+    await refreshWorkspace();
+    return res;
+  };
+
+  const revokeInvitation = async (invitationId) => {
+    const res = await api.revokeInvitation(wedding.id, invitationId);
+    await refreshWorkspace();
+    return res;
+  };
+
+  const updateWeddingProfile = async (updates) => {
+    try {
+      const res = await api.updateWorkspace(wedding.id, updates);
+      if (res.workspace) {
+        setWedding(prev => ({ ...prev, ...res.workspace }));
+      }
+    } catch (e) {
+      console.warn('Server update failed, saving locally:', e.message);
+      setWedding(prev => ({ ...prev, ...updates }));
+    }
   };
 
   const createBooking = (category, vendorId, packageId, price, date, deposit) => {
@@ -125,6 +351,10 @@ export const AppProvider = ({ children }) => {
           : p
       )
     );
+    // Background sync to authoritative database
+    api.createBooking({ category, providerId: vendorId, packageId, price, date, weddingId: wedding.id }).catch(err => {
+      console.warn('Booking offline or sync pending:', err.message);
+    });
     return bookingId;
   };
 
@@ -138,7 +368,96 @@ export const AppProvider = ({ children }) => {
           : b
       )
     );
+    // Background sync to authoritative database
+    api.createPayment({ bookingId, amount, isFullPayment: full }).catch(err => {
+      console.warn('Payment offline or sync pending:', err.message);
+    });
     return paymentId;
+  };
+
+  // --- Phase 2 Actions ---
+  const createTask = async (taskData) => {
+    const res = await api.createTask(wedding.id, taskData);
+    await refreshWorkspace();
+    return res.task;
+  };
+
+  const updateTask = async (taskId, updates) => {
+    const res = await api.updateTask(wedding.id, taskId, updates);
+    await refreshWorkspace();
+    return res.task;
+  };
+
+  const deleteTask = async (taskId) => {
+    const res = await api.deleteTask(wedding.id, taskId);
+    await refreshWorkspace();
+    return res;
+  };
+
+  const addTaskComment = async (taskId, text) => {
+    const res = await api.addTaskComment(wedding.id, taskId, text);
+    await refreshWorkspace();
+    return res.comment;
+  };
+
+  const createDecision = async (decisionData) => {
+    const res = await api.createDecision(wedding.id, decisionData);
+    await refreshWorkspace();
+    return res.decision;
+  };
+
+  const voteDecision = async (decisionId, optionId) => {
+    const res = await api.voteDecision(wedding.id, decisionId, optionId);
+    await refreshWorkspace();
+    return res.decision;
+  };
+
+  const updateDecision = async (decisionId, updates) => {
+    const res = await api.updateDecision(wedding.id, decisionId, updates);
+    await refreshWorkspace();
+    return res.decision;
+  };
+
+  const createNote = async (noteData) => {
+    const res = await api.createNote(wedding.id, noteData);
+    await refreshWorkspace();
+    return res.note;
+  };
+
+  const createBudgetCategory = async (categoryData) => {
+    const res = await api.createBudgetCategory(wedding.id, categoryData);
+    await refreshWorkspace();
+    return res.category;
+  };
+
+  const createExpense = async (expenseData) => {
+    const res = await api.createExpense(wedding.id, expenseData);
+    await refreshWorkspace();
+    return res.expense;
+  };
+
+  const updateExpense = async (expenseId, updates) => {
+    const res = await api.updateExpense(wedding.id, expenseId, updates);
+    await refreshWorkspace();
+    return res.expense;
+  };
+
+  const deleteExpense = async (expenseId) => {
+    const res = await api.deleteExpense(wedding.id, expenseId);
+    await refreshWorkspace();
+    return res;
+  };
+
+  const markNotificationRead = async (notifId) => {
+    const res = await api.markNotificationRead(wedding.id, notifId);
+    await refreshWorkspace();
+    return res;
+  };
+
+  const markAllNotificationsRead = async () => {
+    const res = await api.markAllNotificationsRead(wedding.id);
+    await refreshWorkspace();
+    return res;
   };
 
   const value = {
@@ -147,9 +466,42 @@ export const AppProvider = ({ children }) => {
     t,
     role,
     user,
+    activeAccountKey,
+    switchAccount,
+    PRESET_ACCOUNTS,
     isLoggedIn,
     wedding,
     setWedding,
+    updateWeddingProfile,
+    workspaceMembers,
+    pendingInvitations,
+    workspaceLoading,
+    refreshWorkspace,
+    inviteMember,
+    changeMemberRole,
+    removeMember,
+    revokeInvitation,
+    // Phase 2 exports
+    tasks,
+    createTask,
+    updateTask,
+    deleteTask,
+    addTaskComment,
+    decisions,
+    createDecision,
+    voteDecision,
+    updateDecision,
+    notes,
+    createNote,
+    budgetData,
+    createBudgetCategory,
+    createExpense,
+    updateExpense,
+    deleteExpense,
+    notifications,
+    unreadNotifCount,
+    markNotificationRead,
+    markAllNotificationsRead,
     providers,
     setProviders,
     bookings,

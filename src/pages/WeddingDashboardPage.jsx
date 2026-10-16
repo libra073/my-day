@@ -1,8 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Sparkles, Heart, Calendar, Users, PlusCircle, Star, ArrowRight, Wand2 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import PaymentModal from '../components/PaymentModal';
-import { Heart, Calendar, Users, PlusCircle, Sparkles } from 'lucide-react';
+import WorkspaceCollaborationCard from '../components/WorkspaceCollaborationCard';
+import SharedChecklistCard from '../components/SharedChecklistCard';
+import SharedDecisionsCard from '../components/SharedDecisionsCard';
+import SharedBudgetLedgerCard from '../components/SharedBudgetLedgerCard';
+
+function useCountdown(dateStr) {
+  const target = dateStr ? new Date(dateStr).getTime() : NaN;
+  const calc = () => {
+    if (Number.isNaN(target)) return null;
+    const diff = Math.max(0, target - Date.now());
+    return {
+      days: Math.floor(diff / 86400000),
+      hours: Math.floor((diff / 3600000) % 24),
+      minutes: Math.floor((diff / 60000) % 60),
+    };
+  };
+  const [left, setLeft] = useState(calc);
+  useEffect(() => {
+    const t = setInterval(() => setLeft(calc()), 60000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line
+  }, [dateStr]);
+  return left;
+}
+
+function AnimatedNumber({ value, prefix = '' }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { setN(value); return; }
+    let raf; const start = performance.now(); const dur = 900;
+    const tick = (t) => {
+      const p = Math.min(1, (t - start) / dur);
+      setN(Math.round(value * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return <>{prefix}{n.toLocaleString()}</>;
+}
+
+function BudgetRing({ pct }) {
+  const r = 44, c = 2 * Math.PI * r;
+  const [shown, setShown] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setShown(pct), 120); return () => clearTimeout(t); }, [pct]);
+  return (
+    <svg width="110" height="110" viewBox="0 0 110 110" role="img" aria-label={`${pct}% of budget allocated`}>
+      <circle cx="55" cy="55" r={r} fill="none" stroke="#E6D9CC" strokeWidth="10" />
+      <circle className="dash-ring-progress" cx="55" cy="55" r={r} fill="none" stroke="var(--color-primary)" strokeWidth="10"
+        strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * shown) / 100} transform="rotate(-90 55 55)" />
+      <text x="55" y="61" textAnchor="middle" fontSize="20" fontWeight="800" fill="var(--color-text)">{pct}%</text>
+    </svg>
+  );
+}
 
 const ALL_CATEGORIES = [
   { id: 'kumbi', name: 'Kumbi (Venue)', icon: '🏰' },
@@ -32,105 +87,120 @@ function WeddingDashboardPage() {
     };
   });
 
+  const countdown = useCountdown(wedding.date);
+  const featured = [...providers].filter(p => p.isFeatured).slice(0, 3);
+  const bookedCount = categoryStatusMap.filter(c => c.isBooked).length;
+
   return (
     <div className="container" style={{ padding: '2rem 1.25rem' }}>
-      {/* Event Header Banner */}
-      <div style={{
-        background: '#FFFFFF',
-        color: 'var(--color-text)',
-        borderRadius: 'var(--radius-xl)',
-        padding: '2rem',
-        marginBottom: '2rem',
-        border: '1px solid var(--color-border)',
-        boxShadow: 'var(--shadow-sm)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1.5rem'
-      }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'var(--color-primary-light)', color: 'var(--color-primary-hover)', padding: '0.3rem 0.85rem', borderRadius: 'var(--radius-pill)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-            <Sparkles size={14} /> Official Wedding Event Planner
+      {/* Premium Hero */}
+      <section className="dash-hero" aria-label="Wedding overview">
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ flex: '1 1 min(100%, 280px)', minWidth: 0 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(245,166,35,0.18)', color: '#F5A623', padding: '0.3rem 0.85rem', borderRadius: 'var(--radius-pill)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+              <Sparkles size={14} /> Official Wedding Event Planner
+            </div>
+            <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', color: '#FFFFFF', marginBottom: '0.6rem', fontWeight: 800 }}>{wedding.title}</h1>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.1rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Heart size={16} color="#F5A623" fill="#F5A623" /> {wedding.bride} &amp; {wedding.groom}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Calendar size={16} color="#F5A623" /> {wedding.date} ({wedding.location})</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Users size={16} color="#F5A623" /> {wedding.guests} Guests</span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '1.25rem' }}>
+              <Link to="/marketplace" className="dash-quick-action dash-quick-action-primary"><PlusCircle size={15} /> Find Vendors</Link>
+              <Link to="/wedding" className="dash-quick-action dash-quick-action-glass">Edit Wedding Settings</Link>
+            </div>
           </div>
-          <h1 style={{ fontSize: '2.25rem', color: 'var(--color-text)', marginBottom: '0.5rem', fontWeight: 800 }}>
-            {wedding.title}
-          </h1>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <Heart size={16} color="var(--color-primary)" fill="var(--color-primary)" /> {wedding.bride} & {wedding.groom}
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <Calendar size={16} color="var(--color-primary)" /> {wedding.date} ({wedding.location})
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <Users size={16} color="var(--color-primary)" /> {wedding.guests} Invited Guests
-            </span>
-          </div>
+          {countdown && (
+            <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }} aria-label="Countdown to wedding">
+              <div className="dash-countdown-unit"><span className="dash-countdown-value">{countdown.days}</span><span className="dash-countdown-label">Days</span></div>
+              <span className="dash-countdown-sep">:</span>
+              <div className="dash-countdown-unit"><span className="dash-countdown-value">{String(countdown.hours).padStart(2, '0')}</span><span className="dash-countdown-label">Hours</span></div>
+              <span className="dash-countdown-sep">:</span>
+              <div className="dash-countdown-unit"><span className="dash-countdown-value">{String(countdown.minutes).padStart(2, '0')}</span><span className="dash-countdown-label">Mins</span></div>
+            </div>
+          )}
         </div>
-
-        <Link
-          to="/wedding"
-          style={{
-            background: 'var(--color-surface-soft)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-border)',
-            padding: '0.65rem 1.35rem',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: '0.85rem',
-            fontWeight: 700
-          }}
-        >
-          Edit Wedding Settings
-        </Link>
-      </div>
+      </section>
 
       {/* Financial Overview Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
         {[
-          { label: 'Total Target Budget', value: `TSh ${wedding.budget.toLocaleString()}`, color: 'var(--color-text)', sub: 'Set during profile setup' },
-          { label: 'Total Committed/Booked', value: `TSh ${totalBookedAmount.toLocaleString()}`, color: 'var(--color-primary-hover)', sub: `${budgetUsagePct}% of total budget used` },
-          { label: 'Total Paid To Date', value: `TSh ${totalPaidAmount.toLocaleString()}`, color: 'var(--color-success)', sub: 'Verified Mobile Money / Card' },
-          { label: 'Remaining Available Budget', value: `TSh ${remainingBudget.toLocaleString()}`, color: remainingBudget > 0 ? 'var(--color-success)' : 'var(--color-error)', sub: 'Unallocated funds remaining' },
+          { label: 'Total Target Budget', value: wedding.budget, color: 'var(--color-text)', sub: 'Set during profile setup', accent: '#3D2D21' },
+          { label: 'Total Committed/Booked', value: totalBookedAmount, color: 'var(--color-primary-hover)', sub: `${budgetUsagePct}% of total budget used`, accent: '#F5A623' },
+          { label: 'Total Paid To Date', value: totalPaidAmount, color: 'var(--color-success)', sub: 'Verified Mobile Money / Card', accent: '#2E7D32' },
+          { label: 'Remaining Available Budget', value: remainingBudget, color: remainingBudget > 0 ? 'var(--color-success)' : 'var(--color-error)', sub: 'Unallocated funds remaining', accent: '#B8860B' },
         ].map((card, i) => (
-          <div key={i} style={{
-            background: '#FFFFFF',
-            borderRadius: 'var(--radius-lg)',
-            padding: '1.25rem',
-            border: '1px solid var(--color-border)',
-            boxShadow: 'var(--shadow-xs)',
-          }}>
+          <div key={i} className={`dash-stat-card dash-animate dash-animate-delay-${i + 1}`} style={{ '--card-accent': card.accent }}>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem', fontWeight: 500 }}>{card.label}</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: card.color }}>{card.value}</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: card.color }}><AnimatedNumber value={card.value} prefix="TSh " /></div>
             <div style={{ fontSize: '0.75rem', color: 'var(--color-text-dim)', marginTop: '0.25rem' }}>{card.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* Progress Bar */}
-      <div style={{
-        background: '#FFFFFF',
-        borderRadius: 'var(--radius)',
-        padding: '1.25rem',
-        border: '1px solid var(--color-border)',
-        boxShadow: 'var(--shadow-xs)',
-        marginBottom: '2rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-text)' }}>
-          <span>Wedding Budget Utilization</span>
-          <span>{budgetUsagePct}% Allocated</span>
-        </div>
-        <div style={{ width: '100%', height: 12, background: '#E6D9CC', borderRadius: 6, overflow: 'hidden' }}>
-          <div style={{
-            width: `${budgetUsagePct}%`,
-            height: '100%',
-            background: 'var(--color-primary)',
-            borderRadius: 6,
-            transition: 'width 0.5s ease',
-            boxShadow: 'var(--shadow-glow)',
-          }}></div>
+      {/* Budget Utilization */}
+      <div className="dash-stat-card dash-animate dash-animate-delay-5" style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+        <BudgetRing pct={budgetUsagePct} />
+        <div style={{ flex: '1 1 240px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-text)' }}>
+            <span>Wedding Budget Utilization</span>
+            <span>{bookedCount}/{ALL_CATEGORIES.length} services booked</span>
+          </div>
+          <div className="dash-progress-bar">
+            <div className="dash-progress-fill" style={{ width: `${budgetUsagePct}%`, background: 'var(--color-primary)', boxShadow: 'var(--shadow-glow)' }} />
+          </div>
         </div>
       </div>
+
+      {/* Vendor Discovery */}
+      {featured.length > 0 && (
+        <section className="dash-animate dash-animate-delay-6" style={{ marginBottom: '2.5rem' }}>
+          <div className="dash-section-header">
+            <h2 className="dash-section-title">Featured Vendors</h2>
+            <Link to="/marketplace" className="dash-section-link">View all <ArrowRight size={15} /></Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.25rem' }}>
+            {featured.map(p => (
+              <Link key={p.id} to={`/marketplace?category=${p.category}`} className="dash-vendor-card">
+                <div className="dash-vendor-img-wrap">
+                  <img className="dash-vendor-img" src={p.image} alt={p.name} loading="lazy" />
+                  <span className="dash-vendor-badge">{p.category}</span>
+                </div>
+                <div style={{ padding: '1rem' }}>
+                  <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>{p.name}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: '0.2rem 0 0.5rem' }}>{p.location}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-primary-hover)' }}>
+                    <Star size={14} fill="var(--color-primary)" color="var(--color-primary)" /> {p.rating}
+                    <span className="dash-dot-sep" /> <span style={{ color: 'var(--color-text-muted)', fontWeight: 500 }}>{p.reviewsCount} reviews</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* AI Planner */}
+      <div className="dash-ai-card dash-animate dash-animate-delay-7" style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, fontSize: '1.1rem' }}><Wand2 size={18} color="#F5A623" /> MY DAY AI Planner</div>
+          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.88rem', marginTop: '0.35rem' }}>Ask the AI for vendor picks, budget advice and timeline ideas.</p>
+        </div>
+        <Link to="/marketplace" className="dash-quick-action dash-quick-action-primary" style={{ position: 'relative', zIndex: 1 }}>Explore ideas</Link>
+      </div>
+
+      {/* Shared Wedding Collaboration & Permissions Hub */}
+      <WorkspaceCollaborationCard />
+
+      {/* Shared Action Items & Checklist */}
+      <SharedChecklistCard />
+
+      {/* Shared Decisions Polls & Knowledge Notes */}
+      <SharedDecisionsCard />
+
+      {/* Real-time Shared Financial Ledger & Expenses */}
+      <SharedBudgetLedgerCard />
 
       {/* 6 Core Categories Booking Tracker */}
       <div style={{ marginBottom: '2.5rem' }}>
@@ -141,7 +211,7 @@ function WeddingDashboardPage() {
           </Link>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
           {categoryStatusMap.map(cat => (
             <div
               key={cat.id}
