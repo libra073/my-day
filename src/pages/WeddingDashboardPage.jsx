@@ -69,8 +69,35 @@ const ALL_CATEGORIES = [
 ];
 
 function WeddingDashboardPage() {
-  const { wedding, bookings, providers } = useAppContext();
+  const { wedding, bookings, providers, user } = useAppContext();
   const [activePaymentModal, setActivePaymentModal] = useState(null);
+  const countdown = useCountdown(wedding?.date);
+
+  if (!wedding || !wedding.id) {
+    return (
+      <div className="container" style={{ padding: '4rem 1.25rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: 580, margin: '0 auto', background: '#FFFFFF', padding: '3rem 2rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(245, 166, 35, 0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem' }}>
+            <Heart size={32} color="#F5A623" />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.75rem' }}>
+            {user?.name ? `Welcome, ${user.name}!` : 'Start Planning Your Wedding'}
+          </h2>
+          <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '2rem' }}>
+            You haven't set up your wedding profile yet. Enter your wedding date, target budget, and location to unlock your personalized planning dashboard, vendor tracker, and live countdown.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/wedding" className="btn-pill-amber" style={{ padding: '0.85rem 1.75rem' }}>
+              <Sparkles size={16} /> Setup Your Wedding Profile
+            </Link>
+            <Link to="/marketplace" className="button" style={{ background: 'var(--color-surface-soft)', color: 'var(--color-text)' }}>
+              Browse Vendors
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const totalBookedAmount = bookings.reduce((sum, b) => sum + b.price, 0);
   const totalPaidAmount = bookings.reduce((sum, b) => sum + (b.paidAmount || 0), 0);
@@ -87,7 +114,6 @@ function WeddingDashboardPage() {
     };
   });
 
-  const countdown = useCountdown(wedding.date);
   const featured = [...providers].filter(p => p.isFeatured).slice(0, 3);
   const bookedCount = categoryStatusMap.filter(c => c.isBooked).length;
 

@@ -5,8 +5,8 @@ import { X } from 'lucide-react';
 function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
   const { wedding, createBooking } = useAppContext();
 
-  const [date, setDate] = useState(wedding.date || '2026-12-25');
-  const [guests, setGuests] = useState(wedding.guests || 300);
+  const [date, setDate] = useState(wedding?.date || '');
+  const [guests, setGuests] = useState(wedding?.guests || 300);
   const [notes, setNotes] = useState('');
   const [pkgId, setPkgId] = useState(selectedPackage ? selectedPackage.id : (provider.packages ? provider.packages[0]?.id : ''));
 

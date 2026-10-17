@@ -97,30 +97,16 @@ export const AppProvider = ({ children }) => {
 
   const [activeAccountKey, setActiveAccountKey] = useState(null);
 
-  // Active Wedding Workspace (Safe clean defaults for couple)
-  const [wedding, setWedding] = useState({
-    id: 'wed-1',
-    title: "My Dream Wedding",
-    bride: '',
-    groom: '',
-    date: '2026-12-25',
-    location: 'Dar es Salaam',
-    guests: 300,
-    budget: 15000000,
-    currency: 'TZS',
-    description: '',
-    image: null,
-    cart: [],
-    userRole: 'owner',
-    permissions: {
-      canEditWorkspace: true,
-      canInviteMembers: true,
-      canChangeRoles: true,
-      canRemoveMembers: true,
-      canManageBudget: true,
-      canManageVendors: true,
-      canManageTasks: true,
-      canViewFinancials: true,
+  // Active Wedding Workspace (null by default for logged-out or new users)
+  const [wedding, setWedding] = useState(() => {
+    if (!localStorage.getItem('myday_token')) {
+      return null;
+    }
+    try {
+      const stored = localStorage.getItem('myday_wedding');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
     }
   });
 
@@ -128,6 +114,7 @@ export const AppProvider = ({ children }) => {
   const [workspaceMembers, setWorkspaceMembers] = useState([]);
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const [workspaceError, setWorkspaceError] = useState(null);
 
   // Phase 2 state: Checklist tasks, decisions, notes, budget, notifications
   const [tasks, setTasks] = useState([]);
@@ -143,22 +130,47 @@ export const AppProvider = ({ children }) => {
   const [commissionRate, setCommissionRate] = useState(0.05);
 
   const calculateCart = () => {
-    const total = (wedding.cart || []).reduce((sum, item) => sum + item.price, 0);
+    const total = (wedding?.cart || []).reduce((sum, item) => sum + item.price, 0);
     const deposit = Math.round(total * 0.3);
     return { total, deposit };
   };
 
   // Sync workspace and all Phase 2 collections from server
-  const refreshWorkspace = useCallback(async (workspaceId = wedding.id) => {
+  const refreshWorkspace = useCallback(async (targetWorkspaceId) => {
+    const currentToken = user?.token || api.getToken();
+    if (!currentToken) {
+      setWedding(null);
+      setWorkspaceLoading(false);
+      return;
+    }
+
     try {
       setWorkspaceLoading(true);
+      setWorkspaceError(null);
+
+      let workspaceId = targetWorkspaceId || wedding?.id;
+
+      if (!workspaceId) {
+        const listRes = await api.getWorkspaces().catch(() => ({ workspaces: [] }));
+        if (listRes.workspaces && listRes.workspaces.length > 0) {
+          workspaceId = listRes.workspaces[0].id;
+        } else {
+          setWedding(null);
+          setWorkspaceLoading(false);
+          return;
+        }
+      }
+
       const res = await api.getWorkspace(workspaceId);
       if (res.workspace) {
         setWedding(prev => ({
-          ...prev,
+          ...(prev || {}),
           ...res.workspace,
-          cart: prev.cart || []
+          cart: prev?.cart || []
         }));
+        try {
+          localStorage.setItem('myday_wedding', JSON.stringify(res.workspace));
+        } catch {}
       }
 
       // Fetch members
@@ -214,11 +226,12 @@ export const AppProvider = ({ children }) => {
         setBookings(bookingsRes.bookings);
       }
     } catch (err) {
-      console.warn('Could not load workspace from server, using local state:', err.message);
+      console.warn('Could not load workspace from server:', err.message);
+      setWorkspaceError(err.message);
     } finally {
       setWorkspaceLoading(false);
     }
-  }, [wedding.id]);
+  }, [user?.token, wedding?.id]);
 
   // Initial fetch on mount or user change
   useEffect(() => {
@@ -330,9 +343,15 @@ export const AppProvider = ({ children }) => {
     setIsLoggedIn(false);
     setUser(null);
     setRole('customer');
+    setWedding(null);
+    setBudgetData(null);
+    setTasks([]);
+    setBookings([]);
+    setWorkspaceMembers([]);
     try {
       localStorage.removeItem('myday_token');
       localStorage.removeItem('myday_user');
+      localStorage.removeItem('myday_wedding');
     } catch {}
     api.setToken(null);
   };
@@ -364,14 +383,35 @@ export const AppProvider = ({ children }) => {
 
   const updateWeddingProfile = async (updates) => {
     try {
-      const res = await api.updateWorkspace(wedding.id, updates);
-      if (res.workspace) {
-        setWedding(prev => ({ ...prev, ...res.workspace }));
+      if (!wedding?.id) {
+        const createRes = await api.createWorkspace(updates).catch(() => null);
+        if (createRes?.workspace) {
+          setWedding(createRes.workspace);
+          try {
+            localStorage.setItem('myday_wedding', JSON.stringify(createRes.workspace));
+          } catch {}
+          await refreshWorkspace(createRes.workspace.id);
+          return createRes.workspace;
+        }
+      } else {
+        const res = await api.updateWorkspace(wedding.id, updates);
+        if (res.workspace) {
+          setWedding(prev => {
+            const next = { ...prev, ...res.workspace };
+            try { localStorage.setItem('myday_wedding', JSON.stringify(next)); } catch {}
+            return next;
+          });
+          return res.workspace;
+        }
       }
     } catch (e) {
       console.warn('Server update failed, saving locally:', e.message);
-      setWedding(prev => ({ ...prev, ...updates }));
     }
+    setWedding(prev => {
+      const next = { ...(prev || {}), ...updates };
+      try { localStorage.setItem('myday_wedding', JSON.stringify(next)); } catch {}
+      return next;
+    });
   };
 
   const createBooking = (category, vendorId, packageId, price, date, deposit) => {
@@ -523,6 +563,7 @@ export const AppProvider = ({ children }) => {
     workspaceMembers,
     pendingInvitations,
     workspaceLoading,
+    workspaceError,
     refreshWorkspace,
     inviteMember,
     changeMemberRole,

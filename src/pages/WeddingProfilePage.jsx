@@ -26,14 +26,28 @@ export default function WeddingProfilePage() {
   const isSw = language === 'sw';
 
   const [formData, setFormData] = useState({
-    title: wedding.title || (isSw ? 'Harusi Yetu ya Ndoto' : 'Our Dream Wedding'),
-    bride: wedding.bride || '',
-    groom: wedding.groom || '',
-    date: wedding.date || '2026-12-25',
-    location: wedding.location || 'Dar es Salaam',
-    guests: wedding.guests || 300,
-    budget: wedding.budget || 15000000,
+    title: wedding?.title || (isSw ? 'Harusi Yetu ya Ndoto' : 'Our Dream Wedding'),
+    bride: wedding?.bride || '',
+    groom: wedding?.groom || '',
+    date: wedding?.date || '',
+    location: wedding?.location || 'Dar es Salaam',
+    guests: wedding?.guests || 200,
+    budget: wedding?.budget || 10000000,
   });
+
+  useEffect(() => {
+    if (wedding) {
+      setFormData(prev => ({
+        title: wedding.title || prev.title,
+        bride: wedding.bride || prev.bride,
+        groom: wedding.groom || prev.groom,
+        date: wedding.date || prev.date,
+        location: wedding.location || prev.location,
+        guests: wedding.guests || prev.guests,
+        budget: wedding.budget || prev.budget,
+      }));
+    }
+  }, [wedding]);
 
   const [saved, setSaved] = useState(false);
 

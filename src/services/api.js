@@ -1,19 +1,21 @@
 // src/services/api.js
 // Client API for MY DAY Auth, Workspaces, Members, and Invitations
 
-const TOKEN_KEY = 'myday_auth_token';
+const TOKEN_KEY = 'myday_token';
 
 class ApiClient {
   constructor() {
-    this.token = localStorage.getItem(TOKEN_KEY) || 'token-groom-session';
+    this.token = typeof window !== 'undefined' ? (localStorage.getItem(TOKEN_KEY) || localStorage.getItem('myday_auth_token') || null) : null;
   }
 
   setToken(token) {
     this.token = token;
     if (token) {
       localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem('myday_auth_token', token);
     } else {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('myday_auth_token');
     }
   }
 

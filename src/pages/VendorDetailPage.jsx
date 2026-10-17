@@ -16,7 +16,7 @@ function VendorDetailPage() {
 
   const provider = providers.find(p => p.id === id);
 
-  const [selectedDate, setSelectedDate] = useState(wedding.date || '2026-12-25');
+  const [selectedDate, setSelectedDate] = useState(wedding?.date || '');
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);

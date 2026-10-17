@@ -25,7 +25,7 @@ function MyBookingsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', color: 'var(--color-text)', marginBottom: '0.25rem', fontWeight: 800 }}>{t('bookings_title')}</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>{t('bookings_subtitle')} {wedding.title || "John & Sarah's Wedding"}</p>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>{t('bookings_subtitle')} {wedding?.title || (user?.name ? `${user.name}'s Wedding` : 'Your Wedding')}</p>
         </div>
         <Link to="/marketplace" style={{
           background: 'var(--color-primary)',
