@@ -26,9 +26,9 @@ export default function WeddingProfilePage() {
   const isSw = language === 'sw';
 
   const [formData, setFormData] = useState({
-    title: wedding.title || "John & Sarah's Dream Wedding",
-    bride: wedding.bride || 'Sarah',
-    groom: wedding.groom || 'John',
+    title: wedding.title || (isSw ? 'Harusi Yetu ya Ndoto' : 'Our Dream Wedding'),
+    bride: wedding.bride || '',
+    groom: wedding.groom || '',
     date: wedding.date || '2026-12-25',
     location: wedding.location || 'Dar es Salaam',
     guests: wedding.guests || 300,

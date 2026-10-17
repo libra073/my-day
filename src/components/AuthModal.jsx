@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { X, Heart, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import api from '../services/api';
+import { X, Heart, Mail, Lock, User, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 const VENDOR_CATEGORIES = [
   { id: 'kumbi', nameKey: 'cat_venues_title', defaultName: 'Kumbi (Venues)' },
@@ -12,7 +13,7 @@ const VENDOR_CATEGORIES = [
 ];
 
 function AuthModal({ onClose, onSuccess }) {
-  const { loginUser, registerUser, switchRole, t } = useAppContext();
+  const { loginUser, registerUser, t } = useAppContext();
 
   const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
   const [selectedRole, setSelectedRole] = useState('customer'); // 'customer' | 'provider' | 'admin'
@@ -28,14 +29,18 @@ function AuthModal({ onClose, onSuccess }) {
   const [vendorLocation, setVendorLocation] = useState('Dar es Salaam');
   const [agreeTerms, setAgreeTerms] = useState(true);
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    loginUser({ email, role: selectedRole, name });
-    if (onSuccess) onSuccess();
-    onClose();
+    try {
+      await loginUser({ email, password, role: selectedRole, name });
+      if (onSuccess) onSuccess();
+      onClose();
+    } catch (err) {
+      alert(err.message || 'Login failed. Please verify your credentials.');
+    }
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       alert(t('auth_validation_mismatch'));
@@ -46,21 +51,20 @@ function AuthModal({ onClose, onSuccess }) {
       return;
     }
 
-    registerUser({
-      name: name || (selectedRole === 'customer' ? 'John & Sarah' : 'New Vendor'),
-      email,
-      phone,
-      role: selectedRole
-    });
+    try {
+      await registerUser({
+        name: name.trim() || (selectedRole === 'customer' ? 'Wedding Account' : 'Partner Vendor'),
+        email: email.trim(),
+        password,
+        phone: phone.trim(),
+        role: selectedRole
+      });
 
-    if (onSuccess) onSuccess();
-    onClose();
-  };
-
-  const handleQuickDemoLogin = (roleKey) => {
-    switchRole(roleKey);
-    if (onSuccess) onSuccess();
-    onClose();
+      if (onSuccess) onSuccess();
+      onClose();
+    } catch (err) {
+      alert(err.message || 'Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -304,33 +308,11 @@ function AuthModal({ onClose, onSuccess }) {
               {t('auth_sign_in_btn')}
             </button>
 
-            {/* Quick Demo Login Presets */}
-            <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
-                {t('auth_quick_demo')}
-              </div>
-              <div style={{ display: 'flex', gap: '0.4rem' }}>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemoLogin('customer')}
-                  style={{ flex: 1, background: 'var(--color-surface-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.45rem', borderRadius: 'var(--radius-pill)', boxShadow: 'none' }}
-                >
-                  {t('auth_demo_couple')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemoLogin('provider')}
-                  style={{ flex: 1, background: 'var(--color-surface-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.45rem', borderRadius: 'var(--radius-pill)', boxShadow: 'none' }}
-                >
-                  {t('auth_demo_vendor')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemoLogin('admin')}
-                  style={{ flex: 1, background: 'var(--color-surface-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.45rem', borderRadius: 'var(--radius-pill)', boxShadow: 'none' }}
-                >
-                  {t('auth_demo_admin')}
-                </button>
+            {/* Trust Assurance Badge */}
+            <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
+                <ShieldCheck size={15} color="var(--color-primary)" />
+                <span>256-bit Encrypted & Verified Escrow Protection</span>
               </div>
             </div>
           </form>
@@ -347,7 +329,7 @@ function AuthModal({ onClose, onSuccess }) {
                 <User size={16} color="var(--color-text-dim)" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
                   type="text"
-                  placeholder={selectedRole === 'customer' ? 'E.g. John & Sarah' : 'E.g. Imperial Floral & Decor'}
+                  placeholder={selectedRole === 'customer' ? 'E.g. Baraka & Rehema' : 'E.g. Imperial Floral & Decor'}
                   value={name}
                   onChange={e => setName(e.target.value)}
                   style={{ paddingLeft: '2.5rem' }}

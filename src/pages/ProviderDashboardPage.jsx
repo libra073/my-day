@@ -5,10 +5,10 @@ import VendorScheduleSettings from '../components/VendorScheduleSettings';
 import { Store, Plus, ShieldCheck, MapPin, Calendar, Clock } from 'lucide-react';
 
 function ProviderDashboardPage() {
-  const { providers, setProviders, bookings, setBookings, commissionRate } = useAppContext();
+  const { providers, setProviders, bookings, setBookings, commissionRate, user } = useAppContext();
 
-  const currentProviderId = 'venue-1';
-  const provider = providers.find(p => p.id === currentProviderId) || providers[0];
+  const currentProviderId = user?.providerId || (user?.role === 'provider' ? user.id : 'venue-1');
+  const provider = providers.find(p => p.id === currentProviderId || p.id === user?.id) || providers[0];
 
   const providerBookings = bookings.filter(b => b.providerId === provider.id);
 

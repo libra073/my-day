@@ -71,17 +71,38 @@ export const AppProvider = ({ children }) => {
     return defaultValue !== undefined ? defaultValue : key;
   };
 
-  const [role, setRole] = useState('customer'); // 'customer' | 'provider' | 'admin'
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [activeAccountKey, setActiveAccountKey] = useState('groom');
-  const [user, setUser] = useState(PRESET_ACCOUNTS.groom);
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('myday_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
 
-  // Active Wedding Workspace
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return Boolean(localStorage.getItem('myday_token'));
+  });
+
+  const [role, setRole] = useState(() => {
+    try {
+      const stored = localStorage.getItem('myday_user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed.role || parsed.globalRole || 'customer';
+      }
+    } catch {}
+    return 'customer';
+  });
+
+  const [activeAccountKey, setActiveAccountKey] = useState(null);
+
+  // Active Wedding Workspace (Safe clean defaults for couple)
   const [wedding, setWedding] = useState({
     id: 'wed-1',
-    title: "John & Sarah's Wedding",
-    bride: 'Sarah',
-    groom: 'John',
+    title: "My Dream Wedding",
+    bride: '',
+    groom: '',
     date: '2026-12-25',
     location: 'Dar es Salaam',
     guests: 300,
@@ -201,11 +222,13 @@ export const AppProvider = ({ children }) => {
 
   // Initial fetch on mount or user change
   useEffect(() => {
-    api.setToken(user.token);
-    refreshWorkspace();
-  }, [user.token, refreshWorkspace]);
+    if (user?.token) {
+      api.setToken(user.token);
+      refreshWorkspace();
+    }
+  }, [user?.token, refreshWorkspace]);
 
-  // Switch between preset accounts (Groom, Bride, Planner, Provider, Admin)
+  // Switch between preset accounts (Internal testing / fallback helper)
   const switchAccount = (accountKey) => {
     const target = PRESET_ACCOUNTS[accountKey] || PRESET_ACCOUNTS.groom;
     setActiveAccountKey(accountKey);
@@ -213,6 +236,10 @@ export const AppProvider = ({ children }) => {
     setUser(target);
     setIsLoggedIn(true);
     api.setToken(target.token);
+    try {
+      localStorage.setItem('myday_token', target.token);
+      localStorage.setItem('myday_user', JSON.stringify(target));
+    } catch {}
   };
 
   // Legacy role switch compatibility
@@ -227,49 +254,57 @@ export const AppProvider = ({ children }) => {
   };
 
   const loginUser = async ({ email, role: targetRole, name, password }) => {
-    try {
-      if (password) {
-        const res = await api.login(email, password);
-        setUser(res.user);
-        setRole(res.user.globalRole || targetRole);
-        setIsLoggedIn(true);
-        refreshWorkspace();
-        return;
-      }
-    } catch (e) {
-      console.warn('Online login failed, using client state:', e.message);
+    if (password) {
+      const res = await api.login(email, password);
+      setUser(res.user);
+      setRole(res.user.globalRole || targetRole || 'customer');
+      setIsLoggedIn(true);
+      try {
+        localStorage.setItem('myday_token', res.token);
+        localStorage.setItem('myday_user', JSON.stringify(res.user));
+      } catch {}
+      api.setToken(res.token);
+      refreshWorkspace();
+      return res;
     }
 
-    setRole(targetRole);
+    setRole(targetRole || 'customer');
     const newUser = {
       id: `usr-${Date.now()}`,
-      name: name || (targetRole === 'customer' ? 'Wedding Collaborator' : targetRole === 'provider' ? 'Imperial Vendor' : 'Platform Admin'),
+      name: name || (targetRole === 'customer' ? 'Wedding Host' : targetRole === 'provider' ? 'Partner Vendor' : 'Platform Admin'),
       email: email || 'user@myday.co.tz',
-      role: targetRole,
+      role: targetRole || 'customer',
       token: `token-custom-${Date.now()}`
     };
     setUser(newUser);
     setIsLoggedIn(true);
+    try {
+      localStorage.setItem('myday_token', newUser.token);
+      localStorage.setItem('myday_user', JSON.stringify(newUser));
+    } catch {}
+    api.setToken(newUser.token);
+    return { user: newUser };
   };
 
   const registerUser = async (userObj) => {
-    try {
-      if (userObj.password) {
-        const res = await api.register({
-          name: userObj.name,
-          email: userObj.email,
-          password: userObj.password,
-          phone: userObj.phone,
-          role: userObj.role || 'customer'
-        });
-        setUser(res.user);
-        setRole(res.user.globalRole || 'customer');
-        setIsLoggedIn(true);
-        refreshWorkspace();
-        return;
-      }
-    } catch (e) {
-      console.warn('Online registration failed, using client state:', e.message);
+    if (userObj.password) {
+      const res = await api.register({
+        name: userObj.name,
+        email: userObj.email,
+        password: userObj.password,
+        phone: userObj.phone,
+        role: userObj.role || 'customer'
+      });
+      setUser(res.user);
+      setRole(res.user.globalRole || 'customer');
+      setIsLoggedIn(true);
+      try {
+        localStorage.setItem('myday_token', res.token);
+        localStorage.setItem('myday_user', JSON.stringify(res.user));
+      } catch {}
+      api.setToken(res.token);
+      refreshWorkspace();
+      return res;
     }
 
     setRole(userObj.role || 'customer');
@@ -283,10 +318,22 @@ export const AppProvider = ({ children }) => {
     };
     setUser(newUser);
     setIsLoggedIn(true);
+    try {
+      localStorage.setItem('myday_token', newUser.token);
+      localStorage.setItem('myday_user', JSON.stringify(newUser));
+    } catch {}
+    api.setToken(newUser.token);
+    return { user: newUser };
   };
 
   const logoutUser = () => {
     setIsLoggedIn(false);
+    setUser(null);
+    setRole('customer');
+    try {
+      localStorage.removeItem('myday_token');
+      localStorage.removeItem('myday_user');
+    } catch {}
     api.setToken(null);
   };
 
@@ -331,7 +378,7 @@ export const AppProvider = ({ children }) => {
     const bookingId = `bk-${Date.now()}`;
     const newBooking = {
       id: bookingId,
-      customerId: user.id,
+      customerId: user?.id || 'usr-guest',
       providerId: vendorId,
       category,
       packageId,

@@ -74,7 +74,7 @@ function VendorDetailPage() {
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <MapPin size={16} color="var(--color-primary)" /> {provider.location}
                   </span>
-                  <StarRating rating={4.9} count={24} />
+                  <StarRating rating={provider.rating || 5.0} count={provider.reviewsCount || 0} />
                 </div>
               </div>
 

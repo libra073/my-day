@@ -815,8 +815,8 @@ export default function ModernHero() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Star size={20} color="#F5A623" fill="#F5A623" />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#FFFFFF' }}>4.9 / 5.0</div>
-              <div style={{ fontSize: '0.84rem', opacity: 0.92 }}>{t('hero_reviews_stat', 'Over 1,200 Reviews')}</div>
+              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#FFFFFF' }}>{t('hero_verified_title', '100% Verified')}</div>
+              <div style={{ fontSize: '0.84rem', opacity: 0.92 }}>{t('hero_verified_sub', 'Curated Vendor Excellence')}</div>
             </div>
           </div>
 
@@ -831,8 +831,8 @@ export default function ModernHero() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Heart size={20} color="#F5A623" fill="#F5A623" />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#FFFFFF' }}>{t('hero_vendors_stat', '500+ Verified Vendors')}</div>
-              <div style={{ fontSize: '0.84rem', opacity: 0.92 }}>{t('hero_regions_stat', 'Across 8 Regions')}</div>
+              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#FFFFFF' }}>{t('hero_nationwide_title', 'Tanzania Nationwide')}</div>
+              <div style={{ fontSize: '0.84rem', opacity: 0.92 }}>{t('hero_nationwide_sub', 'Dar, Arusha, Zanzibar & Beyond')}</div>
             </div>
           </div>
         </div>

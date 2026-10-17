@@ -3,18 +3,10 @@ import { useAppContext } from '../context/AppContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthModal from './AuthModal';
 import NotificationBell from './NotificationBell';
-import { Heart, Sparkles, User, LogOut, Menu, X, ChevronRight } from 'lucide-react';
-
-const accounts = [
-  { id: 'groom', label: 'Groom (John - Host)', icon: '🤵' },
-  { id: 'bride', label: 'Bride (Sarah - Partner)', icon: '👰' },
-  { id: 'planner', label: 'Planner (Neema)', icon: '📋' },
-  { id: 'provider', label: 'Vendor (Grand Imperial)', icon: '🏰' },
-  { id: 'admin', label: 'MY DAY Admin', icon: '⚡' },
-];
+import { Heart, Sparkles, User, LogOut, Menu, X, ChevronRight, Phone, ShieldCheck } from 'lucide-react';
 
 function Navbar() {
-  const { role, activeAccountKey, switchAccount, user, isLoggedIn, logoutUser, bookings, language, setLanguage, t } = useAppContext();
+  const { role, user, isLoggedIn, logoutUser, bookings, language, setLanguage, t } = useAppContext();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -117,21 +109,8 @@ function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleAccountSelect = (accId) => {
-    switchAccount(accId);
-    if (accId === 'groom' || accId === 'bride' || accId === 'planner') navigate('/dashboard');
-    if (accId === 'provider') navigate('/provider');
-    if (accId === 'admin') navigate('/admin');
-  };
-
-  const handleAccountChange = (e) => {
-    handleAccountSelect(e.target.value);
-  };
-
   const linkClass = (path, extra = '') =>
     `nav-link ${extra} ${location.pathname === path ? 'active' : ''}`.trim();
-
-  const currentActiveKey = activeAccountKey || (role === 'provider' ? 'provider' : role === 'admin' ? 'admin' : 'groom');
 
   return (
     <>
@@ -139,48 +118,38 @@ function Navbar() {
       ref={headerRef}
       className={`site-header${isScrolled ? ' is-scrolled' : ''}${isHidden ? ' is-hidden' : ''}`}
     >
-      {/* Luxury utility strip: demo roles + language */}
+      {/* Official utility strip: Escrow protection badge + Concierge hotline + language toggle */}
       <div className="site-strip">
         <div className="site-strip-inner">
           <div className="strip-badge-premium">
             <span className="live-dot-pulse" aria-hidden="true" />
-            <Sparkles size={13} color="var(--color-primary)" />
-            <span>{t('hero_badge')}</span>
+            <ShieldCheck size={13} color="var(--color-primary)" />
+            <span>{t('hero_badge', '100% Verified Vendors & Escrow Protection')}</span>
           </div>
 
           <div className="strip-controls-premium">
-            {/* Desktop / Tablet Interactive Role Pills */}
-            <div className="demo-roles-group" role="group" aria-label="Demo role selector">
-              <span className="demo-roles-tag">{t('quick_demo')}</span>
-              {accounts.map(a => {
-                const isSelected = currentActiveKey === a.id;
-                return (
-                  <button
-                    key={a.id}
-                    type="button"
-                    onClick={() => handleAccountSelect(a.id)}
-                    className={`role-pill-btn ${isSelected ? 'is-active' : ''}`}
-                  >
-                    <span>{a.icon}</span>
-                    <span>{a.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Mobile Fallback Select */}
-            <div className="mobile-role-select">
-              <select
-                className="strip-select"
-                aria-label="Switch demo account"
-                value={currentActiveKey}
-                onChange={handleAccountChange}
-              >
-                {accounts.map(a => (
-                  <option key={a.id} value={a.id}>{a.icon} {a.label}</option>
-                ))}
-              </select>
-            </div>
+            <a
+              href="tel:+255766466187"
+              className="strip-support-link"
+              title="Call MY DAY Concierge Hotline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                color: 'var(--color-text)',
+                textDecoration: 'none',
+                padding: '0.3rem 0.75rem',
+                borderRadius: 'var(--radius-pill)',
+                background: 'rgba(255, 255, 255, 0.75)',
+                border: '1px solid var(--color-border)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Phone size={12} color="var(--color-primary)" />
+              <span>+255 766 466 187</span>
+            </a>
 
             {/* Language Toggle Pills */}
             <div className="lang-toggle-pills" role="group" aria-label="Language selector">
@@ -252,7 +221,7 @@ function Navbar() {
           {isLoggedIn ? (
             <div className="nav-user">
               <User size={14} color="var(--color-primary-hover)" />
-              <span>{user.name}</span>
+              <span>{user?.name || 'Account'}</span>
               <button onClick={logoutUser} title={t('nav_logout')} aria-label={t('nav_logout')} className="nav-logout">
                 <LogOut size={14} />
               </button>
@@ -306,23 +275,29 @@ function Navbar() {
         </button>
       </div>
 
-      {/* Quick Demo Role & Language Switchers inside Drawer */}
+      {/* Support Helpline & Language Switchers inside Drawer */}
       <div className="mobile-nav-utility">
-        <div className="mobile-nav-section-title">Demo Account Role</div>
-        <select
-          className="strip-select"
-          aria-label="Switch demo account"
-          value={currentActiveKey}
-          onChange={(e) => {
-            handleAccountSelect(e.target.value);
-            setMobileMenuOpen(false);
+        <div className="mobile-nav-section-title">Support Helpline</div>
+        <a
+          href="tel:+255766466187"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.6rem 0.85rem',
+            background: 'var(--color-surface-soft)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius)',
+            textDecoration: 'none',
+            color: 'var(--color-text)',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            marginBottom: '0.85rem'
           }}
-          style={{ width: '100%', marginBottom: '0.75rem', padding: '0.45rem 1rem' }}
         >
-          {accounts.map(a => (
-            <option key={a.id} value={a.id}>{a.icon} {a.label}</option>
-          ))}
-        </select>
+          <Phone size={15} color="var(--color-primary)" />
+          <span>+255 766 466 187 (Concierge)</span>
+        </a>
 
         <div className="mobile-nav-section-title">Language / Lugha</div>
         <div className="lang-toggle-pills" style={{ width: '100%' }}>
@@ -420,10 +395,10 @@ function Navbar() {
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.name}
+                  {user?.name || 'Account'}
                 </div>
                 <div style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.email || 'Verified Account'}
+                  {user?.email || 'Verified Account'}
                 </div>
               </div>
             </div>

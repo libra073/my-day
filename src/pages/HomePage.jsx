@@ -315,13 +315,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Testimonial Spotlight Card */}
+            {/* Concierge Guarantee Spotlight Card */}
             <div className="glass-card-dark" style={{ padding: '2.25rem', position: 'relative', zIndex: 2 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1.25rem' }}>
                 <StarRating rating={5} />
               </div>
 
-              <p style={{ fontSize: '1.1rem', fontStyle: 'italic', color: '#FFFFFF', lineHeight: 1.65, marginBottom: '1.75rem' }}>
+              <p style={{ fontSize: '1.05rem', fontStyle: 'italic', color: '#FFFFFF', lineHeight: 1.65, marginBottom: '1.75rem' }}>
                 {t('testimonial_quote')}
               </p>
 
@@ -336,10 +336,9 @@ export default function HomePage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: 900,
-                  fontSize: '1.15rem',
                   boxShadow: 'var(--shadow-amber)'
                 }}>
-                  A&M
+                  <ShieldCheck size={26} color="#FFFFFF" />
                 </div>
                 <div>
                   <div style={{ fontWeight: 900, fontSize: '1.05rem', color: '#FFFFFF' }}>{t('testimonial_names')}</div>
