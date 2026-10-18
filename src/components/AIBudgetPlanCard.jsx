@@ -216,6 +216,34 @@ export default function AIBudgetPlanCard() {
         </div>
       </div>
 
+      {/* Transparent Pricing Assumptions Note */}
+      {meta.costBreakdown && meta.costBreakdown.variableCosts && (
+        <div style={{
+          background: 'var(--color-surface-soft)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '0.75rem 0.95rem',
+          marginBottom: '1.25rem',
+          fontSize: '0.78rem',
+          color: 'var(--color-text-muted)',
+          lineHeight: 1.5,
+          minWidth: 0,
+        }}>
+          <div style={{ fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <ShieldCheck size={14} color="var(--color-accent)" />
+            <span>{isSwahili ? 'Msingi wa Bei na Makadirio ya Soko' : 'Market Pricing Assumptions & Baseline'}</span>
+          </div>
+          <div style={{ overflowWrap: 'anywhere' }}>
+            {isSwahili
+              ? `Chakula cha chini: ~TSh ${(meta.costBreakdown.variableCosts.foodPerGuest || 3500).toLocaleString()}/mgeni • Vinywaji: ~TSh ${(meta.costBreakdown.variableCosts.drinksPerGuest || 1200).toLocaleString()}/mgeni • Viti: ~TSh ${(meta.costBreakdown.variableCosts.seatingPerGuest || 800).toLocaleString()}/mgeni${meta.costBreakdown.fixedCosts?.subtotal > 0 ? ` • Gharama za kudumu: TSh ${meta.costBreakdown.fixedCosts.subtotal.toLocaleString()}` : ''}${meta.costBreakdown.regionalMultiplier !== 1 ? ` • Kielezo cha ${meta.costBreakdown.location || 'mkoa'}: ×${meta.costBreakdown.regionalMultiplier}` : ''}`
+              : `Baseline Food: ~TSh ${(meta.costBreakdown.variableCosts.foodPerGuest || 3500).toLocaleString()}/guest • Drinks: ~TSh ${(meta.costBreakdown.variableCosts.drinksPerGuest || 1200).toLocaleString()}/guest • Seating: ~TSh ${(meta.costBreakdown.variableCosts.seatingPerGuest || 800).toLocaleString()}/guest${meta.costBreakdown.fixedCosts?.subtotal > 0 ? ` • Fixed essentials: TSh ${meta.costBreakdown.fixedCosts.subtotal.toLocaleString()}` : ''}${meta.costBreakdown.regionalMultiplier !== 1 ? ` • Regional index: ×${meta.costBreakdown.regionalMultiplier}` : ''}`}
+          </div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontStyle: 'italic', marginTop: '0.2rem', overflowWrap: 'anywhere' }}>
+            {isSwahili ? 'Makadirio haya yanatokana na viwango halisi vya soko Tanzania (Sio nukuu zilizothibitishwa za wauzaji).' : 'Estimates are based on Tanzanian market benchmarks (Not confirmed vendor quotations).'}
+          </div>
+        </div>
+      )}
+
       {/* Deficit Tradeoff Options when budget is unrealistic/difficult */}
       {meta.tradeoffOptions && meta.tradeoffOptions.length > 0 && (
         <div style={{

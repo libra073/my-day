@@ -62,14 +62,15 @@ export function evaluateCuriosity(state = {}) {
 /**
  * Detect constraints and financial/scope conflicts.
  */
-export function evaluateConstraints(state = {}) {
-  const { eventType = "wedding", budget, guestCount, location = "Dar es Salaam", planType = "balanced", requirements = {} } = state;
+export function evaluateConstraints(state = {}, currentPlan = null) {
+  const { eventType = "wedding", budget, guestCount, planType = "balanced", requirements = {} } = state;
+  const location = state.location || "Dar es Salaam";
   const conflicts = [];
   let calculation = null;
 
   if (budget) {
     const effectiveGuests = guestCount || 50;
-    calculation = calculateBudget({
+    calculation = currentPlan?._meta || calculateBudget({
       eventType,
       guestCount: effectiveGuests,
       totalBudget: budget,
@@ -237,7 +238,7 @@ export function runReasoning({
   currentPlan = {}
 }) {
   const curiosity = evaluateCuriosity(currentState);
-  const constraintResult = evaluateConstraints(currentState);
+  const constraintResult = evaluateConstraints(currentState, currentPlan);
   const tradeoffs = generateTradeoffs({ calculation: constraintResult.calculation, state: currentState });
 
   let reallocationResult = null;

@@ -65,7 +65,7 @@ function estimateProviderCost(provider, guestCount) {
  * Simple scoring function – higher is better.
  * Scores are weighted (out of 100).
  */
-function computeScore({ provider, cost, allocatedBudget, location }) {
+function computeScore({ provider, cost, allocatedBudget, location, guestCount }) {
   const weights = {
     budgetFit: 30,
     location: 25,
@@ -75,7 +75,7 @@ function computeScore({ provider, cost, allocatedBudget, location }) {
     categoryMatch: 10,
   };
 
-  const budgetScore = Math.max(0, 1 - Math.abs(cost - allocatedBudget) / allocatedBudget) * 100;
+  const budgetScore = Math.max(0, 1 - Math.abs(cost - allocatedBudget) / (allocatedBudget || 1)) * 100;
   const budgetFit = Math.min(budgetScore, 100) * (weights.budgetFit / 100);
 
   const locationScore = provider.location && provider.location.toLowerCase().includes(location.toLowerCase()) ? 100 : 50;
@@ -135,11 +135,11 @@ export function matchVendors({
       const withinTol = cost <= allocatedBudget * (1 + budgetTolerance);
 
       if (within || withinTol) {
-        const score = computeScore({ provider, cost, allocatedBudget, location });
+        const score = computeScore({ provider, cost, allocatedBudget, location, guestCount });
         const label = score >= 85 ? "Best Match" : score >= 70 ? "Great Match" : "Good Match";
         const reasons = [];
         if (within) reasons.push("Fits your budget");
-        else reasons.push(`Within ${Math.round(((cost - allocatedBudget) / allocatedBudget) * 100)}% over budget`);
+        else reasons.push(`Within ${Math.round(((cost - allocatedBudget) / (allocatedBudget || 1)) * 100)}% over budget`);
         if (withinLocation(provider)) reasons.push(`Located in ${location}`);
         if (provider.rating) reasons.push(`${provider.rating}★ rating`);
         if (provider.capacity) reasons.push(`Capacity ${provider.capacity}`);
@@ -153,6 +153,8 @@ export function matchVendors({
           matchLabel: label,
           reasons,
           provider,
+          pricingType: provider.isVerified ? "verified_vendor_quote" : "vendor_catalog_price",
+          isVerifiedQuote: Boolean(provider.isVerified),
         };
         if (within) matches.push(entry);
         else overBudget.push({ ...entry, overBudgetAmount: cost - allocatedBudget });

@@ -92,6 +92,26 @@ export const EVENT_SERVICE_SCOPES = {
     recommended: ["decor", "photography", "entertainment"],
     optional: ["transport", "misc"],
   },
+  sendoff: {
+    essential: ["venue", "catering"],
+    recommended: ["decor", "photography", "entertainment"],
+    optional: ["transport", "misc"],
+  },
+  "send-off": {
+    essential: ["venue", "catering"],
+    recommended: ["decor", "photography", "entertainment"],
+    optional: ["transport", "misc"],
+  },
+  kitchen_party: {
+    essential: ["catering", "decor"],
+    recommended: ["venue", "photography", "entertainment"],
+    optional: ["transport", "misc"],
+  },
+  "kitchen party": {
+    essential: ["catering", "decor"],
+    recommended: ["venue", "photography", "entertainment"],
+    optional: ["transport", "misc"],
+  },
   birthday: {
     essential: ["catering"],
     recommended: ["entertainment", "photography", "decor"],
@@ -112,6 +132,11 @@ export const EVENT_SERVICE_SCOPES = {
     recommended: ["photography"],
     optional: ["venue", "entertainment", "transport", "misc"],
   },
+  babyshower: {
+    essential: ["catering", "decor"],
+    recommended: ["photography"],
+    optional: ["venue", "entertainment", "transport", "misc"],
+  },
   engagement: {
     essential: ["venue", "catering"],
     recommended: ["decor", "photography", "entertainment"],
@@ -120,36 +145,133 @@ export const EVENT_SERVICE_SCOPES = {
 };
 
 // ---------------------------------------------------------------------------
-// 5. Practical Minimum Cost Calculator
+// 5. Practical Minimum Cost Calculator & Transparent Breakdown
 // ---------------------------------------------------------------------------
+
+/**
+ * Calculates a fully itemized, defensible minimum cost breakdown based on
+ * transparent Tanzanian event market assumptions.
+ */
+export function calculateMinimumCostBreakdown({
+  eventType = "wedding",
+  guestCount = 50,
+  location = "Dar es Salaam",
+  requirements = {},
+}) {
+  const guests = Math.max(1, Number(guestCount) || 50);
+  const mult = getRegionalMultiplier(location);
+  const normalizedType = (eventType || "wedding").toLowerCase().trim().replace(/[\s-]+/g, "_");
+  const scope = EVENT_SERVICE_SCOPES[eventType] || EVENT_SERVICE_SCOPES[normalizedType] || EVENT_SERVICE_SCOPES["wedding"];
+
+  // 1. Variable Per-Guest Costs
+  // Catering, drinks, and guest seating scale strictly with guest count.
+  const isCateringExcluded = requirements.catering === false || requirements.food === false;
+  const isDrinksExcluded = requirements.drinks === false;
+  const isSeatingExcluded = requirements.seating === false || requirements.chairs === false;
+
+  const isLightCatering = requirements.cateringType === "bites" ||
+    requirements.cateringType === "snacks" ||
+    requirements.lightCatering === true;
+
+  const perGuestFoodRate = isCateringExcluded
+    ? 0
+    : isLightCatering
+      ? 2000
+      : (UNIT_COSTS_PER_GUEST.catering?.budget ?? 3500);
+
+  const perGuestDrinksRate = isDrinksExcluded ? 0 : (UNIT_COSTS_PER_GUEST.drinks?.budget ?? 1200);
+  const perGuestSeatingRate = isSeatingExcluded ? 0 : (UNIT_COSTS_PER_GUEST.seating?.budget ?? 800);
+
+  const totalPerGuestVariable = perGuestFoodRate + perGuestDrinksRate + perGuestSeatingRate;
+
+  const foodMin = guests * perGuestFoodRate;
+  const drinksMin = guests * perGuestDrinksRate;
+  const seatingMin = guests * perGuestSeatingRate;
+  const variableSubtotal = foodMin + drinksMin + seatingMin;
+
+  // 2. Fixed Category Costs
+  // Fixed costs (venue hall, decor setup, photo, DJ) are only included in the minimum baseline IF:
+  // - The service is essential for the event type AND not explicitly declined (requirements[cat] !== false)
+  // OR
+  // - The user explicitly requested the service (requirements[cat] === true)
+  const isVenueIncluded = (scope.essential.includes("venue") && requirements.venue !== false) ||
+    requirements.venue === true;
+
+  const isDecorIncluded = (scope.essential.includes("decor") && requirements.decor !== false && requirements.decoration !== false) ||
+    requirements.decor === true ||
+    requirements.decoration === true;
+
+  const isPhotoIncluded = (scope.essential.includes("photography") && requirements.photography !== false && requirements.photo !== false) ||
+    requirements.photography === true ||
+    requirements.photo === true;
+
+  const isEntertainmentIncluded = (scope.essential.includes("entertainment") && requirements.entertainment !== false) ||
+    requirements.entertainment === true;
+
+  const venueBase = isVenueIncluded ? (CATEGORY_BASE_MINIMUMS.venue?.budget ?? 150000) : 0;
+  const decorBase = isDecorIncluded ? (CATEGORY_BASE_MINIMUMS.decor?.budget ?? 50000) : 0;
+  const photoBase = isPhotoIncluded ? (CATEGORY_BASE_MINIMUMS.photography?.budget ?? 150000) : 0;
+  const entertainmentBase = isEntertainmentIncluded ? (CATEGORY_BASE_MINIMUMS.entertainment?.budget ?? 60000) : 0;
+
+  const fixedSubtotal = venueBase + decorBase + photoBase + entertainmentBase;
+
+  // 3. Subtotal before regional adjustment
+  const baseSubtotal = variableSubtotal + fixedSubtotal;
+
+  // 4. Regional price adjustment
+  const total = Math.round(baseSubtotal * mult);
+
+  return {
+    total,
+    guests,
+    location,
+    regionalMultiplier: mult,
+    variableCosts: {
+      food: foodMin,
+      foodPerGuest: perGuestFoodRate,
+      drinks: drinksMin,
+      drinksPerGuest: perGuestDrinksRate,
+      seating: seatingMin,
+      seatingPerGuest: perGuestSeatingRate,
+      totalPerGuest: totalPerGuestVariable,
+      subtotal: variableSubtotal,
+    },
+    fixedCosts: {
+      venue: venueBase,
+      decor: decorBase,
+      photography: photoBase,
+      entertainment: entertainmentBase,
+      subtotal: fixedSubtotal,
+    },
+    includedServices: {
+      catering: !isCateringExcluded,
+      drinks: !isDrinksExcluded,
+      seating: !isSeatingExcluded,
+      venue: isVenueIncluded,
+      decor: isDecorIncluded,
+      photography: isPhotoIncluded,
+      entertainment: isEntertainmentIncluded,
+    },
+    baseSubtotal,
+    isEstimate: true,
+    pricingType: "estimated_market_baseline",
+    assumptionsDescription: `Baseline: ~TSh ${totalPerGuestVariable.toLocaleString()}/guest (Food: ${perGuestFoodRate.toLocaleString()}, Drinks: ${perGuestDrinksRate.toLocaleString()}, Seating: ${perGuestSeatingRate.toLocaleString()}) + Fixed: TSh ${fixedSubtotal.toLocaleString()} × Regional (${mult}) = TSh ${total.toLocaleString()}`,
+  };
+}
+
 export function calculateEstimatedMinimumCost({
   eventType = "wedding",
   guestCount = 50,
   location = "Dar es Salaam",
   requirements = {},
 }) {
-  const mult = getRegionalMultiplier(location);
-  const scope = EVENT_SERVICE_SCOPES[eventType] || EVENT_SERVICE_SCOPES["wedding"];
-
-  // Essential food + drinks + seating for guests
-  const foodMin = guestCount * UNIT_COSTS_PER_GUEST.catering.budget;
-  const drinksMin = guestCount * UNIT_COSTS_PER_GUEST.drinks.budget;
-  const seatingMin = guestCount * UNIT_COSTS_PER_GUEST.seating.budget;
-
-  let totalMin = (foodMin + drinksMin + seatingMin);
-
-  // Add venue minimum if essential or required
-  if (scope.essential.includes("venue") || requirements.venue !== false) {
-    totalMin += CATEGORY_BASE_MINIMUMS.venue.budget;
-  }
-
-  // Add minimum essential decor
-  if (scope.essential.includes("decor") || (requirements.decor !== false && requirements.decoration !== false)) {
-    totalMin += CATEGORY_BASE_MINIMUMS.decor.budget;
-  }
-
-  // Apply regional pricing multiplier
-  return Math.round(totalMin * mult);
+  const breakdown = calculateMinimumCostBreakdown({
+    eventType,
+    guestCount,
+    location,
+    requirements,
+  });
+  return breakdown.total;
 }
 
 // ---------------------------------------------------------------------------
@@ -166,15 +288,17 @@ export function calculateBudget({
   const guests = Math.max(1, Number(guestCount) || 50);
   const budget = Math.max(0, Number(totalBudget) || 0);
   const mult = getRegionalMultiplier(location);
-  const scope = EVENT_SERVICE_SCOPES[eventType] || EVENT_SERVICE_SCOPES["wedding"];
+  const normalizedType = (eventType || "wedding").toLowerCase().trim().replace(/[\s-]+/g, "_");
+  const scope = EVENT_SERVICE_SCOPES[eventType] || EVENT_SERVICE_SCOPES[normalizedType] || EVENT_SERVICE_SCOPES["wedding"];
 
-  // 1. Calculate Practical Minimum
-  const estimatedMinimum = calculateEstimatedMinimumCost({
+  // 1. Calculate Practical Minimum Breakdown
+  const costBreakdown = calculateMinimumCostBreakdown({
     eventType,
     guestCount: guests,
     location,
     requirements,
   });
+  const estimatedMinimum = costBreakdown.total;
 
   const costPerGuest = Math.round(budget / guests);
   const shortfall = Math.max(0, estimatedMinimum - budget);
@@ -185,12 +309,15 @@ export function calculateBudget({
 
   if (budget < estimatedMinimum) {
     const deficitRatio = shortfall / estimatedMinimum;
+    const perGuestVar = costBreakdown.variableCosts.totalPerGuest;
+    const regionalVar = Math.round(perGuestVar * mult);
+
     if (deficitRatio >= 0.30 || costPerGuest <= 6000) {
       feasibility = "unrealistic";
-      feasibilityReason = `Budget of TSh ${budget.toLocaleString()} gives only ~TSh ${costPerGuest.toLocaleString()}/guest total. The practical minimum to host ${guests} guests in ${location} is approximately TSh ${estimatedMinimum.toLocaleString()} (a shortfall of ~TSh ${shortfall.toLocaleString()}).`;
+      feasibilityReason = `Budget of TSh ${budget.toLocaleString()} gives only ~TSh ${costPerGuest.toLocaleString()}/guest for ${guests} guests. Baseline costs (~TSh ${regionalVar.toLocaleString()}/guest for basic food, drinks & seating in ${location}${costBreakdown.fixedCosts.subtotal > 0 ? ` plus essential fixed expenses of ~TSh ${Math.round(costBreakdown.fixedCosts.subtotal * mult).toLocaleString()}` : ""}) require approximately TSh ${estimatedMinimum.toLocaleString()} total, leaving a shortfall of ~TSh ${shortfall.toLocaleString()}.`;
     } else {
       feasibility = "difficult";
-      feasibilityReason = `Budget is ~TSh ${shortfall.toLocaleString()} below the minimum estimated cost (TSh ${estimatedMinimum.toLocaleString()}) for ${guests} guests in ${location}. Extreme cost-saving tradeoffs are required.`;
+      feasibilityReason = `Budget is ~TSh ${shortfall.toLocaleString()} below the minimum estimated cost (TSh ${estimatedMinimum.toLocaleString()}) for ${guests} guests in ${location}. Essential food, drinks, and seating alone absorb most of the funds; cost-saving tradeoffs are required.`;
     }
   } else if (budget < estimatedMinimum * 1.25) {
     feasibility = "tight";
@@ -331,11 +458,25 @@ export function calculateBudget({
   // Specific Actionable Tradeoff Options if in deficit
   const tradeoffOptions = [];
   if (shortfall > 0) {
-    tradeoffOptions.push(`Reduce guest count from ${guests} to ${Math.round((budget / (UNIT_COSTS_PER_GUEST.catering.budget * mult + 1500)))} guests`);
-    tradeoffOptions.push("Choose an open garden or community space instead of a commercial banquet hall");
-    tradeoffOptions.push("Simplify food to a self-catered single-course buffet");
-    tradeoffOptions.push("Remove non-essential services (MC, transport convoy, video)");
-    tradeoffOptions.push(`Increase total budget by ~TSh ${shortfall.toLocaleString()} to meet the practical minimum`);
+    const varRatePerGuest = Math.max(1, Math.round((costBreakdown.variableCosts?.totalPerGuest || 5500) * mult));
+    const realisticGuestsWithBudget = Math.max(1, Math.floor(budget / varRatePerGuest));
+
+    if (realisticGuestsWithBudget < guests) {
+      tradeoffOptions.push(`Punguza idadi ya wageni kutoka ${guests} hadi takriban ${realisticGuestsWithBudget} ili kuendana na bajeti ya chakula/vinywaji`);
+    }
+
+    if (guests >= 100) {
+      const suggestedContribution = Math.round(estimatedMinimum / guests);
+      tradeoffOptions.push(`Kwa wageni ${guests}, tumia mfumo wa mchango/kamati wa takriban TSh ${suggestedContribution.toLocaleString()} kwa kila mgeni`);
+    }
+
+    if (costBreakdown.fixedCosts?.venue > 0) {
+      tradeoffOptions.push("Tumia eneo la wazi, bustani ya nyumbani au ukumbi wa kijamii badala ya ukumbi wa kukodi wa gharama kubwa");
+    }
+
+    tradeoffOptions.push("Andaa chakula rahisi cha menyu moja (mfano pilau/biryani au vitafunwa) badala ya buffet ya aina nyingi");
+    tradeoffOptions.push("Ondoa huduma zisizo za lazima (msafara wa magari, MC wa bei kubwa, au video ya cinema)");
+    tradeoffOptions.push(`Ongeza bajeti kwa takriban TSh ${shortfall.toLocaleString()} kufikia kima cha chini cha kiuhalisia`);
   }
 
   return {
@@ -354,6 +495,8 @@ export function calculateBudget({
     categories,
     tradeoffOptions,
     deficitRatio: estimatedMinimum > 0 ? shortfall / estimatedMinimum : 0,
+    costBreakdown,
+    pricingType: "estimated_market_baseline",
   };
 }
 
@@ -385,5 +528,9 @@ export default {
   calculateBudget,
   generatePlans,
   calculateEstimatedMinimumCost,
+  calculateMinimumCostBreakdown,
   getRegionalMultiplier,
+  EVENT_SERVICE_SCOPES,
+  UNIT_COSTS_PER_GUEST,
+  CATEGORY_BASE_MINIMUMS,
 };

@@ -116,6 +116,12 @@ function buildFullPlanText(context, calculation, isSwahili) {
     ? (isSwahili ? `⚠️ Upungufu: **${fmt(calculation.shortfall)}** kulielekeza kima cha chini.` : `⚠️ Shortfall: **${fmt(calculation.shortfall)}** vs. minimum estimate.`)
     : "";
 
+  const assumptionsLine = calculation.costBreakdown?.variableCosts
+    ? (isSwahili
+        ? `💡 _Msingi wa makadirio: Chakula ~${fmt(calculation.costBreakdown.variableCosts.foodPerGuest)}/mgeni, Vinywaji ~${fmt(calculation.costBreakdown.variableCosts.drinksPerGuest)}/mgeni, Viti ~${fmt(calculation.costBreakdown.variableCosts.seatingPerGuest)}/mgeni (Kadirio la soko la Tanzania, sio nukuu thabiti)._`
+        : `💡 _Pricing baseline: Food ~${fmt(calculation.costBreakdown.variableCosts.foodPerGuest)}/guest, Drinks ~${fmt(calculation.costBreakdown.variableCosts.drinksPerGuest)}/guest, Seating ~${fmt(calculation.costBreakdown.variableCosts.seatingPerGuest)}/guest (Tanzanian market baseline, not a vendor quotation)._`)
+    : "";
+
   return [
     isSwahili
       ? `📋 **Mpango wa ${evName} — ${planLabel}**`
@@ -131,7 +137,8 @@ function buildFullPlanText(context, calculation, isSwahili) {
     statusLine,
     reserveLine,
     shortfallLine,
-  ].filter(l => l !== undefined).join("\n");
+    assumptionsLine,
+  ].filter(l => Boolean(l)).join("\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -307,9 +314,15 @@ export function composeResponse({
     const guests = currentState.guestCount || 50;
     const ack = nextAck(isSwahili);
     if (calculation && calculation.shortfall > 0) {
+      const cb = calculation.costBreakdown;
+      const varRate = cb?.variableCosts?.totalPerGuest
+        ? Math.round(cb.variableCosts.totalPerGuest * (cb.regionalMultiplier || 1))
+        : 6000;
+      const realisticGuests = Math.max(1, Math.floor((currentState.budget || 0) / varRate));
+
       message = isSwahili
-        ? `${ack} wageni ${guests}.\n\nKwa bajeti ya ${fmt(currentState.budget)} huko ${currentState.location || "Dar es Salaam"}, hii inatoa wastani wa ~${fmt(calculation.costPerGuest)}/mgeni — ni finyu sana. Kima cha chini kinachohitajika ni ~${fmt(calculation.estimatedMinimum)} (upungufu wa ~${fmt(calculation.shortfall)}).`
-        : `${ack} ${guests} guests.\n\nWith ${fmt(currentState.budget)} in ${currentState.location || "Dar es Salaam"}, that's only ~${fmt(calculation.costPerGuest)}/guest — very tight. Practical minimum is ~${fmt(calculation.estimatedMinimum)} (shortfall: ~${fmt(calculation.shortfall)}).`;
+        ? `${ack} wageni ${guests}.\n\nKwa bajeti ya ${fmt(currentState.budget)} huko ${currentState.location || "Dar es Salaam"}, hii inatoa wastani wa ~${fmt(calculation.costPerGuest)}/mgeni — ni finyu sana. Kima cha chini kinachohitajika ni ~${fmt(calculation.estimatedMinimum)} (upungufu wa ~${fmt(calculation.shortfall)}).\n\n💡 Msingi wa makadirio: Chakula cha chini, vinywaji na viti hugharimu kuanzia ~${fmt(varRate)}/mgeni. Ili kutosheleza bajeti ya ${fmt(currentState.budget)}, idadi inayopendekezwa ni wageni ~${realisticGuests}.`
+        : `${ack} ${guests} guests.\n\nWith ${fmt(currentState.budget)} in ${currentState.location || "Dar es Salaam"}, that's only ~${fmt(calculation.costPerGuest)}/guest — very tight. Practical minimum is ~${fmt(calculation.estimatedMinimum)} (shortfall: ~${fmt(calculation.shortfall)}).\n\n💡 Baseline assumptions: Basic catering, drinks & seating require ~${fmt(varRate)}/guest. To fit within ${fmt(currentState.budget)}, target ~${realisticGuests} guests.`;
     } else if (calculation) {
       message = isSwahili
         ? `${ack} wageni ${guests} (~${fmt(calculation.costPerGuest)}/mgeni). Mpango wako unabaki imara na akiba ya ${fmt(calculation.reserve)}.`
@@ -330,9 +343,16 @@ export function composeResponse({
     const ack = nextAck(isSwahili);
     const fmtBudget = fmt(currentState.budget || 0);
     if (calculation && calculation.shortfall > 0) {
+      const guests = currentState.guestCount || 50;
+      const cb = calculation.costBreakdown;
+      const varRate = cb?.variableCosts?.totalPerGuest
+        ? Math.round(cb.variableCosts.totalPerGuest * (cb.regionalMultiplier || 1))
+        : 6000;
+      const realisticGuests = Math.max(1, Math.floor((currentState.budget || 0) / varRate));
+
       message = isSwahili
-        ? `${ack} bajeti yako ni ${fmtBudget}.\n\nUkiwa na wageni ${currentState.guestCount || "?"} huko ${currentState.location || "Dar es Salaam"}, hii inatoa wastani wa ~${fmt(calculation.costPerGuest)}/mgeni.\n\nKima cha chini cha kimsingi ni ~${fmt(calculation.estimatedMinimum)} (upungufu wa ~${fmt(calculation.shortfall)}).\n\n💡 Ili kufanikisha kiuhalisia:\n1. Punguza idadi ya wageni hadi ~${Math.round((currentState.budget || 0) / 7500)}\n2. Tumia ukumbi wa kijamii au bustani ya wazi\n3. Andaa menyu rahisi ya pilau/biryani`
-        : `${ack} your budget is ${fmtBudget}.\n\nWith ${currentState.guestCount || "?"} guests in ${currentState.location || "Dar es Salaam"}, that's ~${fmt(calculation.costPerGuest)}/guest.\n\nPractical minimum is ~${fmt(calculation.estimatedMinimum)} (shortfall: ~${fmt(calculation.shortfall)}).\n\n💡 To make it work:\n1. Reduce guests to ~${Math.round((currentState.budget || 0) / 7500)}\n2. Use a community hall or open garden\n3. Opt for a simple pilau/biryani buffet`;
+        ? `${ack} bajeti yako ni ${fmtBudget}.\n\nUkiwa na wageni ${guests} huko ${currentState.location || "Dar es Salaam"}, hii inatoa wastani wa ~${fmt(calculation.costPerGuest)}/mgeni.\n\nKima cha chini cha kimsingi ni ~${fmt(calculation.estimatedMinimum)} (upungufu wa ~${fmt(calculation.shortfall)}).\n\n💡 Makadirio ya msingi: Chakula cha kawaida, vinywaji na viti vinahitaji kuanzia ~${fmt(varRate)}/mgeni${cb?.fixedCosts?.subtotal > 0 ? ` pamoja na huduma za kudumu za ~${fmt(Math.round(cb.fixedCosts.subtotal * (cb.regionalMultiplier || 1)))}` : ""}.\n\n💡 Ili kufanikisha kiuhalisia:\n1. Punguza idadi ya wageni hadi takriban ${realisticGuests}\n2. Tumia ukumbi wa kijamii au bustani ya wazi\n3. Andaa menyu rahisi ya pilau/biryani au vitafunwa`
+        : `${ack} your budget is ${fmtBudget}.\n\nWith ${guests} guests in ${currentState.location || "Dar es Salaam"}, that's ~${fmt(calculation.costPerGuest)}/guest.\n\nPractical minimum is ~${fmt(calculation.estimatedMinimum)} (shortfall: ~${fmt(calculation.shortfall)}).\n\n💡 Baseline assumptions: Basic catering, drinks & seating require ~${fmt(varRate)}/guest${cb?.fixedCosts?.subtotal > 0 ? ` plus essential fixed expenses of ~${fmt(Math.round(cb.fixedCosts.subtotal * (cb.regionalMultiplier || 1)))}` : ""}.\n\n💡 To make it work:\n1. Reduce guests to ~${realisticGuests}\n2. Use a community hall, home garden or open space\n3. Opt for a simple single-course buffet or bites`;
     } else if (calculation) {
       message = isSwahili
         ? `${ack} bajeti yako ni ${fmtBudget} (~${fmt(calculation.costPerGuest)}/mgeni kwa wageni ${currentState.guestCount || 50}). Mpango imara — akiba ya dharura: ${fmt(calculation.reserve)}.`
