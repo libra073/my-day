@@ -9,7 +9,7 @@ import { identifyEventType } from "./eventKnowledge.js";
 const SWAHILI_TOKENS = new Set([
   "habari", "mambo", "kwema", "poa", "salama", "shikamoo", "jambo", "vipi", "niaje",
   "harusi", "ndoa", "kuoa", "kuolewa", "sherehe", "wageni", "mgeni", "watu",
-  "bajeti", "laki", "milioni", "pesa", "shilingi", "bei", "gharama",
+  "bajeti", "laki", "milioni", "elfu", "nusu", "robo", "pesa", "shilingi", "bei", "gharama",
   "ukumbi", "kumbi", "chakula", "mapambo", "wapambaji", "muziki", "picha", "mpiga", "usafiri",
   "sawa", "ndio", "hapana", "punguza", "ongeza", "ondoa", "peleka", "weka", "nipatie",
   "kubwa", "ndogo", "ghali", "nafuu", "kifahari", "asante", "shukrani", "ahsante", "kwaheri",
@@ -87,124 +87,176 @@ const SWAHILI_NUMBER_WORDS = {
 };
 
 /**
- * Parse compound Swahili laki expressions like:
- *   "laki moja na sabini"  → 170,000  (100k + 70k)
- *   "laki moja na tano"    → 150,000  (100k + 50k)
- *   "laki mbili na hamsini"→ 250,000  (200k + 50k)
- *   "laki tatu na arobaini"→ 340,000  (300k + 40k)
+ * Parse a small Swahili number phrase into its numeric value.
+ * e.g. "moja" -> 1, "mbili" -> 2, "2" -> 2, "2.5" -> 2.5, "kumi na tano" -> 15, "sabini na tano" -> 75
  */
-function parseCompoundLaki(lowered) {
-  // Pattern: "laki <word1> na <word2>" — e.g. "laki moja na sabini"
-  const compoundPattern = /laki\s+(moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|nusu)\s+na\s+(nusu|hamsini|sitini|sabini|themanini|tisini|ishirini|thelathini|arobaini|kumi\s+na\s+tano|kumi)/;
-  const m = lowered.match(compoundPattern);
-  if (m) {
-    const base = SWAHILI_NUMBER_WORDS[m[1]] ?? 0;
-    const extra = SWAHILI_NUMBER_WORDS[m[2].trim()] ?? 0;
-    if (base > 0 && extra > 0) {
-      return Math.round((base + extra / 100) * 100000);
-    }
+export function parseSmallNumber(str) {
+  if (!str) return null;
+  const s = str.trim().toLowerCase();
+  if (/^\d+(?:\.\d+)?$/.test(s)) return parseFloat(s);
+  if (SWAHILI_NUMBER_WORDS[s] !== undefined) return SWAHILI_NUMBER_WORDS[s];
+
+  // Compound tens + units: e.g. "kumi na tano" -> 15, "sabini na tano" -> 75
+  const mTens = s.match(/^(ishirini|thelathini|arobaini|hamsini|sitini|sabini|themanini|tisini|kumi)\s+na\s+(moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|nusu)$/);
+  if (mTens) {
+    const tens = SWAHILI_NUMBER_WORDS[mTens[1]] || 0;
+    const units = SWAHILI_NUMBER_WORDS[mTens[2]] || 0;
+    return tens + units;
   }
 
-  // Pattern: "laki moja sabini" (without "na") — same structure
-  const noNaPattern = /laki\s+(moja|mbili|tatu|nne|tano|sita|saba|nane|tisa)\s+(hamsini|sitini|sabini|themanini|tisini|ishirini|thelathini|arobaini|kumi\s+na\s+tano|kumi)/;
-  const m2 = lowered.match(noNaPattern);
-  if (m2) {
-    const base = SWAHILI_NUMBER_WORDS[m2[1]] ?? 0;
-    const extra = SWAHILI_NUMBER_WORDS[m2[2].trim()] ?? 0;
-    if (base > 0 && extra >= 0) {
-      return Math.round((base + extra / 100) * 100000);
-    }
-  }
-
-  // Pattern: "milioni moja na laki tano" (1.5M style compound)
-  const milLakiPattern = /milioni\s+(moja|mbili|tatu|nne|tano|\d+)\s+na\s+laki\s+(moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|\d+)/;
-  const m3 = lowered.match(milLakiPattern);
-  if (m3) {
-    const milBase = SWAHILI_NUMBER_WORDS[m3[1]] ?? Number(m3[1]);
-    const lakiExtra = SWAHILI_NUMBER_WORDS[m3[2]] ?? Number(m3[2]);
-    if (!isNaN(milBase) && !isNaN(lakiExtra)) {
-      return Math.round(milBase * 1000000 + lakiExtra * 100000);
+  // Hundreds + rest: e.g. "mia mbili na hamsini" -> 250, "mia moja na sabini" -> 170
+  const mHund = s.match(/^(mia(?:\s+(?:moja|mbili|tatu|nne|tano|sita|saba|nane|tisa))?)(?:\s+na\s+(.+))?$/);
+  if (mHund) {
+    const hundVal = SWAHILI_NUMBER_WORDS[mHund[1]] || 100;
+    if (mHund[2]) {
+      const restVal = parseSmallNumber(mHund[2]);
+      if (restVal !== null) return hundVal + restVal;
+    } else {
+      return hundVal;
     }
   }
 
   return null;
 }
 
+// Token patterns for matching Swahili number sequences
+const NUM_TOKEN = '(?:\\d+(?:\\.\\d+)?|moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|kumi|ishirini|thelathini|arobaini|hamsini|sitini|sabini|themanini|tisini|mia|nusu|robo)';
+const NUM_PHRASE = `(?:${NUM_TOKEN}(?:\\s+na\\s+|\\s+)?)+`;
+
+
 export function parseMoney(text = "") {
   if (!text || typeof text !== "string") return null;
-  const lowered = text.toLowerCase();
+  const lowered = text.toLowerCase().trim();
 
-  // 0. Compound laki patterns (highest priority for Swahili numbers)
-  const compoundLaki = parseCompoundLaki(lowered);
-  if (compoundLaki !== null) {
-    return { value: compoundLaki, currency: "TZS", confidence: 0.99, raw: text.substring(0, 40) };
+  // 1. East African Shilling Notation: "250,000/=", "250,000/-", "250000/="
+  const slashEqualMatch = lowered.match(/(?:tsh|tzs|shilingi)?\s*([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{4,10})\s*(?:\/=|(?:\/-))\b/i);
+  if (slashEqualMatch) {
+    const val = Number(slashEqualMatch[1].replace(/,/g, ''));
+    if (!isNaN(val)) return { value: val, currency: "TZS", confidence: 0.99, raw: slashEqualMatch[0].trim() };
   }
 
-  // 1. Swahili compound "milioni X na nusu" e.g. "milioni moja na nusu" (1.5M), "milioni mbili na nusu" (2.5M)
-  const milNusuMatch = lowered.match(/milioni\s*(moja|mbili|tatu|nne|tano|\d+)?\s*na\s*nusu/);
-  if (milNusuMatch) {
-    const baseWord = milNusuMatch[1];
-    const baseNum = baseWord && SWAHILI_NUMBER_WORDS[baseWord] !== undefined
-      ? SWAHILI_NUMBER_WORDS[baseWord]
-      : (baseWord ? Number(baseWord) : 1);
-    const total = Math.round((baseNum + 0.5) * 1000000);
-    return { value: total, currency: "TZS", confidence: 0.99, raw: milNusuMatch[0] };
-  }
-
-  // 2. Swahili "milioni [word/number]" e.g. "milioni moja", "milioni mbili", "milioni 2", "milioni 1.5"
-  const milWordMatch = lowered.match(/milioni\s*(moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|kumi\s*na\s*tano|kumi|ishirini|thelathini|\d+(?:\.\d+)?)/);
-  if (milWordMatch) {
-    const val = milWordMatch[1];
-    const num = SWAHILI_NUMBER_WORDS[val] !== undefined ? SWAHILI_NUMBER_WORDS[val] : Number(val);
-    if (!isNaN(num)) {
-      return { value: Math.round(num * 1000000), currency: "TZS", confidence: 0.99, raw: milWordMatch[0] };
+  // 2. Standard formatted comma numbers e.g. "TSh 250,000", "250,000", "15,000,000"
+  const formattedMatch = lowered.match(/(?:tsh|tzs|shilingi)?\s*([0-9]{1,3}(?:,[0-9]{3})+)/i);
+  if (formattedMatch) {
+    const val = Number(formattedMatch[1].replace(/,/g, ''));
+    if (!isNaN(val) && val >= 1000) {
+      return { value: val, currency: "TZS", confidence: 0.99, raw: formattedMatch[0].trim() };
     }
   }
 
-  // 3. Swahili "laki [word/number]" or "[number] laki" e.g. "laki 3", "laki tatu", "laki tano", "laki nane", "3 laki"
-  const lakiMatch = lowered.match(/(?:laki)\s*(moja|mbili|tatu|nne|tano|sita|saba|nane|tisa|\d+(?:\.\d+)?)/) ||
-                    lowered.match(/(\d+(?:\.\d+)?)\s*(?:laki)\b/);
-  if (lakiMatch) {
-    const val = lakiMatch[1];
-    const num = SWAHILI_NUMBER_WORDS[val] !== undefined ? SWAHILI_NUMBER_WORDS[val] : Number(val);
-    if (!isNaN(num)) {
-      return { value: Math.round(num * 100000), currency: "TZS", confidence: 0.99, raw: lakiMatch[0] };
-    }
-  }
-
-  // 4. "X.Xm" or "X.X million" or "Xm" (e.g. 1.5m, 1.5M, 2m, 10m, 1.5 million)
-  const mMatch = lowered.match(/(?:tsh|tzs)?\s*(\d+(?:\.\d+)?)\s*(?:m\b|million\b|milioni\b)/);
+  // 3. Shorthand "X.Xm" / "Xm" / "X million"
+  const mMatch = lowered.match(/(?:tsh|tzs)?\s*(\d+(?:\.\d+)?)\s*(?:m\b|million\b|milioni\b)/i);
   if (mMatch) {
     const num = Number(mMatch[1]);
-    if (!isNaN(num)) {
-      return { value: Math.round(num * 1000000), currency: "TZS", confidence: 0.98, raw: mMatch[0] };
-    }
+    if (!isNaN(num)) return { value: Math.round(num * 1000000), currency: "TZS", confidence: 0.98, raw: mMatch[0].trim() };
   }
 
-  // 5. "Xk" or "X k" (e.g. 300k, 300 K, 500k, 800k)
-  const kMatch = lowered.match(/(?:tsh|tzs)?\s*(\d+(?:\.\d+)?)\s*k\b/);
+  // 4. Shorthand "Xk" / "X k"
+  const kMatch = lowered.match(/(?:tsh|tzs)?\s*(\d+(?:\.\d+)?)\s*k\b/i);
   if (kMatch) {
     const num = Number(kMatch[1]);
-    if (!isNaN(num)) {
-      return { value: Math.round(num * 1000), currency: "TZS", confidence: 0.98, raw: kMatch[0] };
+    if (!isNaN(num)) return { value: Math.round(num * 1000), currency: "TZS", confidence: 0.98, raw: kMatch[0].trim() };
+  }
+
+  // 5. Special Compound: "laki X na nusu milioni" -> X*100,000 + 500,000 (e.g. "laki mbili na nusu milioni" = 700,000)
+  const lakiNaMilioniMatch = lowered.match(new RegExp(`\\blaki\\s+(${NUM_TOKEN})\\s+na\\s+nusu\\s+milioni\\b`, 'i'));
+  if (lakiNaMilioniMatch) {
+    const lakiCount = parseSmallNumber(lakiNaMilioniMatch[1]) ?? 1;
+    const total = Math.round(lakiCount * 100000 + 500000);
+    return { value: total, currency: "TZS", confidence: 0.99, raw: lakiNaMilioniMatch[0].trim() };
+  }
+
+  // 6. Compound: "milioni X na laki Y" e.g. "milioni moja na laki tano" (1.5M), "milioni 2 na laki 3" (2.3M)
+  const milLakiMatch = lowered.match(new RegExp(`\\bmilioni\\s+(${NUM_TOKEN})\\s+na\\s+laki\\s+(${NUM_TOKEN})\\b`, 'i'));
+  if (milLakiMatch) {
+    const milNum = parseSmallNumber(milLakiMatch[1]);
+    const lakiNum = parseSmallNumber(milLakiMatch[2]);
+    if (milNum !== null && lakiNum !== null) {
+      return { value: Math.round(milNum * 1000000 + lakiNum * 100000), currency: "TZS", confidence: 0.99, raw: milLakiMatch[0].trim() };
     }
   }
 
-  // 6. Formatted comma numbers e.g. "300,000" or "TSh 15,000,000" or "2,000,000"
-  const formattedMatch = lowered.match(/(?:tsh|tzs|shilingi)?\s*([0-9]{1,3}(?:,[0-9]{3})+)/);
-  if (formattedMatch) {
-    const cleanNum = Number(formattedMatch[1].replace(/,/g, ""));
-    if (!isNaN(cleanNum) && cleanNum >= 10000) {
-      return { value: cleanNum, currency: "TZS", confidence: 0.99, raw: formattedMatch[0] };
+  // 7. Compound: "milioni X na nusu" e.g. "milioni moja na nusu" (1.5M), "milioni mbili na nusu" (2.5M), "milioni 2 na nusu"
+  const milNusuMatch = lowered.match(new RegExp(`\\bmilioni\\s+(${NUM_TOKEN})\\s+na\\s+nusu\\b`, 'i'));
+  if (milNusuMatch) {
+    const base = parseSmallNumber(milNusuMatch[1]) ?? 1;
+    return { value: Math.round((base + 0.5) * 1000000), currency: "TZS", confidence: 0.99, raw: milNusuMatch[0].trim() };
+  }
+
+  // 8. Compound: "nusu milioni" (500,000)
+  if (/\bnusu\s+milioni\b/i.test(lowered)) {
+    return { value: 500000, currency: "TZS", confidence: 0.99, raw: "nusu milioni" };
+  }
+
+  // 9. Compound: "laki X na nusu" e.g. "laki mbili na nusu", "laki 2 na nusu", "laki moja na nusu"
+  const lakiNusuMatch = lowered.match(new RegExp(`\\blaki\\s+(${NUM_TOKEN})\\s+na\\s+nusu\\b`, 'i'));
+  if (lakiNusuMatch) {
+    const base = parseSmallNumber(lakiNusuMatch[1]);
+    if (base !== null) {
+      return { value: Math.round((base + 0.5) * 100000), currency: "TZS", confidence: 0.99, raw: lakiNusuMatch[0].trim() };
     }
   }
 
-  // 7. Plain digits with budget keyword or minimum 5 digits e.g. "budget is 500000", "nina 800000"
-  const rawDigitMatch = lowered.match(/(?:budget|bajeti|tsh|tzs|shilingi|nina|tuna|ya)?\s*([0-9]{5,10})\b/);
+  // 10. Compound: "nusu laki" (50,000)
+  if (/\bnusu\s+laki\b/i.test(lowered)) {
+    return { value: 50000, currency: "TZS", confidence: 0.99, raw: "nusu laki" };
+  }
+
+  // 11. Compound: "laki X na elfu Y" e.g. "laki mbili na elfu hamsini" (250,000), "laki moja na elfu sabini" (170,000)
+  const lakiElfuMatch = lowered.match(new RegExp(`\\blaki\\s+(${NUM_TOKEN})\\s+na\\s+elfu\\s+(${NUM_PHRASE.trim()})`, 'i'));
+  if (lakiElfuMatch) {
+    const lakiBase = parseSmallNumber(lakiElfuMatch[1]);
+    const elfuBase = parseSmallNumber(lakiElfuMatch[2].trim());
+    if (lakiBase !== null && elfuBase !== null) {
+      return { value: Math.round(lakiBase * 100000 + elfuBase * 1000), currency: "TZS", confidence: 0.99, raw: lakiElfuMatch[0].trim() };
+    }
+  }
+
+  // 12. Compound: Colloquial "laki X [na] Y" where Y is tens (representing thousands without "elfu")
+  // e.g. "laki moja na sabini" (170,000), "laki moja sabini" (170,000), "laki moja na sabini tu", "laki mbili na hamsini" (250,000)
+  const colloquialLakiMatch = lowered.match(/laki\s+([a-z0-9]+)(?:\s+na)?\s+(hamsini|sitini|sabini|themanini|tisini|arobaini|thelathini|ishirini|kumi(?:\s+na\s+(?:tano|moja|mbili|tatu|nne|sita|saba|nane|tisa))?)(?:\s+(?:tu|hivi|kama|pekee|kamili)|\b|$)/i);
+  if (colloquialLakiMatch) {
+    const lakiBase = parseSmallNumber(colloquialLakiMatch[1]);
+    const extraThousand = parseSmallNumber(colloquialLakiMatch[2]);
+    if (lakiBase !== null && extraThousand !== null) {
+      return { value: Math.round(lakiBase * 100000 + extraThousand * 1000), currency: "TZS", confidence: 0.99, raw: colloquialLakiMatch[0].trim() };
+    }
+  }
+
+  // 13. Unit: Simple "milioni [word/number]" e.g. "milioni 2", "milioni moja", "milioni kumi na tano"
+  const singleMilMatch = lowered.match(new RegExp(`\\bmilioni\\s+(${NUM_PHRASE.trim()})`, 'i'));
+  if (singleMilMatch) {
+    const num = parseSmallNumber(singleMilMatch[1].trim());
+    if (num !== null) {
+      return { value: Math.round(num * 1000000), currency: "TZS", confidence: 0.99, raw: singleMilMatch[0].trim() };
+    }
+  }
+
+  // 14. Unit: Simple "laki [word/number]" or "[number] laki" e.g. "laki moja", "laki 2", "laki mbili", "laki tatu", "laki tano", "3 laki"
+  const singleLakiMatch = lowered.match(new RegExp(`\\blaki\\s+(${NUM_TOKEN})\\b`, 'i')) ||
+                          lowered.match(/(\d+(?:\.\d+)?)\s*laki\b/i);
+  if (singleLakiMatch) {
+    const num = parseSmallNumber(singleLakiMatch[1]);
+    if (num !== null) {
+      return { value: Math.round(num * 100000), currency: "TZS", confidence: 0.99, raw: singleLakiMatch[0].trim() };
+    }
+  }
+
+  // 15. Unit: "elfu [word/number]" e.g. "elfu hamsini", "elfu sabini na tano", "elfu 50", "elfu mia mbili na hamsini"
+  const singleElfuMatch = lowered.match(new RegExp(`\\belfu\\s+(${NUM_PHRASE.trim()})`, 'i'));
+  if (singleElfuMatch) {
+    const num = parseSmallNumber(singleElfuMatch[1].trim());
+    if (num !== null) {
+      return { value: Math.round(num * 1000), currency: "TZS", confidence: 0.99, raw: singleElfuMatch[0].trim() };
+    }
+  }
+
+  // 16. Unit: Raw digits (5 to 10 digits) e.g. "250000", "nina 500000"
+  const rawDigitMatch = lowered.match(/(?:budget|bajeti|tsh|tzs|shilingi|nina|tuna|ya)?\s*([0-9]{5,10})\b/i);
   if (rawDigitMatch && rawDigitMatch[1]) {
     const num = Number(rawDigitMatch[1]);
     if (!isNaN(num) && num >= 10000) {
-      return { value: num, currency: "TZS", confidence: 0.92, raw: rawDigitMatch[0] };
+      return { value: num, currency: "TZS", confidence: 0.92, raw: rawDigitMatch[0].trim() };
     }
   }
 

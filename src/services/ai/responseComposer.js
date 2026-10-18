@@ -331,14 +331,14 @@ export function composeResponse({
     const fmtBudget = fmt(currentState.budget || 0);
     if (calculation && calculation.shortfall > 0) {
       message = isSwahili
-        ? `${ack} bajeti ni ${fmtBudget}.\n\nUkiwa na wageni ${currentState.guestCount || "?"} huko ${currentState.location || "Dar es Salaam"}, hii inatoa wastani wa ~${fmt(calculation.costPerGuest)}/mgeni.\n\nKima cha chini cha kimsingi ni ~${fmt(calculation.estimatedMinimum)} (upungufu wa ~${fmt(calculation.shortfall)}).\n\n💡 Ili kufanikisha kiuhalisia:\n1. Punguza idadi ya wageni hadi ~${Math.round((currentState.budget || 0) / 7500)}\n2. Tumia ukumbi wa kijamii au bustani ya wazi\n3. Andaa menyu rahisi ya pilau/biryani`
-        : `${ack} budget is ${fmtBudget}.\n\nWith ${currentState.guestCount || "?"} guests in ${currentState.location || "Dar es Salaam"}, that's ~${fmt(calculation.costPerGuest)}/guest.\n\nPractical minimum is ~${fmt(calculation.estimatedMinimum)} (shortfall: ~${fmt(calculation.shortfall)}).\n\n💡 To make it work:\n1. Reduce guests to ~${Math.round((currentState.budget || 0) / 7500)}\n2. Use a community hall or open garden\n3. Opt for a simple pilau/biryani buffet`;
+        ? `${ack} bajeti yako ni ${fmtBudget}.\n\nUkiwa na wageni ${currentState.guestCount || "?"} huko ${currentState.location || "Dar es Salaam"}, hii inatoa wastani wa ~${fmt(calculation.costPerGuest)}/mgeni.\n\nKima cha chini cha kimsingi ni ~${fmt(calculation.estimatedMinimum)} (upungufu wa ~${fmt(calculation.shortfall)}).\n\n💡 Ili kufanikisha kiuhalisia:\n1. Punguza idadi ya wageni hadi ~${Math.round((currentState.budget || 0) / 7500)}\n2. Tumia ukumbi wa kijamii au bustani ya wazi\n3. Andaa menyu rahisi ya pilau/biryani`
+        : `${ack} your budget is ${fmtBudget}.\n\nWith ${currentState.guestCount || "?"} guests in ${currentState.location || "Dar es Salaam"}, that's ~${fmt(calculation.costPerGuest)}/guest.\n\nPractical minimum is ~${fmt(calculation.estimatedMinimum)} (shortfall: ~${fmt(calculation.shortfall)}).\n\n💡 To make it work:\n1. Reduce guests to ~${Math.round((currentState.budget || 0) / 7500)}\n2. Use a community hall or open garden\n3. Opt for a simple pilau/biryani buffet`;
     } else if (calculation) {
       message = isSwahili
-        ? `${ack} bajeti ni ${fmtBudget} (~${fmt(calculation.costPerGuest)}/mgeni kwa wageni ${currentState.guestCount || 50}). Mpango imara — akiba ya dharura: ${fmt(calculation.reserve)}.`
-        : `${ack} budget is ${fmtBudget} (~${fmt(calculation.costPerGuest)}/guest for ${currentState.guestCount || 50} guests). Solid plan — ${fmt(calculation.reserve)} reserve.`;
+        ? `${ack} bajeti yako ni ${fmtBudget} (~${fmt(calculation.costPerGuest)}/mgeni kwa wageni ${currentState.guestCount || 50}). Mpango imara — akiba ya dharura: ${fmt(calculation.reserve)}.`
+        : `${ack} your budget is ${fmtBudget} (~${fmt(calculation.costPerGuest)}/guest for ${currentState.guestCount || 50} guests). Solid plan — ${fmt(calculation.reserve)} reserve.`;
     } else {
-      message = isSwahili ? `${ack} bajeti ni ${fmtBudget}.` : `${ack} budget is ${fmtBudget}.`;
+      message = isSwahili ? `${ack} bajeti yako ni ${fmtBudget}.` : `${ack} your budget is ${fmtBudget}.`;
     }
     if (curiosity && curiosity.hasMissingInfo) {
       message += `\n\n${isSwahili ? curiosity.promptSw : curiosity.promptEn}`;

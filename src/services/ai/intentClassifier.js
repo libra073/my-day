@@ -225,7 +225,7 @@ export function classifyIntent(text = "", parsedEntities = {}, prevContext = {})
   if (guests !== null && prevContext.guestCount && wordCount <= 5 && !lowered.includes("what if") && !lowered.includes("wakiwa")) {
     return { intent: "guest_correction", confidence: 0.94, meta: { guests: guests.value, isDelta: guests.isDelta, deltaValue: guests.deltaValue } };
   }
-  if (budget !== null && prevContext.budget && wordCount <= 5 && !lowered.includes("is") && !lowered.includes("inatosha")) {
+  if (budget !== null && prevContext.budget && wordCount <= 8 && !lowered.includes("is") && !lowered.includes("inatosha")) {
     return { intent: "budget_correction", confidence: 0.94, meta: { budget: budget.value } };
   }
 
@@ -306,7 +306,7 @@ export function classifyIntent(text = "", parsedEntities = {}, prevContext = {})
   // ───────────────────────────────────────────────────────────────────────────
   // 21. FIRST-TIME ENTITY DECLARATIONS (when no prior context)
   // ───────────────────────────────────────────────────────────────────────────
-  if (budget !== null && !prevContext.budget && wordCount <= 6) {
+  if (budget !== null && !prevContext.budget && (wordCount <= 8 || prevContext.lastAssistantQuestion === "ASK_BUDGET")) {
     return { intent: "budget_provided", confidence: 0.95, meta: { budget: budget.value } };
   }
   if (guests !== null && !prevContext.guestCount && wordCount <= 5) {

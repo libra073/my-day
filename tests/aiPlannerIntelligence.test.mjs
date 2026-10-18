@@ -84,6 +84,91 @@ test("Parses TSh 15,000,000 to 15,000,000", () => {
   assert.equal(res?.value, 15000000);
 });
 
+test("Parses laki moja to 100,000", () => {
+  assert.equal(parseMoney("laki moja")?.value, 100000);
+});
+
+test("Parses laki mbili to 200,000", () => {
+  assert.equal(parseMoney("laki mbili")?.value, 200000);
+});
+
+test("Parses laki mbili na nusu to 250,000", () => {
+  assert.equal(parseMoney("laki mbili na nusu")?.value, 250000);
+});
+
+test("Parses laki 2 na nusu to 250,000", () => {
+  assert.equal(parseMoney("laki 2 na nusu")?.value, 250000);
+});
+
+test("Parses laki mbili na nusu tu to 250,000", () => {
+  assert.equal(parseMoney("laki mbili na nusu tu")?.value, 250000);
+});
+
+test("Parses laki mbili na nusu hivi to 250,000", () => {
+  assert.equal(parseMoney("laki mbili na nusu hivi")?.value, 250000);
+});
+
+test("Parses laki mbili na nusu milioni to 700,000 without multiplier collision", () => {
+  assert.equal(parseMoney("laki mbili na nusu milioni")?.value, 700000);
+});
+
+test("Parses laki moja na nusu to 150,000", () => {
+  assert.equal(parseMoney("laki moja na nusu")?.value, 150000);
+});
+
+test("Parses laki moja na sabini to 170,000", () => {
+  assert.equal(parseMoney("laki moja na sabini")?.value, 170000);
+});
+
+test("Parses laki moja na sabini tu to 170,000 (regression)", () => {
+  assert.equal(parseMoney("laki moja na sabini tu")?.value, 170000);
+});
+
+test("Parses laki moja na elfu hamsini to 150,000", () => {
+  assert.equal(parseMoney("laki moja na elfu hamsini")?.value, 150000);
+});
+
+test("Parses milioni mbili na nusu to 2,500,000", () => {
+  assert.equal(parseMoney("milioni mbili na nusu")?.value, 2500000);
+});
+
+test("Parses elfu hamsini to 50,000", () => {
+  assert.equal(parseMoney("elfu hamsini")?.value, 50000);
+});
+
+test("Parses elfu sabini na tano to 75,000", () => {
+  assert.equal(parseMoney("elfu sabini na tano")?.value, 75000);
+});
+
+test("Parses laki mbili na elfu hamsini to 250,000", () => {
+  assert.equal(parseMoney("laki mbili na elfu hamsini")?.value, 250000);
+});
+
+test("Parses 250k to 250,000", () => {
+  assert.equal(parseMoney("250k")?.value, 250000);
+});
+
+test("Parses 2.5m to 2,500,000", () => {
+  assert.equal(parseMoney("2.5m")?.value, 2500000);
+});
+
+test("Parses TSh 250,000 to 250,000", () => {
+  assert.equal(parseMoney("TSh 250,000")?.value, 250000);
+});
+
+test("Parses 250,000/= to 250,000", () => {
+  assert.equal(parseMoney("250,000/=")?.value, 250000);
+});
+
+test("Parses 250,000/- to 250,000", () => {
+  assert.equal(parseMoney("250,000/-")?.value, 250000);
+});
+
+test("Ambiguous or invalid amounts return null rather than fabricating numbers", () => {
+  assert.equal(parseMoney("pesa zipo za kutosha"), null);
+  assert.equal(parseMoney("nina bajeti nzuri"), null);
+});
+
 // ---------------------------------------------------------------------------
 // 2. GUEST PARSING TESTS
 // ---------------------------------------------------------------------------
@@ -257,6 +342,36 @@ await testAsync("Tight budget honest evaluation", async () => {
   assert.equal(res.plan._meta.feasibility, "unrealistic");
   assert.ok(res.plan._meta.shortfall > 0);
   assert.ok(res.message.includes("300,000"));
+});
+
+await testAsync("End-to-End Birthday Party Swahili Money Flow & Correction", async () => {
+  // Step 1: User says "birthday party"
+  const turn1 = await processMessage({}, "birthday party");
+  assert.equal(turn1.updatedContext.eventType, "birthday");
+  assert.ok(turn1.message.toLowerCase().includes("budget") || turn1.message.toLowerCase().includes("bajeti"));
+
+  // Step 2: User says "laki 2 na nusu"
+  const turn2 = await processMessage(turn1.updatedContext, "laki 2 na nusu");
+  assert.equal(turn2.updatedContext.budget, 250000);
+  assert.ok(turn2.message.includes("TSh 250,000"));
+  assert.ok(turn2.message.includes("bajeti yako ni TSh 250,000"));
+  // Feasibility & calculator verify 250,000 is used
+  assert.equal(turn2.plan._meta.totalBudget, 250000);
+  assert.equal(turn2.plan._meta.allocatedTotal, 250000);
+
+  // Step 3: User corrects the amount to "laki 3"
+  const turn3 = await processMessage(turn2.updatedContext, "badilisha bajeti iwe laki 3");
+  assert.equal(turn3.updatedContext.budget, 300000);
+  assert.ok(turn3.message.includes("TSh 300,000"));
+
+  // Step 4: User specifies guest count "watu 50"
+  const turn4 = await processMessage(turn3.updatedContext, "watu 50");
+  assert.equal(turn4.updatedContext.guestCount, 50);
+  assert.equal(turn4.updatedContext.budget, 300000); // Preserved
+
+  // Step 5: Ambiguous amount does not fabricate values
+  const turn5 = await processMessage({}, "sherehe ya birthday, nina bajeti nzuri sana");
+  assert.equal(turn5.updatedContext.budget, null); // Not fabricated
 });
 
 console.log("\n=================================================");
