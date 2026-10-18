@@ -12,10 +12,10 @@ const VENDOR_CATEGORIES = [
   { id: 'transport', nameKey: 'cat_transport_title', defaultName: 'Transport' },
 ];
 
-function AuthModal({ onClose, onSuccess }) {
+function AuthModal({ onClose, onSuccess, initialTab = 'login' }) {
   const { loginUser, registerUser, t } = useAppContext();
 
-  const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
+  const [activeTab, setActiveTab] = useState(initialTab || 'login'); // 'login' | 'register'
   const [selectedRole, setSelectedRole] = useState('customer'); // 'customer' | 'provider' | 'admin'
   const [showPassword, setShowPassword] = useState(false);
 

@@ -43,6 +43,18 @@ export const translations = {
     download_receipt: "Download Receipt",
     pay_remaining: "Pay Remaining",
 
+    // Auth & Workspace Prompts
+    auth_prompt_title: "Create your free MY DAY account to continue.",
+    auth_prompt_desc: "Join MY DAY to save your wedding plans, manage your budget, connect with vendors, and keep everything organized in one place.",
+    auth_prompt_create_btn: "Create Account",
+    auth_prompt_login_btn: "Log In",
+    auth_prompt_later_btn: "Maybe Later",
+    auth_guest_badge: "Guest Explorer Mode",
+    no_wedding_title: "You haven't created your wedding yet. Let's get started!",
+    no_wedding_desc: "Set up your wedding date and budget to unlock your personalized planning dashboard, vendor tracker, and live countdown.",
+    no_wedding_create_btn: "Create Wedding",
+    no_wedding_browse_btn: "Browse Marketplace",
+
     // Navigation
     nav_home: "Home",
     nav_browse: "Browse Services",
@@ -486,6 +498,18 @@ export const translations = {
     paid_cost: "Zilizolipwa:",
     download_receipt: "Pakua Risiti",
     pay_remaining: "Lipa Salio",
+
+    // Auth & Workspace Prompts
+    auth_prompt_title: "Fungua akaunti yako ya MY DAY ili kuendelea.",
+    auth_prompt_desc: "Jiunge na MY DAY ili kuhifadhi mipango ya harusi yako, kusimamia bajeti, kuwasiliana na watoa huduma, na kupanga kila kitu sehemu moja.",
+    auth_prompt_create_btn: "Fungua Akaunti",
+    auth_prompt_login_btn: "Ingia",
+    auth_prompt_later_btn: "Baadaye",
+    auth_guest_badge: "Hali ya Mgeni",
+    no_wedding_title: "Bado hujaweka maelezo ya harusi yako. Tuanze sasa!",
+    no_wedding_desc: "Weka tarehe ya harusi yako na bajeti ili ufungue dashibodi binafsi, mfuatiliaji wa watoa huduma, na kihesabu siku.",
+    no_wedding_create_btn: "Weka Maelezo ya Harusi",
+    no_wedding_browse_btn: "Tazama Watoa Huduma",
 
     // Navigation
     nav_home: "Mwanzo",

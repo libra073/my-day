@@ -69,10 +69,52 @@ const ALL_CATEGORIES = [
 ];
 
 function WeddingDashboardPage() {
-  const { wedding, bookings, providers, user } = useAppContext();
+  const { wedding, bookings, providers, user, isLoggedIn, openAuthModal, language, t } = useAppContext();
   const [activePaymentModal, setActivePaymentModal] = useState(null);
   const countdown = useCountdown(wedding?.date);
+  const isSw = language === 'sw';
 
+  // 1. Visitors without an account: friendly sign-up/login reminder
+  if (!isLoggedIn) {
+    return (
+      <div className="container" style={{ padding: '4rem 1.25rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: 580, margin: '0 auto', background: '#FFFFFF', padding: '3rem 2rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(245, 166, 35, 0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem' }}>
+            <Heart size={32} color="#F5A623" />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.75rem' }}>
+            {t('auth_prompt_title', isSw ? 'Fungua akaunti yako ya MY DAY ili kuendelea.' : 'Create your free MY DAY account to continue.')}
+          </h2>
+          <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '2rem' }}>
+            {t('auth_prompt_desc', isSw ? 'Jiunge na MY DAY ili kuhifadhi mipango ya harusi yako, kusimamia bajeti, kuwasiliana na watoa huduma, na kupanga kila kitu sehemu moja.' : 'Join MY DAY to save your wedding plans, manage your budget, connect with vendors, and keep everything organized in one place.')}
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => openAuthModal({ initialTab: 'register' })}
+              className="btn-pill-amber"
+              style={{ padding: '0.85rem 1.75rem' }}
+            >
+              <Sparkles size={16} /> {t('auth_prompt_create_btn', isSw ? 'Fungua Akaunti' : 'Create Account')}
+            </button>
+            <button
+              type="button"
+              onClick={() => openAuthModal({ initialTab: 'login' })}
+              className="button"
+              style={{ background: 'var(--color-surface-soft)', color: 'var(--color-text)' }}
+            >
+              {t('auth_prompt_login_btn', isSw ? 'Ingia' : 'Log In')}
+            </button>
+            <Link to="/marketplace" className="button" style={{ background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
+              {t('celebration_browse_cta', isSw ? 'Tazama Watoa Huduma' : 'Browse Vendors')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Logged-in users without a wedding: clear invitation to create wedding
   if (!wedding || !wedding.id) {
     return (
       <div className="container" style={{ padding: '4rem 1.25rem', textAlign: 'center' }}>
@@ -81,17 +123,17 @@ function WeddingDashboardPage() {
             <Heart size={32} color="#F5A623" />
           </div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.75rem' }}>
-            {user?.name ? `Welcome, ${user.name}!` : 'Start Planning Your Wedding'}
+            {t('no_wedding_title', isSw ? 'Bado hujaweka maelezo ya harusi yako. Tuanze sasa!' : "You haven't created your wedding yet. Let's get started!")}
           </h2>
           <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '2rem' }}>
-            You haven't set up your wedding profile yet. Enter your wedding date, target budget, and location to unlock your personalized planning dashboard, vendor tracker, and live countdown.
+            {t('no_wedding_desc', isSw ? 'Weka tarehe ya harusi yako na bajeti ili ufungue dashibodi binafsi, mfuatiliaji wa watoa huduma, na kihesabu siku.' : 'Set up your wedding date and budget to unlock your personalized planning dashboard, vendor tracker, and live countdown.')}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/wedding" className="btn-pill-amber" style={{ padding: '0.85rem 1.75rem' }}>
-              <Sparkles size={16} /> Setup Your Wedding Profile
+              <Sparkles size={16} /> {t('no_wedding_create_btn', isSw ? 'Weka Maelezo ya Harusi' : 'Create Wedding')}
             </Link>
             <Link to="/marketplace" className="button" style={{ background: 'var(--color-surface-soft)', color: 'var(--color-text)' }}>
-              Browse Vendors
+              {t('celebration_browse_cta', isSw ? 'Tazama Watoa Huduma' : 'Browse Vendors')}
             </Link>
           </div>
         </div>
@@ -99,10 +141,11 @@ function WeddingDashboardPage() {
     );
   }
 
-  const totalBookedAmount = bookings.reduce((sum, b) => sum + b.price, 0);
-  const totalPaidAmount = bookings.reduce((sum, b) => sum + (b.paidAmount || 0), 0);
-  const remainingBudget = Math.max(0, wedding.budget - totalBookedAmount);
-  const budgetUsagePct = Math.min(100, Math.round((totalBookedAmount / (wedding.budget || 1)) * 100));
+  const totalBookedAmount = (bookings || []).reduce((sum, b) => sum + (b.price || 0), 0);
+  const totalPaidAmount = (bookings || []).reduce((sum, b) => sum + (b.paidAmount || 0), 0);
+  const targetBudget = wedding.budget || 0;
+  const remainingBudget = Math.max(0, targetBudget - totalBookedAmount);
+  const budgetUsagePct = targetBudget > 0 ? Math.min(100, Math.round((totalBookedAmount / targetBudget) * 100)) : 0;
 
   const categoryStatusMap = ALL_CATEGORIES.map(cat => {
     const bookedCategory = bookings.find(b => b.category === cat.id);

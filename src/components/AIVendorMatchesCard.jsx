@@ -10,11 +10,21 @@ import { MapPin, CheckCircle, ExternalLink, Calendar, AlertCircle, ShieldCheck }
 export default function AIVendorMatchesCard() {
   const navigate = useNavigate();
   const { vendorMatches, selectedVendors, selectVendor, deselectVendor } = useAiPlanner();
-  const { language, t } = useAppContext();
+  const { language, t, isLoggedIn, openAuthPrompt } = useAppContext();
   const isSwahili = language === 'sw';
 
   const [bookingVendor, setBookingVendor] = useState(null);
   const [activePaymentBooking, setActivePaymentBooking] = useState(null);
+
+  const handleBookVendor = (prov) => {
+    if (!isLoggedIn) {
+      openAuthPrompt({
+        onAuthenticated: () => setBookingVendor(prov)
+      });
+      return;
+    }
+    setBookingVendor(prov);
+  };
 
   if (!vendorMatches || !vendorMatches.categories || vendorMatches.categories.length === 0) {
     return null;
@@ -277,7 +287,7 @@ export default function AIVendorMatchesCard() {
                           {/* 3. Book Now (Reusing Existing Flow) */}
                           <button
                             type="button"
-                            onClick={() => setBookingVendor(prov)}
+                            onClick={() => handleBookVendor(prov)}
                             style={{
                               flex: '1 1 95px',
                               minWidth: 0,

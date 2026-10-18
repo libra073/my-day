@@ -12,7 +12,7 @@ import { MapPin, Phone, CheckCircle, ShieldCheck, ArrowLeft, Clock, CalendarChec
 function VendorDetailPage() {
   const { category, id } = useParams();
   const navigate = useNavigate();
-  const { providers, wedding, t, language } = useAppContext();
+  const { providers, wedding, t, language, isLoggedIn, openAuthPrompt } = useAppContext();
 
   const provider = providers.find(p => p.id === id);
 
@@ -21,6 +21,26 @@ function VendorDetailPage() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [activePaymentBooking, setActivePaymentBooking] = useState(null);
+
+  const handleOpenBooking = () => {
+    if (!isLoggedIn) {
+      openAuthPrompt({
+        onAuthenticated: () => setShowBookingModal(true)
+      });
+      return;
+    }
+    setShowBookingModal(true);
+  };
+
+  const handleOpenAppointment = () => {
+    if (!isLoggedIn) {
+      openAuthPrompt({
+        onAuthenticated: () => setShowAppointmentModal(true)
+      });
+      return;
+    }
+    setShowAppointmentModal(true);
+  };
 
   const vendorSchedule = provider ? getEffectiveVendorSchedule(provider) : null;
   const vendorStatus = vendorSchedule ? getCurrentOfficeStatus(new Date(), vendorSchedule) : null;
@@ -177,7 +197,7 @@ function VendorDetailPage() {
             }}>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '0.35rem' }}>Selected Wedding Date</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '1rem' }}>{selectedDate || 'No date selected'}</div>
-              <button onClick={() => setShowBookingModal(true)} style={{
+              <button onClick={handleOpenBooking} style={{
                 width: '100%',
                 background: 'var(--color-primary)',
                 color: '#FFFFFF',
@@ -244,7 +264,7 @@ function VendorDetailPage() {
 
               <button
                 type="button"
-                onClick={() => setShowAppointmentModal(true)}
+                onClick={handleOpenAppointment}
                 style={{
                   width: '100%',
                   background: 'var(--color-surface-soft)',

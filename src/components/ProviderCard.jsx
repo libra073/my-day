@@ -7,7 +7,7 @@ import PaymentModal from './PaymentModal';
 import { MapPin, Heart, ShieldCheck } from 'lucide-react';
 
 export default function ProviderCard({ provider }) {
-  const { t } = useAppContext();
+  const { t, isLoggedIn, openAuthPrompt } = useAppContext();
   const { id, name, location, category, image, rating = 4.8, reviewsCount = 18, isFeatured } = provider;
 
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -116,7 +116,15 @@ export default function ProviderCard({ provider }) {
 
         {/* Favorite Heart Button */}
         <button
-          onClick={() => setIsLiked(!isLiked)}
+          onClick={() => {
+            if (!isLoggedIn) {
+              openAuthPrompt({
+                onAuthenticated: () => setIsLiked(true)
+              });
+              return;
+            }
+            setIsLiked(!isLiked);
+          }}
           style={{
             position: 'absolute',
             top: '0.85rem',
@@ -209,7 +217,15 @@ export default function ProviderCard({ provider }) {
               </Link>
 
               <button 
-                onClick={() => setShowBookingModal(true)}
+                onClick={() => {
+                  if (!isLoggedIn) {
+                    openAuthPrompt({
+                      onAuthenticated: () => setShowBookingModal(true)
+                    });
+                    return;
+                  }
+                  setShowBookingModal(true);
+                }}
                 className="btn-pill-amber"
                 style={{
                   padding: '0.45rem 1rem',

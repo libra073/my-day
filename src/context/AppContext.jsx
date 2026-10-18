@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import initialData from '../data/initialData';
 import { translations } from '../i18n/translations';
 import api from '../services/api';
+import AuthPromptModal from '../components/AuthPromptModal';
+import AuthModal from '../components/AuthModal';
 
 const AppContext = createContext();
 
@@ -81,7 +83,7 @@ export const AppProvider = ({ children }) => {
   });
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return Boolean(localStorage.getItem('myday_token'));
+    return Boolean(localStorage.getItem('myday_token') && localStorage.getItem('myday_user'));
   });
 
   const [role, setRole] = useState(() => {
@@ -99,7 +101,7 @@ export const AppProvider = ({ children }) => {
 
   // Active Wedding Workspace (null by default for logged-out or new users)
   const [wedding, setWedding] = useState(() => {
-    if (!localStorage.getItem('myday_token')) {
+    if (!localStorage.getItem('myday_token') || !localStorage.getItem('myday_user')) {
       return null;
     }
     try {
@@ -109,6 +111,46 @@ export const AppProvider = ({ children }) => {
       return null;
     }
   });
+
+  // Auth reminder prompt modal state
+  const [authPromptState, setAuthPromptState] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onAuthenticated: null,
+  });
+
+  // Auth modal (login/register) state
+  const [authModalState, setAuthModalState] = useState({
+    isOpen: false,
+    initialTab: 'login',
+    onSuccess: null,
+  });
+
+  const openAuthPrompt = useCallback(({ title, message, onAuthenticated } = {}) => {
+    setAuthPromptState({
+      isOpen: true,
+      title: title || '',
+      message: message || '',
+      onAuthenticated: onAuthenticated || null,
+    });
+  }, []);
+
+  const closeAuthPrompt = useCallback(() => {
+    setAuthPromptState(prev => ({ ...prev, isOpen: false }));
+  }, []);
+
+  const openAuthModal = useCallback(({ initialTab = 'login', onSuccess } = {}) => {
+    setAuthModalState({
+      isOpen: true,
+      initialTab,
+      onSuccess: onSuccess || null,
+    });
+  }, []);
+
+  const closeAuthModal = useCallback(() => {
+    setAuthModalState(prev => ({ ...prev, isOpen: false }));
+  }, []);
 
   // Collaboration state
   const [workspaceMembers, setWorkspaceMembers] = useState([]);
@@ -140,6 +182,12 @@ export const AppProvider = ({ children }) => {
     const currentToken = user?.token || api.getToken();
     if (!currentToken) {
       setWedding(null);
+      setWorkspaceMembers([]);
+      setTasks([]);
+      setDecisions([]);
+      setNotes([]);
+      setBudgetData(null);
+      setNotifications([]);
       setWorkspaceLoading(false);
       return;
     }
@@ -148,14 +196,29 @@ export const AppProvider = ({ children }) => {
       setWorkspaceLoading(true);
       setWorkspaceError(null);
 
-      let workspaceId = targetWorkspaceId || wedding?.id;
+      // Always retrieve workspaces authorized for the current user
+      const listRes = await api.getWorkspaces().catch((err) => {
+        if (err.status === 401) throw err;
+        return { workspaces: [] };
+      });
+      const userWorkspaces = listRes.workspaces || [];
 
+      let workspaceId = targetWorkspaceId;
       if (!workspaceId) {
-        const listRes = await api.getWorkspaces().catch(() => ({ workspaces: [] }));
-        if (listRes.workspaces && listRes.workspaces.length > 0) {
-          workspaceId = listRes.workspaces[0].id;
+        if (wedding?.id && userWorkspaces.some(w => w.id === wedding.id)) {
+          workspaceId = wedding.id;
+        } else if (userWorkspaces.length > 0) {
+          workspaceId = userWorkspaces[0].id;
         } else {
+          // Logged-in user has NO wedding created yet
           setWedding(null);
+          setWorkspaceMembers([]);
+          setTasks([]);
+          setDecisions([]);
+          setNotes([]);
+          setBudgetData(null);
+          setNotifications([]);
+          try { localStorage.removeItem('myday_wedding'); } catch {}
           setWorkspaceLoading(false);
           return;
         }
@@ -227,6 +290,10 @@ export const AppProvider = ({ children }) => {
       }
     } catch (err) {
       console.warn('Could not load workspace from server:', err.message);
+      if (err.status === 401) {
+        // Expired or invalid token: clean logout
+        logoutUser();
+      }
       setWorkspaceError(err.message);
     } finally {
       setWorkspaceLoading(false);
@@ -249,9 +316,17 @@ export const AppProvider = ({ children }) => {
     setUser(target);
     setIsLoggedIn(true);
     api.setToken(target.token);
+    setWedding(null);
+    setWorkspaceMembers([]);
+    setTasks([]);
+    setDecisions([]);
+    setNotes([]);
+    setBudgetData(null);
+    setNotifications([]);
     try {
       localStorage.setItem('myday_token', target.token);
       localStorage.setItem('myday_user', JSON.stringify(target));
+      localStorage.removeItem('myday_wedding');
     } catch {}
   };
 
@@ -275,9 +350,17 @@ export const AppProvider = ({ children }) => {
       try {
         localStorage.setItem('myday_token', res.token);
         localStorage.setItem('myday_user', JSON.stringify(res.user));
+        localStorage.removeItem('myday_wedding');
       } catch {}
       api.setToken(res.token);
-      refreshWorkspace();
+      setWedding(null);
+      setWorkspaceMembers([]);
+      setTasks([]);
+      setDecisions([]);
+      setNotes([]);
+      setBudgetData(null);
+      setNotifications([]);
+      await refreshWorkspace();
       return res;
     }
 
@@ -294,8 +377,16 @@ export const AppProvider = ({ children }) => {
     try {
       localStorage.setItem('myday_token', newUser.token);
       localStorage.setItem('myday_user', JSON.stringify(newUser));
+      localStorage.removeItem('myday_wedding');
     } catch {}
     api.setToken(newUser.token);
+    setWedding(null);
+    setWorkspaceMembers([]);
+    setTasks([]);
+    setDecisions([]);
+    setNotes([]);
+    setBudgetData(null);
+    setNotifications([]);
     return { user: newUser };
   };
 
@@ -314,9 +405,17 @@ export const AppProvider = ({ children }) => {
       try {
         localStorage.setItem('myday_token', res.token);
         localStorage.setItem('myday_user', JSON.stringify(res.user));
+        localStorage.removeItem('myday_wedding');
       } catch {}
       api.setToken(res.token);
-      refreshWorkspace();
+      setWedding(null);
+      setWorkspaceMembers([]);
+      setTasks([]);
+      setDecisions([]);
+      setNotes([]);
+      setBudgetData(null);
+      setNotifications([]);
+      await refreshWorkspace();
       return res;
     }
 
@@ -334,8 +433,16 @@ export const AppProvider = ({ children }) => {
     try {
       localStorage.setItem('myday_token', newUser.token);
       localStorage.setItem('myday_user', JSON.stringify(newUser));
+      localStorage.removeItem('myday_wedding');
     } catch {}
     api.setToken(newUser.token);
+    setWedding(null);
+    setWorkspaceMembers([]);
+    setTasks([]);
+    setDecisions([]);
+    setNotes([]);
+    setBudgetData(null);
+    setNotifications([]);
     return { user: newUser };
   };
 
@@ -358,24 +465,28 @@ export const AppProvider = ({ children }) => {
 
   // Collaboration actions
   const inviteMember = async ({ email, role: memberRole, expiresInHours = 48 }) => {
+    if (!wedding?.id) throw new Error('No wedding workspace selected');
     const res = await api.createInvitation(wedding.id, { email, role: memberRole, expiresInHours });
     await refreshWorkspace();
     return res.invitation;
   };
 
   const changeMemberRole = async (memberId, newRole) => {
+    if (!wedding?.id) throw new Error('No wedding workspace selected');
     const res = await api.updateMemberRole(wedding.id, memberId, newRole);
     await refreshWorkspace();
     return res;
   };
 
   const removeMember = async (memberId) => {
+    if (!wedding?.id) throw new Error('No wedding workspace selected');
     const res = await api.removeMember(wedding.id, memberId);
     await refreshWorkspace();
     return res;
   };
 
   const revokeInvitation = async (invitationId) => {
+    if (!wedding?.id) throw new Error('No wedding workspace selected');
     const res = await api.revokeInvitation(wedding.id, invitationId);
     await refreshWorkspace();
     return res;
@@ -422,7 +533,7 @@ export const AppProvider = ({ children }) => {
       providerId: vendorId,
       category,
       packageId,
-      weddingId: wedding.id,
+      weddingId: wedding?.id || null,
       date,
       price,
       deposit,
@@ -438,10 +549,12 @@ export const AppProvider = ({ children }) => {
           : p
       )
     );
-    // Background sync to authoritative database
-    api.createBooking({ category, providerId: vendorId, packageId, price, date, weddingId: wedding.id }).catch(err => {
-      console.warn('Booking offline or sync pending:', err.message);
-    });
+    // Background sync to authoritative database if wedding exists
+    if (wedding?.id) {
+      api.createBooking({ category, providerId: vendorId, packageId, price, date, weddingId: wedding.id }).catch(err => {
+        console.warn('Booking offline or sync pending:', err.message);
+      });
+    }
     return bookingId;
   };
 
@@ -464,84 +577,98 @@ export const AppProvider = ({ children }) => {
 
   // --- Phase 2 Actions ---
   const createTask = async (taskData) => {
+    if (!wedding?.id) return null;
     const res = await api.createTask(wedding.id, taskData);
     await refreshWorkspace();
     return res.task;
   };
 
   const updateTask = async (taskId, updates) => {
+    if (!wedding?.id) return null;
     const res = await api.updateTask(wedding.id, taskId, updates);
     await refreshWorkspace();
     return res.task;
   };
 
   const deleteTask = async (taskId) => {
+    if (!wedding?.id) return null;
     const res = await api.deleteTask(wedding.id, taskId);
     await refreshWorkspace();
     return res;
   };
 
   const addTaskComment = async (taskId, text) => {
+    if (!wedding?.id) return null;
     const res = await api.addTaskComment(wedding.id, taskId, text);
     await refreshWorkspace();
     return res.comment;
   };
 
   const createDecision = async (decisionData) => {
+    if (!wedding?.id) return null;
     const res = await api.createDecision(wedding.id, decisionData);
     await refreshWorkspace();
     return res.decision;
   };
 
   const voteDecision = async (decisionId, optionId) => {
+    if (!wedding?.id) return null;
     const res = await api.voteDecision(wedding.id, decisionId, optionId);
     await refreshWorkspace();
     return res.decision;
   };
 
   const updateDecision = async (decisionId, updates) => {
+    if (!wedding?.id) return null;
     const res = await api.updateDecision(wedding.id, decisionId, updates);
     await refreshWorkspace();
     return res.decision;
   };
 
   const createNote = async (noteData) => {
+    if (!wedding?.id) return null;
     const res = await api.createNote(wedding.id, noteData);
     await refreshWorkspace();
     return res.note;
   };
 
   const createBudgetCategory = async (categoryData) => {
+    if (!wedding?.id) return null;
     const res = await api.createBudgetCategory(wedding.id, categoryData);
     await refreshWorkspace();
     return res.category;
   };
 
   const createExpense = async (expenseData) => {
+    if (!wedding?.id) return null;
     const res = await api.createExpense(wedding.id, expenseData);
     await refreshWorkspace();
     return res.expense;
   };
 
   const updateExpense = async (expenseId, updates) => {
+    if (!wedding?.id) return null;
     const res = await api.updateExpense(wedding.id, expenseId, updates);
     await refreshWorkspace();
     return res.expense;
   };
 
   const deleteExpense = async (expenseId) => {
+    if (!wedding?.id) return null;
     const res = await api.deleteExpense(wedding.id, expenseId);
     await refreshWorkspace();
     return res;
   };
 
   const markNotificationRead = async (notifId) => {
+    if (!wedding?.id) return null;
     const res = await api.markNotificationRead(wedding.id, notifId);
     await refreshWorkspace();
     return res;
   };
 
   const markAllNotificationsRead = async () => {
+    if (!wedding?.id) return null;
     const res = await api.markAllNotificationsRead(wedding.id);
     await refreshWorkspace();
     return res;
@@ -569,6 +696,13 @@ export const AppProvider = ({ children }) => {
     changeMemberRole,
     removeMember,
     revokeInvitation,
+    // Auth Prompt helpers
+    openAuthPrompt,
+    closeAuthPrompt,
+    openAuthModal,
+    closeAuthModal,
+    authPromptState,
+    authModalState,
     // Phase 2 exports
     tasks,
     createTask,
@@ -607,7 +741,38 @@ export const AppProvider = ({ children }) => {
     recordPayment,
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+      <AuthPromptModal
+        isOpen={authPromptState.isOpen}
+        title={authPromptState.title}
+        message={authPromptState.message}
+        onClose={closeAuthPrompt}
+        onCreateAccount={() => {
+          const cb = authPromptState.onAuthenticated;
+          closeAuthPrompt();
+          openAuthModal({ initialTab: 'register', onSuccess: cb });
+        }}
+        onLogin={() => {
+          const cb = authPromptState.onAuthenticated;
+          closeAuthPrompt();
+          openAuthModal({ initialTab: 'login', onSuccess: cb });
+        }}
+      />
+      {authModalState.isOpen && (
+        <AuthModal
+          initialTab={authModalState.initialTab}
+          onClose={closeAuthModal}
+          onSuccess={() => {
+            const cb = authModalState.onSuccess;
+            closeAuthModal();
+            if (cb) cb();
+          }}
+        />
+      )}
+    </AppContext.Provider>
+  );
 };
 
 export const useAppContext = () => useContext(AppContext);

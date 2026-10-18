@@ -11,7 +11,7 @@ export default function SharedBudgetLedgerCard() {
     deleteExpense,
   } = useAppContext();
 
-  const permissions = wedding.permissions || {};
+  const permissions = wedding?.permissions || {};
   const canManageBudget = permissions.canManageBudget;
   const canRecordExpense = permissions.canRecordExpenses;
   const canViewFinancials = permissions.canViewFinancials;
@@ -50,13 +50,13 @@ export default function SharedBudgetLedgerCard() {
   }
 
   const summary = budgetData?.summary || {
-    totalBudget: wedding.budget || 15000000,
+    totalBudget: wedding?.budget || 15000000,
     totalAllocated: 0,
     totalEstimated: 0,
     totalActual: 0,
     totalPaid: 0,
-    remainingBudget: wedding.budget || 15000000,
-    unallocatedBudget: wedding.budget || 15000000,
+    remainingBudget: wedding?.budget || 15000000,
+    unallocatedBudget: wedding?.budget || 15000000,
     allocatedPct: 0,
     usedPct: 0,
   };

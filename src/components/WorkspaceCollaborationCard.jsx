@@ -24,8 +24,12 @@ export default function WorkspaceCollaborationCard() {
     workspaceLoading
   } = useAppContext();
 
-  const permissions = wedding.permissions || {};
-  const isOwner = wedding.userRole === 'owner';
+  if (!wedding || !wedding.id) {
+    return null;
+  }
+
+  const permissions = wedding?.permissions || {};
+  const isOwner = wedding?.userRole === 'owner';
   const canInvite = permissions.canInviteMembers;
 
   const [showInviteModal, setShowInviteModal] = useState(false);

@@ -5,10 +5,50 @@ import PaymentModal from '../components/PaymentModal';
 import { Calendar, Phone, MapPin, CheckCircle2, Download, PlusCircle } from 'lucide-react';
 
 function MyBookingsPage() {
-  const { bookings, providers, wedding, t } = useAppContext();
+  const { bookings, providers, wedding, user, isLoggedIn, openAuthModal, language, t } = useAppContext();
   const [activePayment, setActivePayment] = useState(null);
+  const isSw = language === 'sw';
 
-  const activeBookings = bookings.map(b => ({ ...b, provider: providers.find(p => p.id === b.providerId) }));
+  if (!isLoggedIn) {
+    return (
+      <div className="container" style={{ padding: '4rem 1.25rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: 540, margin: '0 auto', background: '#FFFFFF', padding: '3rem 2rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(245, 166, 35, 0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem' }}>
+            <Calendar size={32} color="#F5A623" />
+          </div>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.75rem' }}>
+            {t('auth_prompt_title', isSw ? 'Fungua akaunti yako ya MY DAY ili kuendelea.' : 'Create your free MY DAY account to continue.')}
+          </h2>
+          <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '2rem' }}>
+            {t('auth_prompt_desc', isSw ? 'Jiunge na MY DAY ili kuhifadhi mipango ya harusi yako, kusimamia bajeti, kuwasiliana na watoa huduma, na kupanga kila kitu sehemu moja.' : 'Join MY DAY to save your wedding plans, manage your budget, connect with vendors, and keep everything organized in one place.')}
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => openAuthModal({ initialTab: 'register' })}
+              className="btn-pill-amber"
+              style={{ padding: '0.8rem 1.6rem' }}
+            >
+              {t('auth_prompt_create_btn', isSw ? 'Fungua Akaunti' : 'Create Account')}
+            </button>
+            <button
+              type="button"
+              onClick={() => openAuthModal({ initialTab: 'login' })}
+              className="button"
+              style={{ background: 'var(--color-surface-soft)', color: 'var(--color-text)' }}
+            >
+              {t('auth_prompt_login_btn', isSw ? 'Ingia' : 'Log In')}
+            </button>
+            <Link to="/marketplace" className="button" style={{ background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
+              {t('celebration_browse_cta', isSw ? 'Tazama Watoa Huduma' : 'Browse Vendors')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const activeBookings = (bookings || []).map(b => ({ ...b, provider: providers.find(p => p.id === b.providerId) }));
 
   const handleDownloadReceipt = (booking) => {
     const vendorName = booking.provider?.name || 'Vendor';

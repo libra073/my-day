@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import WorkspaceCollaborationCard from '../components/WorkspaceCollaborationCard';
@@ -21,7 +21,7 @@ const BUDGET_PRESETS = [
 ];
 
 export default function WeddingProfilePage() {
-  const { wedding, setWedding, updateWeddingProfile, t, language } = useAppContext();
+  const { wedding, setWedding, updateWeddingProfile, isLoggedIn, openAuthPrompt, t, language } = useAppContext();
   const navigate = useNavigate();
   const isSw = language === 'sw';
 
@@ -98,8 +98,23 @@ export default function WeddingProfilePage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!isLoggedIn) {
+      openAuthPrompt({
+        title: isSw ? 'Fungua akaunti yako ya MY DAY ili kuendelea.' : 'Create your free MY DAY account to continue.',
+        message: isSw ? 'Jiunge na MY DAY ili kuhifadhi mipango ya harusi yako, kusimamia bajeti, kuwasiliana na watoa huduma, na kupanga kila kitu sehemu moja.' : 'Join MY DAY to save your wedding plans, manage your budget, connect with vendors, and keep everything organized in one place.',
+        onAuthenticated: async () => {
+          await updateWeddingProfile(formData);
+          setSaved(true);
+          setTimeout(() => {
+            setSaved(false);
+            navigate('/dashboard');
+          }, 1200);
+        }
+      });
+      return;
+    }
+
     updateWeddingProfile(formData);
-    setWedding(prev => ({ ...prev, ...formData }));
     setSaved(true);
     setTimeout(() => {
       setSaved(false);

@@ -30,7 +30,7 @@ export default function SharedChecklistCard() {
     addTaskComment,
   } = useAppContext();
 
-  const permissions = wedding.permissions || {};
+  const permissions = wedding?.permissions || {};
   const canManage = permissions.canManageTasks;
 
   const [filter, setFilter] = useState('all'); // 'all' | 'pending' | 'overdue' | 'completed' | 'missed'
@@ -42,7 +42,7 @@ export default function SharedChecklistCard() {
   // Create form state
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDesc, setNewTaskDesc] = useState('');
-  const [newTaskAssignee, setNewTaskAssignee] = useState(user.id);
+  const [newTaskAssignee, setNewTaskAssignee] = useState(user?.id || '');
   const [newTaskDueDate, setNewTaskDueDate] = useState('2026-11-01');
   const [newTaskPriority, setNewTaskPriority] = useState('medium');
   const [isSubmitting, setIsSubmitting] = useState(false);

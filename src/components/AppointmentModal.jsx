@@ -14,7 +14,7 @@ import {
 import { Calendar, Clock, X, AlertCircle, CheckCircle, Info } from 'lucide-react';
 
 export default function AppointmentModal({ provider, onClose, onSuccess }) {
-  const { user, wedding, t, language } = useAppContext();
+  const { user, wedding, t, language, isLoggedIn, openAuthPrompt } = useAppContext();
 
   // Tomorrow as default date in YYYY-MM-DD
   const tomorrow = new Date();
@@ -47,6 +47,11 @@ export default function AppointmentModal({ provider, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isLoggedIn) {
+      onClose();
+      openAuthPrompt();
+      return;
+    }
     setError(null);
     setLoading(true);
 
@@ -56,7 +61,7 @@ export default function AppointmentModal({ provider, onClose, onSuccess }) {
       const endIso = darEsSalaamToUTC(dateStr, endTime);
 
       const res = await api.createAppointment({
-        workspaceId: wedding.id || 'wed-1',
+        workspaceId: wedding?.id || null,
         vendorId: provider.id,
         title,
         startIso,

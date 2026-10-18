@@ -16,7 +16,7 @@ export default function SharedDecisionsCard() {
     createNote,
   } = useAppContext();
 
-  const permissions = wedding.permissions || {};
+  const permissions = wedding?.permissions || {};
   const canManage = permissions.canManageDecisions;
   const canVote = permissions.canVoteDecisions;
 

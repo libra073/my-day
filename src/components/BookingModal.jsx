@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { X } from 'lucide-react';
 
 function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
-  const { wedding, createBooking } = useAppContext();
+  const { wedding, createBooking, isLoggedIn, openAuthPrompt } = useAppContext();
 
   const [date, setDate] = useState(wedding?.date || '');
   const [guests, setGuests] = useState(wedding?.guests || 300);
@@ -43,6 +43,26 @@ function BookingModal({ provider, selectedPackage, onClose, onSuccess }) {
     }
     if (provider.unavailableDates && provider.unavailableDates.includes(date)) {
       alert('This provider is already booked for the selected date. Please choose another date.');
+      return;
+    }
+
+    if (!isLoggedIn) {
+      onClose();
+      openAuthPrompt({
+        onAuthenticated: () => {
+          const bookingId = createBooking(
+            provider.category,
+            provider.id,
+            pkgId || 'standard',
+            unitPrice,
+            date,
+            depositAmount
+          );
+          if (onSuccess) {
+            onSuccess(bookingId, depositAmount);
+          }
+        }
+      });
       return;
     }
 

@@ -4,15 +4,27 @@ import { useAppContext } from '../context/AppContext';
 import { Heart, ChevronUp, ChevronDown, ArrowRight } from 'lucide-react';
 
 function BudgetWidget() {
-  const { role, wedding, bookings, t } = useAppContext();
+  const { role, wedding, bookings, isLoggedIn, t } = useAppContext();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(true);
 
-  // Show only for couples on non-home, non-dashboard, non-planner and non-vendor-registration pages
-  if (role !== 'customer' || location.pathname === '/' || location.pathname === '/dashboard' || location.pathname === '/planner' || location.pathname === '/become-vendor') return null;
+  // Show only for logged-in couples WITH a saved wedding on non-home, non-dashboard, non-planner and non-vendor-registration pages
+  if (
+    !isLoggedIn ||
+    !wedding ||
+    !wedding.budget ||
+    role !== 'customer' ||
+    location.pathname === '/' ||
+    location.pathname === '/dashboard' ||
+    location.pathname === '/planner' ||
+    location.pathname === '/become-vendor'
+  ) {
+    return null;
+  }
 
-  const totalBookedAmount = bookings.reduce((sum, b) => sum + b.price, 0);
-  const usagePct = Math.min(100, Math.round((totalBookedAmount / (wedding.budget || 1)) * 100));
+  const totalBookedAmount = (bookings || []).reduce((sum, b) => sum + (b.price || 0), 0);
+  const targetBudget = wedding.budget || 1;
+  const usagePct = Math.min(100, Math.round((totalBookedAmount / targetBudget) * 100));
 
   return (
     <div style={{
