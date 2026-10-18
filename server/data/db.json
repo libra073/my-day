@@ -5,9 +5,9 @@
       "name": "John Msuya (Groom)",
       "email": "john@myday.co.tz",
       "phone": "+255 777 123 456",
-      "passwordHash": "1add719f49377929ec3de175eea81504b19364d4403aca86431cd42e729e5d54",
+      "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "customer",
-      "createdAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z"
     },
     {
       "id": "usr-bride",
@@ -16,7 +16,7 @@
       "phone": "+255 777 654 321",
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "customer",
-      "createdAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z"
     },
     {
       "id": "usr-planner",
@@ -25,7 +25,7 @@
       "phone": "+255 714 888 777",
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "customer",
-      "createdAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z"
     },
     {
       "id": "prov-1",
@@ -34,7 +34,7 @@
       "phone": "+255 777 999 888",
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "provider",
-      "createdAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z"
     },
     {
       "id": "admin-1",
@@ -43,16 +43,16 @@
       "phone": "+255 22 210 0900",
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "admin",
-      "createdAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z"
     },
     {
-      "id": "usr-1a6dec11caff",
+      "id": "usr-5c3919a1c70b",
       "name": "Stranger",
       "email": "stranger@external.tz",
       "phone": "",
       "passwordHash": "599ba15d5aca9bb948240bef219f22115cdf159e34176ed004651c2c2dc13ca3",
       "globalRole": "customer",
-      "createdAt": "2026-10-16T20:38:53.243Z"
+      "createdAt": "2026-10-18T10:02:21.841Z"
     }
   ],
   "workspaces": [
@@ -67,8 +67,8 @@
       "guests": 300,
       "budget": 15000000,
       "currency": "TZS",
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     }
   ],
   "workspace_members": [
@@ -77,7 +77,7 @@
       "workspaceId": "wed-1",
       "userId": "usr-groom",
       "role": "owner",
-      "joinedAt": "2026-10-16T20:38:52.963Z",
+      "joinedAt": "2026-10-18T10:02:21.489Z",
       "invitedBy": null
     },
     {
@@ -85,7 +85,7 @@
       "workspaceId": "wed-1",
       "userId": "usr-bride",
       "role": "partner",
-      "joinedAt": "2026-10-16T20:38:52.963Z",
+      "joinedAt": "2026-10-18T10:02:21.489Z",
       "invitedBy": "usr-groom"
     }
   ],
@@ -94,32 +94,32 @@
     {
       "token": "token-bride-session",
       "userId": "usr-bride",
-      "expiresAt": "2026-11-15T20:38:52.963Z"
+      "expiresAt": "2026-11-17T10:02:21.489Z"
     },
     {
       "token": "token-planner-session",
       "userId": "usr-planner",
-      "expiresAt": "2026-11-15T20:38:52.963Z"
+      "expiresAt": "2026-11-17T10:02:21.489Z"
     },
     {
       "token": "token-provider-session",
       "userId": "prov-1",
-      "expiresAt": "2026-11-15T20:38:52.963Z"
+      "expiresAt": "2026-11-17T10:02:21.489Z"
     },
     {
       "token": "token-admin-session",
       "userId": "admin-1",
-      "expiresAt": "2026-11-15T20:38:52.963Z"
+      "expiresAt": "2026-11-17T10:02:21.489Z"
     },
     {
-      "token": "myday_sess_0b640196078ac3d4eaa9facfe25723f3a3c521bb04798662",
+      "token": "myday_sess_4c25bc4fc9bee0cc4b6a4f68c6804c802f9355c3925b3073",
       "userId": "usr-groom",
-      "expiresAt": "2026-11-15T20:38:53.180Z"
+      "expiresAt": "2026-11-17T10:02:21.737Z"
     },
     {
-      "token": "myday_sess_44fdd8609818d4be387fa638350a10ae94142d6cfc369e53",
-      "userId": "usr-1a6dec11caff",
-      "expiresAt": "2026-11-15T20:38:53.243Z"
+      "token": "myday_sess_25e8f7dd465bd3ef8403e2d797990842a9c37625c8489b8d",
+      "userId": "usr-5c3919a1c70b",
+      "expiresAt": "2026-11-17T10:02:21.841Z"
     }
   ],
   "tasks": [
@@ -139,7 +139,7 @@
           "userId": "usr-bride",
           "userName": "Sarah Kimaro (Bride)",
           "text": "Please ask about generator fuel policy for evening power cuts.",
-          "createdAt": "2026-10-16T20:38:52.963Z"
+          "createdAt": "2026-10-18T10:02:21.489Z"
         }
       ],
       "activityHistory": [
@@ -148,12 +148,12 @@
           "action": "created",
           "userId": "usr-groom",
           "userName": "John Msuya (Groom)",
-          "timestamp": "2026-10-16T20:38:52.963Z",
+          "timestamp": "2026-10-18T10:02:21.489Z",
           "details": "Task created with high priority"
         }
       ],
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z",
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z",
       "completedAt": null,
       "version": 1
     },
@@ -174,12 +174,12 @@
           "action": "created",
           "userId": "usr-bride",
           "userName": "Sarah Kimaro (Bride)",
-          "timestamp": "2026-10-16T20:38:52.963Z",
+          "timestamp": "2026-10-18T10:02:21.489Z",
           "details": "Task created"
         }
       ],
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z",
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z",
       "completedAt": null,
       "version": 1
     }
@@ -214,9 +214,9 @@
       ],
       "decisionNotes": "Agreed on Emerald Green & Warm Gold. Matches Grand Imperial ballroom chandeliers.",
       "decidedBy": "usr-bride",
-      "decidedAt": "2026-10-16T20:38:52.963Z",
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "decidedAt": "2026-10-18T10:02:21.489Z",
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     },
     {
       "id": "dec-2",
@@ -244,8 +244,8 @@
       "decisionNotes": "",
       "decidedBy": null,
       "decidedAt": null,
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     }
   ],
   "notes": [
@@ -258,8 +258,8 @@
       "pinned": true,
       "authorId": "usr-groom",
       "authorName": "John Msuya (Groom)",
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     }
   ],
   "budget_categories": [
@@ -324,8 +324,8 @@
       "status": "deposit_paid",
       "vendorId": "venue-1",
       "addedBy": "usr-groom",
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     },
     {
       "id": "exp-2",
@@ -338,8 +338,8 @@
       "status": "deposit_paid",
       "vendorId": "decor-1",
       "addedBy": "usr-bride",
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     }
   ],
   "notifications": [
@@ -351,7 +351,7 @@
       "title": "Task Assigned",
       "message": "You were assigned to \"Book Grand Imperial Reception Hall\"",
       "read": false,
-      "createdAt": "2026-10-16T20:38:52.963Z",
+      "createdAt": "2026-10-18T10:02:21.489Z",
       "entityId": "task-1",
       "entityType": "task"
     }
@@ -370,8 +370,8 @@
       "allowException": false,
       "exceptionReason": null,
       "notes": "Tour of main hall and food tasting with catering chef",
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     }
   ],
   "vendor_schedules": [
@@ -421,7 +421,7 @@
           "reason": "Tasting Showcase"
         }
       ],
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     }
   ],
   "bookings": [
@@ -438,11 +438,11 @@
       "paidAmount": 750000,
       "commission": 125000,
       "status": "confirmed",
-      "createdAt": "2026-10-16T20:38:52.963Z",
-      "updatedAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z",
+      "updatedAt": "2026-10-18T10:02:21.489Z"
     },
     {
-      "id": "bk-1792183133189-59a07e69",
+      "id": "bk-1792317741784-929811e8",
       "customerId": "usr-groom",
       "providerId": "venue-2",
       "category": "kumbi",
@@ -454,8 +454,8 @@
       "paidAmount": 1800000,
       "commission": 90000,
       "status": "confirmed",
-      "createdAt": "2026-10-16T20:38:53.189Z",
-      "updatedAt": "2026-10-16T20:38:53.204Z"
+      "createdAt": "2026-10-18T10:02:21.785Z",
+      "updatedAt": "2026-10-18T10:02:21.799Z"
     }
   ],
   "payments": [
@@ -466,47 +466,47 @@
       "gateway": "mpesa",
       "txnRef": "TXN-982341",
       "status": "success",
-      "createdAt": "2026-10-16T20:38:52.963Z"
+      "createdAt": "2026-10-18T10:02:21.489Z"
     },
     {
-      "id": "pay-1792183133189-7af78456",
-      "bookingId": "bk-1792183133189-59a07e69",
+      "id": "pay-1792317741785-2bc5047a",
+      "bookingId": "bk-1792317741784-929811e8",
       "customerId": "usr-groom",
       "amount": 540000,
       "gateway": "mpesa",
-      "txnRef": "TXN-689375",
+      "txnRef": "TXN-628011",
       "status": "success",
-      "createdAt": "2026-10-16T20:38:53.189Z"
+      "createdAt": "2026-10-18T10:02:21.785Z"
     },
     {
-      "id": "pay-1792183133196-51462487",
-      "bookingId": "bk-1792183133189-59a07e69",
+      "id": "pay-1792317741792-288abdc2",
+      "bookingId": "bk-1792317741784-929811e8",
       "customerId": "usr-groom",
       "amount": 1260000,
       "gateway": "tigopesa",
-      "txnRef": "TXN-199293",
+      "txnRef": "TXN-658284",
       "status": "success",
-      "createdAt": "2026-10-16T20:38:53.196Z"
+      "createdAt": "2026-10-18T10:02:21.792Z"
     },
     {
-      "id": "pay-hook-1792183133204",
-      "bookingId": "bk-1792183133189-59a07e69",
+      "id": "pay-hook-1792317741799",
+      "bookingId": "bk-1792317741784-929811e8",
       "customerId": "usr-groom",
       "amount": 1800000,
       "gateway": "mpesa",
       "txnRef": "TXN-MPESA-WEBHOOK-99",
       "status": "success",
-      "createdAt": "2026-10-16T20:38:53.204Z"
+      "createdAt": "2026-10-18T10:02:21.799Z"
     }
   ],
   "password_resets": [
     {
-      "token": "rst-05ca172503b4e02e8609fa8888467ca5",
+      "token": "rst-d06c501dd7ec634ab50056843da4d7f7",
       "userId": "usr-groom",
       "email": "john@myday.co.tz",
-      "expiresAt": "2026-10-16T21:38:53.063Z",
+      "expiresAt": "2026-10-18T11:02:21.596Z",
       "used": true,
-      "createdAt": "2026-10-16T20:38:53.063Z"
+      "createdAt": "2026-10-18T10:02:21.596Z"
     }
   ]
 }

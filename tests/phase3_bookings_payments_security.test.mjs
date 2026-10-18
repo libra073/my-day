@@ -4,7 +4,7 @@
 
 import assert from 'node:assert/strict';
 import { createApiServer } from '../server/server.js';
-import { resetDatabase, loadDatabase } from '../server/db.js';
+import { resetDatabase, loadDatabase, saveDatabase, hashPassword } from '../server/db.js';
 import { resetRateLimits } from '../server/routes.js';
 
 console.log('================================================================');
@@ -159,6 +159,14 @@ async function runTests() {
       });
       assert.equal(replayRes.status, 400);
       logPass('Single-use reset token cannot be reused or replayed');
+
+      // Restore John's password hash back to default 'password123'
+      const db = loadDatabase();
+      const john = db.users.find(u => u.id === 'usr-groom');
+      if (john) {
+        john.passwordHash = hashPassword('password123');
+        await saveDatabase();
+      }
     }
 
     // -------------------------------------------------------------
