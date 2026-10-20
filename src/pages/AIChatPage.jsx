@@ -11,13 +11,6 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const QUICK_SUGGESTIONS = [
-  { en: "I'm having a wedding in Dar es Salaam, budget 300k, 50 guests.", sw: "Nina harusi Dar es Salaam, bajeti laki 3, wageni 50." },
-  { en: "Budget is 5 million TSh for 250 guests in Arusha. Show best plan.", sw: "Bajeti ni milioni 5 kwa wageni 250 Arusha. Nipe mpango bora." },
-  { en: "Show me cheaper budget options for decor and entertainment.", sw: "Nionyeshe machaguo nafuu zaidi ya mapambo na muziki." },
-  { en: "We have 15m TSh for a luxury wedding in Zanzibar with 150 guests.", sw: "Tuna milioni 15 kwa ajili ya harusi ya kifahari Zanzibar, wageni 150." },
-];
-
 export default function AIChatPage() {
   const {
     messages,
@@ -67,11 +60,6 @@ export default function AIChatPage() {
     isUserScrollingRef.current = false;
     sendMessage(inputVal);
     setInputVal('');
-  };
-
-  const handleQuickSuggestion = (text) => {
-    isUserScrollingRef.current = false;
-    sendMessage(text);
   };
 
   return (
@@ -340,49 +328,6 @@ export default function AIChatPage() {
                   {error}
                 </div>
               )}
-            </div>
-
-            {/* Quick Suggestions Pills */}
-            <div style={{
-              background: '#FFFFFF',
-              borderTop: '1px solid var(--color-border)',
-              padding: '0.65rem clamp(0.75rem, 2vw, 1rem)',
-              display: 'flex',
-              gap: '0.5rem',
-              overflowX: 'auto',
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'thin',
-              minWidth: 0
-            }}>
-              {QUICK_SUGGESTIONS.map((sug, idx) => {
-                const text = isSwahili ? sug.sw : sug.en;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleQuickSuggestion(text)}
-                    style={{
-                      background: 'var(--color-surface-soft)',
-                      border: '1px solid var(--color-border)',
-                      color: 'var(--color-accent)',
-                      borderRadius: '16px',
-                      padding: '0.45rem 0.85rem',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      boxShadow: 'none',
-                      flexShrink: 0,
-                      maxWidth: 'min(380px, calc(100vw - 2.5rem))',
-                      whiteSpace: 'normal',
-                      wordBreak: 'break-word',
-                      overflowWrap: 'anywhere',
-                      textAlign: 'left',
-                      lineHeight: 1.35
-                    }}
-                  >
-                    💡 {text}
-                  </button>
-                );
-              })}
             </div>
 
             {/* Input Form */}
