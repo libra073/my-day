@@ -58,7 +58,7 @@ export default function LiquidGlassSearchCapsule({ onSearch }) {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder={t('hero_search_input_placeholder', 'Search venue, decorator, MC, cake...')}
-          aria-label="Search keywords"
+          aria-label={language === 'sw' ? 'Tafuta maneno muhimu' : 'Search keywords'}
         />
       </div>
 

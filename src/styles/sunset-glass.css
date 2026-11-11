@@ -1,0 +1,1343 @@
+/* ==========================================================================
+   MY DAY — Sunset Glass theme
+   Warm peach → rose → lilac → periwinkle light, frosted white glass panels,
+   violet/pink/cyan/amber accents. Loaded after the glass system, before the
+   mobile corrections.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ light */
+html[data-theme="light"],
+:root {
+  /* --- atmosphere ------------------------------------------------------- */
+  --lg-wallpaper:
+    radial-gradient(48% 42% at 4% -6%, #FFC5A0 0%, rgba(255, 197, 160, 0.86) 30%, rgba(255, 197, 160, 0) 74%),
+    radial-gradient(52% 46% at 104% -4%, #CDB6FF 0%, rgba(205, 182, 255, 0.82) 30%, rgba(205, 182, 255, 0) 72%),
+    radial-gradient(44% 38% at -6% 58%, #FFAFCB 0%, rgba(255, 175, 203, 0.72) 32%, rgba(255, 175, 203, 0) 76%),
+    radial-gradient(58% 52% at 98% 84%, #B9C6FF 0%, rgba(185, 198, 255, 0.78) 32%, rgba(185, 198, 255, 0) 74%),
+    radial-gradient(64% 52% at 50% 118%, #FFD9C2 0%, rgba(255, 217, 194, 0.62) 34%, rgba(255, 217, 194, 0) 76%),
+    radial-gradient(40% 32% at 52% 40%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.18) 58%, rgba(255, 255, 255, 0) 100%),
+    linear-gradient(150deg, #FFE6D3 0%, #F7DCEB 28%, #EADCF9 54%, #DCE0FF 78%, #E8E4FF 100%);
+
+  /* --- surfaces --------------------------------------------------------- */
+  --lg-fill-1: rgba(255, 255, 255, 0.38);
+  --lg-fill-2: rgba(255, 255, 255, 0.48);
+  --lg-fill-3: rgba(255, 255, 255, 0.62);
+  --lg-tint-top: rgba(255, 255, 255, 0.65);
+  --lg-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.08) 26%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0.16) 100%);
+  --lg-blur-sm: blur(14px) saturate(170%);
+  --lg-blur-md: blur(20px) saturate(180%);
+  --lg-blur-lg: blur(30px) saturate(190%);
+  --lg-bevel:
+    inset 0 1px 1px rgba(255, 255, 255, 0.92),
+    inset 0 -1px 1px rgba(192, 172, 255, 0.28),
+    0 18px 40px -18px rgba(124, 92, 252, 0.35);
+  --lg-drop: 0 22px 48px -22px rgba(124, 92, 252, 0.38);
+  --lg-ring-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.18) 48%, rgba(255, 255, 255, 0.42) 100%);
+
+  --lens-bg: rgba(255, 255, 255, 0.42);
+  --lens-border: 1px solid rgba(255, 255, 255, 0.72);
+  --lens-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.95);
+  --slab-bg: rgba(255, 255, 255, 0.4);
+
+  --app-bg-main: #F6E9F4;
+  --app-bg-secondary: #F1E6FB;
+  --app-card-bg: rgba(255, 255, 255, 0.44);
+  --app-card-border: 1px solid rgba(255, 255, 255, 0.72);
+
+  /* --- ink -------------------------------------------------------------- */
+  --lg-ink: #1E1440;
+  --lg-ink-soft: #4B3F72;
+  --lg-ink-mute: #7A6E9E;
+
+  --color-text: #1E1440;
+  --color-text-muted: #5F5480;
+  --color-text-dim: #8B80AD;
+  --app-text-primary: #1E1440;
+  --app-text-body: #372B5C;
+  --app-text-secondary: #5F5480;
+  --app-text-desc: #5F5480;
+  --app-text-muted: #7A6E9E;
+
+  /* --- accents ---------------------------------------------------------- */
+  --color-primary: #7C5CFC;
+  --color-primary-hover: #6B49F5;
+  --color-primary-light: rgba(124, 92, 252, 0.14);
+  --color-primary-glow: rgba(124, 92, 252, 0.42);
+  --color-primary-gradient: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 46%, #F472B6 100%);
+  --liquid-sapphire-500: #7C5CFC;
+  --liquid-sapphire-400: #9B80FF;
+  --liquid-sapphire-600: #6743E8;
+
+  --sunset-violet: #7C5CFC;
+  --sunset-pink: #F472B6;
+  --sunset-cyan: #38D6F5;
+  --sunset-amber: #FBBF24;
+  --sunset-mint: #34D399;
+
+  /* --- radii ------------------------------------------------------------ */
+  --radius: 22px;
+  --radius-lg: 28px;
+  --radius-xl: 34px;
+}
+
+/* ------------------------------------------------------------------- dark */
+html[data-theme="dark"],
+[data-theme="dark"] {
+  --lg-wallpaper:
+    radial-gradient(48% 42% at 4% -6%, #6E3B2A 0%, rgba(110, 59, 42, 0.72) 30%, rgba(110, 59, 42, 0) 74%),
+    radial-gradient(52% 46% at 104% -4%, #4A2A80 0%, rgba(74, 42, 128, 0.75) 30%, rgba(74, 42, 128, 0) 72%),
+    radial-gradient(44% 38% at -6% 58%, #5C2148 0%, rgba(92, 33, 72, 0.62) 32%, rgba(92, 33, 72, 0) 76%),
+    radial-gradient(58% 52% at 98% 84%, #2A2C6E 0%, rgba(42, 44, 110, 0.68) 32%, rgba(42, 44, 110, 0) 74%),
+    linear-gradient(160deg, #170F2B 0%, #241241 42%, #2B1648 68%, #141027 100%);
+
+  --lg-fill-1: rgba(46, 30, 82, 0.42);
+  --lg-fill-2: rgba(54, 36, 94, 0.52);
+  --lg-fill-3: rgba(64, 44, 110, 0.62);
+  --lg-tint-top: rgba(255, 255, 255, 0.1);
+  --lg-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 30%, rgba(255, 255, 255, 0) 70%, rgba(190, 160, 255, 0.1) 100%);
+  --lg-bevel:
+    inset 0 1px 1px rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1px rgba(150, 110, 255, 0.14),
+    0 22px 46px -20px rgba(0, 0, 0, 0.65);
+  --lg-drop: 0 26px 54px -24px rgba(0, 0, 0, 0.7);
+
+  --lens-bg: rgba(44, 28, 78, 0.42);
+  --lens-border: 1px solid rgba(190, 165, 255, 0.22);
+  --slab-bg: rgba(42, 26, 74, 0.44);
+
+  --app-bg-main: #150E28;
+  --app-bg-secondary: #1B1234;
+  --app-card-bg: rgba(46, 30, 84, 0.46);
+
+  --lg-ink: #F4EEFF;
+  --lg-ink-soft: #C6B8E8;
+  --lg-ink-mute: #9B8CC2;
+
+  --color-text: #F4EEFF;
+  --color-text-muted: #BFB0DE;
+  --color-text-dim: #9486B8;
+  --app-text-primary: #F4EEFF;
+  --app-text-body: #DED2F6;
+  --app-text-secondary: #C0B1E0;
+  --app-text-desc: #C0B1E0;
+  --app-text-muted: #9B8CC2;
+
+  --color-primary: #A78BFA;
+  --color-primary-hover: #B9A2FF;
+  --color-primary-light: rgba(167, 139, 250, 0.16);
+  --color-primary-gradient: linear-gradient(135deg, #A78BFA 0%, #C084FC 50%, #F472B6 100%);
+  --liquid-sapphire-500: #A78BFA;
+  --liquid-sapphire-400: #C4B0FF;
+  --liquid-sapphire-600: #8B6BFF;
+}
+
+/* ---------------------------------------------------------------- backdrop */
+html[data-theme="light"] body {
+  background-color: #F3E4F2 !important;
+  background-image: var(--lg-wallpaper) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+}
+
+/* recolour the animated atmosphere into the sunset palette */
+html[data-theme="light"] #root .lg-atmosphere__bloom--sun {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 186, 140, 0.85) 0%, rgba(255, 186, 140, 0) 68%) !important;
+}
+html[data-theme="light"] #root .lg-atmosphere__bloom--cyan {
+  background: radial-gradient(circle at 50% 50%, rgba(160, 200, 255, 0.7) 0%, rgba(160, 200, 255, 0) 70%) !important;
+}
+html[data-theme="light"] #root .lg-atmosphere__bloom--sapphire {
+  background: radial-gradient(circle at 50% 50%, rgba(168, 130, 255, 0.72) 0%, rgba(168, 130, 255, 0) 70%) !important;
+}
+html[data-theme="light"] #root .lg-atmosphere__bloom--rose {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 150, 200, 0.78) 0%, rgba(255, 150, 200, 0) 70%) !important;
+}
+
+/* floating glass props, like the render */
+.app-shell::before,
+.app-shell::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+.app-shell::before {
+  left: -70px;
+  bottom: 8vh;
+  width: 260px;
+  height: 260px;
+  border-radius: 42px;
+  transform: rotate(-18deg);
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.08) 42%, rgba(186, 160, 255, 0.24) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.9), 0 30px 60px -30px rgba(120, 80, 220, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0.75;
+}
+.app-shell::after {
+  right: -40px;
+  bottom: 18vh;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.28) 18%, rgba(255, 255, 255, 0.06) 44%, rgba(190, 160, 255, 0.22) 70%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 26px 50px -26px rgba(120, 80, 220, 0.5);
+  opacity: 0.8;
+}
+
+/* ------------------------------------------------------------ glass panes */
+html[data-theme] #root .glass-lens,
+html[data-theme] #root .glass-clear-crystal,
+html[data-theme] #root .hero-glass-instrument,
+html[data-theme] #root .hero-editorial-badge,
+html[data-theme] #root .hero-cta-secondary,
+html[data-theme] #root .utask-greeting-card,
+html[data-theme] #root .utask-stat-pill-card,
+html[data-theme] #root .mkt-filter-card,
+html[data-theme] #root .vp-benefit,
+html[data-theme] #root .pcard,
+html[data-theme] #root .utask-card,
+html[data-theme] #root .panel-card {
+  background: rgba(255, 255, 255, 0.42) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.66) !important;
+  border-radius: 26px !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 24px 48px -26px rgba(124, 92, 252, 0.42) !important;
+}
+
+html[data-theme="dark"] #root .glass-lens,
+html[data-theme="dark"] #root .glass-clear-crystal,
+html[data-theme="dark"] #root .hero-glass-instrument,
+html[data-theme="dark"] #root .utask-greeting-card,
+html[data-theme="dark"] #root .utask-stat-pill-card,
+html[data-theme="dark"] #root .mkt-filter-card,
+html[data-theme="dark"] #root .vp-benefit,
+html[data-theme="dark"] #root .pcard {
+  background: rgba(48, 32, 84, 0.44) !important;
+  border-color: rgba(190, 165, 255, 0.24) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.14),
+    0 24px 48px -26px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* --------------------------------------------------------------- top chrome */
+html[data-theme] #root .cl-header {
+  background: rgba(255, 255, 255, 0.46) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(180%) !important;
+  backdrop-filter: blur(26px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  border-radius: 26px !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 20px 44px -24px rgba(124, 92, 252, 0.45) !important;
+}
+html[data-theme="dark"] #root .cl-header {
+  background: rgba(44, 28, 76, 0.5) !important;
+  border-color: rgba(190, 165, 255, 0.25) !important;
+}
+
+html[data-theme] #root .cl-link.is-active,
+html[data-theme] #root .cl-link:hover {
+  color: #7C5CFC !important;
+  background: rgba(124, 92, 252, 0.12) !important;
+}
+html[data-theme] #root .cl-lang .motion-lang-btn.is-active {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 60%, #F472B6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px -8px rgba(124, 92, 252, 0.7) !important;
+}
+html[data-theme] #root .cl-theme-pill {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.75) !important;
+  color: #4B3F72 !important;
+}
+
+/* ---------------------------------------------------------------- buttons */
+html[data-theme] #root .btn-primary,
+html[data-theme] #root .hero-cta-primary,
+html[data-theme] #root .ax-submit,
+html[data-theme] #root .cl-login,
+html[data-theme] #root .vp-btn--primary,
+html[data-theme] #root .gsel__button.is-open {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),
+    0 16px 30px -14px rgba(124, 92, 252, 0.75) !important;
+}
+html[data-theme] #root .btn-primary:hover,
+html[data-theme] #root .ax-submit:hover,
+html[data-theme] #root .cl-login:hover {
+  background: linear-gradient(135deg, #9B80FF 0%, #8B6BFF 48%, #FF86C2 100%) !important;
+}
+
+html[data-theme] #root .btn-liquid-white,
+html[data-theme] #root .vp-btn--ghost {
+  background: rgba(255, 255, 255, 0.62) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  color: #3B2E66 !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 12px 24px -16px rgba(124, 92, 252, 0.4) !important;
+}
+
+/* ------------------------------------------------------------- stat accents */
+html[data-theme] #root .utask-stat-icon-wrap.purple {
+  background: linear-gradient(140deg, #A78BFA 0%, #7C5CFC 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 22px -12px rgba(124, 92, 252, 0.8) !important;
+}
+html[data-theme] #root .utask-stat-icon-wrap.cerulean {
+  background: linear-gradient(140deg, #67C8FF 0%, #4F86FF 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 22px -12px rgba(79, 134, 255, 0.75) !important;
+}
+html[data-theme] #root .utask-stat-icon-wrap.pink {
+  background: linear-gradient(140deg, #FF9BC6 0%, #F472B6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 22px -12px rgba(244, 114, 182, 0.75) !important;
+}
+html[data-theme] #root .utask-stat-icon-wrap.amber {
+  background: linear-gradient(140deg, #FFD470 0%, #FBBF24 100%) !important;
+  color: #7A4A00 !important;
+  box-shadow: 0 12px 22px -12px rgba(251, 191, 36, 0.7) !important;
+}
+html[data-theme] #root .utask-stat-number {
+  color: #4B2FAF !important;
+}
+html[data-theme="dark"] #root .utask-stat-number {
+  color: #C9B6FF !important;
+}
+
+/* --------------------------------------------------------------- hero text */
+html[data-theme="light"] #root .hero-editorial h1,
+html[data-theme="light"] #root .hero-title {
+  color: #241848 !important;
+}
+html[data-theme="light"] #root .hero-editorial h1 .accent,
+html[data-theme="light"] #root .hero-title .accent {
+  background: linear-gradient(120deg, #7C5CFC 0%, #C084FC 46%, #38D6F5 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ------------------------------------------------------------------- forms */
+html[data-theme] #root .ax-input,
+html[data-theme] #root .mkt-search-wrap,
+html[data-theme] #root .hero-glass-instrument input,
+html[data-theme] #root .gsel__button,
+html[data-theme] #root .gcb__input,
+html[data-theme] #root .gdp__button {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 10px 22px -18px rgba(124, 92, 252, 0.4) !important;
+}
+html[data-theme] #root .ax-card {
+  background: rgba(255, 255, 255, 0.52) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.75) !important;
+  border-radius: 30px !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 30px 60px -30px rgba(124, 92, 252, 0.5) !important;
+}
+
+/* --------------------------------------------------------------- charts glow */
+html[data-theme] #root .utask-chart-card svg,
+html[data-theme] #root .utask-activity-chart svg {
+  filter: drop-shadow(0 10px 16px rgba(124, 92, 252, 0.28));
+}
+
+/* --------------------------------------------------------------- campaign */
+html[data-theme] #root .site-footer,
+html[data-theme] #root .ft-root {
+  background: linear-gradient(160deg, rgba(38, 22, 66, 0.92) 0%, rgba(24, 16, 44, 0.96) 100%) !important;
+  border-top: 1px solid rgba(190, 165, 255, 0.18) !important;
+}
+
+
+/* ------------------------------------------------------- iteration 2 fixes */
+
+/* hero headline accent */
+html[data-theme="light"] #root .hero-editorial-shimmer,
+html[data-theme="light"] #root .hero-editorial-shimmer * {
+  background-image: linear-gradient(100deg, #7C5CFC 0%, #B36BFF 42%, #F472B6 72%, #38D6F5 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+html[data-theme="dark"] #root .hero-editorial-shimmer,
+html[data-theme="dark"] #root .hero-editorial-shimmer * {
+  background-image: linear-gradient(100deg, #C4B5FD 0%, #F0ABFC 55%, #7DD3FC 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* primary puck buttons must lose the blue radial glass */
+html[data-theme] #root .btn-primary.glass-puck,
+html[data-theme] #root .btn-primary.glass-puck::before,
+html[data-theme] #root .btn-primary.glass-puck::after,
+html[data-theme] #root .hero-cta-primary.glass-puck,
+html[data-theme] #root .hero-cta-primary.glass-puck::before,
+html[data-theme] #root .hero-cta-primary.glass-puck::after {
+  background-image: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 46%, #F472B6 100%) !important;
+}
+html[data-theme] #root .btn-primary.glass-puck,
+html[data-theme] #root .hero-cta-primary.glass-puck {
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),
+    0 18px 34px -16px rgba(124, 92, 252, 0.8) !important;
+}
+
+/* hero search bar: translucent frosted, not a white slab */
+html[data-theme] #root .hero-glass-instrument {
+  background: rgba(255, 255, 255, 0.34) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(180%) !important;
+  backdrop-filter: blur(26px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.62) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.85),
+    0 26px 50px -28px rgba(124, 92, 252, 0.5) !important;
+}
+html[data-theme] #root .hero-glass-instrument input {
+  background: rgba(255, 255, 255, 0.66) !important;
+}
+
+/* charts: violet → pink gradients */
+html[data-theme] #root svg #waveGrad stop {
+  stop-color: #7C5CFC !important;
+}
+html[data-theme] #root svg #lineGrad stop:nth-child(1) {
+  stop-color: #C4B5FD !important;
+}
+html[data-theme] #root svg #lineGrad stop:nth-child(2) {
+  stop-color: #7C5CFC !important;
+}
+html[data-theme] #root svg #lineGrad stop:nth-child(3) {
+  stop-color: #F472B6 !important;
+}
+
+/* balance stats */
+html[data-theme] #root .utask-stat-pill-card {
+  border-radius: 24px !important;
+}
+
+
+/* ------------------------------------------------------- iteration 3 fixes */
+
+html[data-theme] #root .hero-search-btn,
+html[data-theme] #root .mkt-filter-btn,
+html[data-theme] #root .mkt-cat-btn.is-active,
+html[data-theme] #root .vreg-pill-btn.is-active,
+html[data-theme] #root .glass-puck:not(.btn-primary) {
+  background-image: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    0 14px 28px -14px rgba(124, 92, 252, 0.72) !important;
+}
+html[data-theme] #root .hero-search-btn:hover,
+html[data-theme] #root .mkt-filter-btn:hover,
+html[data-theme] #root .mkt-cat-btn.is-active:hover {
+  background-image: linear-gradient(135deg, #9B80FF 0%, #8B6BFF 48%, #FF86C2 100%) !important;
+}
+
+html[data-theme] #root .hero-trust-dot {
+  background: radial-gradient(circle at 35% 35%, #D8CCFF 0%, #7C5CFC 62%, #6D4AF5 100%) !important;
+  box-shadow: 0 0 10px rgba(124, 92, 252, 0.55) !important;
+}
+
+html[data-theme] #root .utask-bar-fill {
+  background-image: linear-gradient(180deg, #B9A2FF 0%, #7C5CFC 52%, #F472B6 100%) !important;
+}
+
+/* progress-style fills elsewhere */
+html[data-theme] #root [class*="progress"] > span,
+html[data-theme] #root [class*="progress-fill"],
+html[data-theme] #root [class*="progress__fill"] {
+  background-image: linear-gradient(90deg, #8B6BFF 0%, #7C5CFC 50%, #F472B6 100%) !important;
+}
+
+
+/* ------------------------------------------------------- iteration 4 fixes */
+
+/* brand mark + calendar + ring accents */
+html[data-theme] #root .cl-brand__logo {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 52%, #F472B6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 20px -10px rgba(124, 92, 252, 0.8) !important;
+}
+html[data-theme] #root .utask-cal-day-cell.is-active {
+  background: linear-gradient(150deg, #8B6BFF 0%, #7C5CFC 55%, #F472B6 100%) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 10px 20px -12px rgba(124, 92, 252, 0.8) !important;
+}
+html[data-theme] #root [class*="ring"] svg circle,
+html[data-theme] #root svg circle[stroke] {
+  stroke: #7C5CFC !important;
+}
+
+/* extra glass props, matching the reference render */
+#root::before,
+#root::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+/* torus ring, bottom right */
+#root::before {
+  right: 4vw;
+  bottom: 6vh;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 210deg, rgba(255, 255, 255, 0.55), rgba(196, 165, 255, 0.35) 22%, rgba(255, 255, 255, 0.75) 46%, rgba(255, 190, 220, 0.4) 68%, rgba(255, 255, 255, 0.55) 100%);
+  -webkit-mask: radial-gradient(circle, transparent 0 54%, #000 56% 74%, transparent 76%);
+  mask: radial-gradient(circle, transparent 0 54%, #000 56% 74%, transparent 76%);
+  filter: blur(0.4px) drop-shadow(0 26px 42px rgba(124, 92, 252, 0.35));
+  opacity: 0.85;
+  transform: rotate(-14deg);
+}
+/* glass marble, left middle */
+#root::after {
+  left: 2.5vw;
+  top: 46vh;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.35) 16%, rgba(255, 255, 255, 0.05) 42%, rgba(190, 160, 255, 0.28) 72%, rgba(255, 255, 255, 0.16) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 20px 38px -20px rgba(124, 92, 252, 0.45);
+  opacity: 0.9;
+}
+
+
+/* ------------------------------------------------------- iteration 5 fixes */
+
+/* auth accents */
+html[data-theme] #root .ax-role__btn.is-active {
+  color: #6B49F5 !important;
+  background: rgba(124, 92, 252, 0.14) !important;
+  border-color: rgba(124, 92, 252, 0.35) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 6px 16px -10px rgba(124, 92, 252, 0.6) !important;
+}
+html[data-theme] #root .ax-role__btn:not(.is-active) {
+  color: #5F5480 !important;
+}
+html[data-theme] #root .ax-switch button,
+html[data-theme] #root .ax-forgot,
+html[data-theme] #root .ax-link {
+  color: #6B49F5 !important;
+}
+html[data-theme="dark"] #root .ax-switch button,
+html[data-theme="dark"] #root .ax-forgot,
+html[data-theme="dark"] #root .ax-link {
+  color: #C4B5FD !important;
+}
+
+/* universal focus treatment in the new palette */
+html[data-theme] #root input:focus-visible,
+html[data-theme] #root select:focus-visible,
+html[data-theme] #root textarea:focus-visible,
+html[data-theme] #root button:focus-visible,
+html[data-theme] #root a:focus-visible {
+  outline: none !important;
+  border-color: rgba(124, 92, 252, 0.75) !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.28) !important;
+}
+
+
+/* ------------------------------------------------------- iteration 6 fixes */
+
+/* dark-mode chrome legibility + quieter props */
+html[data-theme="dark"] #root .cl-link.is-active,
+html[data-theme="dark"] #root .cl-link:hover {
+  color: #D8CCFF !important;
+  background: rgba(167, 139, 250, 0.2) !important;
+}
+html[data-theme="dark"] #root .cl-link {
+  color: #CDBFEA !important;
+}
+html[data-theme="dark"] #root .cl-brand__name {
+  color: #F4EEFF !important;
+}
+html[data-theme="dark"] #root::before,
+html[data-theme="dark"] #root::after,
+html[data-theme="dark"] .app-shell::before,
+html[data-theme="dark"] .app-shell::after {
+  opacity: 0.22 !important;
+}
+html[data-theme="dark"] #root .utask-countdown-box {
+  background: rgba(52, 34, 92, 0.5) !important;
+}
+
+
+/* ------------------------------------------------------- iteration 7 fixes */
+
+/* keep decorative props behind the interface */
+#root::before,
+#root::after,
+.app-shell::before,
+.app-shell::after {
+  z-index: -1 !important;
+}
+
+/* the avatar chip follows the palette */
+html[data-theme] #root .cl-user__avatar {
+  background: linear-gradient(140deg, #8B6BFF 0%, #7C5CFC 55%, #F472B6 100%) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 8px 18px -10px rgba(124, 92, 252, 0.8) !important;
+}
+
+@media (max-width: 600px) {
+  #root::before {
+    width: 130px;
+    height: 130px;
+    right: -30px;
+    bottom: 10vh;
+    opacity: 0.55;
+  }
+  #root::after {
+    width: 64px;
+    height: 64px;
+    left: -18px;
+    top: 38vh;
+    opacity: 0.6;
+  }
+  .app-shell::before {
+    width: 140px;
+    height: 140px;
+    left: -70px;
+    bottom: 22vh;
+    opacity: 0.45;
+  }
+  .app-shell::after {
+    width: 90px;
+    height: 90px;
+    right: -30px;
+    bottom: 30vh;
+    opacity: 0.55;
+  }
+}
+
+
+/* ==========================================================================
+   CONTACT BANNER + SITE FOOTER — sunset glass edition
+   ========================================================================== */
+
+/* ---- contact banner ------------------------------------------------------ */
+html[data-theme] #root .home-contact-banner {
+  background:
+    radial-gradient(130% 180% at 0% 0%, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 58%),
+    linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 46%, #F472B6 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 28px !important;
+  padding: 1.75rem 2rem !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),
+    0 28px 56px -26px rgba(124, 92, 252, 0.85) !important;
+}
+html[data-theme] #root .home-contact-banner .btn-liquid-white {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #6B49F5 !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow:
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95),
+    0 16px 30px -16px rgba(60, 20, 120, 0.5) !important;
+}
+html[data-theme] #root .home-contact-banner .btn-liquid-white:hover {
+  background: #fff !important;
+  color: #5B3AE0 !important;
+}
+
+/* ---- footer ------------------------------------------------------------- */
+html[data-theme] #root .ft {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #2B1F52 !important;
+  margin-top: clamp(2rem, 4vw, 3.5rem) !important;
+  padding: clamp(0.5rem, 1.5vw, 1.25rem) 0 clamp(1.5rem, 3vw, 2.25rem) !important;
+}
+html[data-theme] #root .ft::before {
+  display: none !important;
+}
+html[data-theme] #root .ft__aura {
+  background: radial-gradient(circle at 40% 40%, rgba(167, 139, 250, 0.45) 0%, rgba(167, 139, 250, 0) 62%) !important;
+  opacity: 0.7;
+}
+html[data-theme] #root .ft__inner {
+  background: rgba(255, 255, 255, 0.42) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  border-radius: 30px !important;
+  padding: 2.25rem 2.25rem 1.5rem !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 30px 60px -34px rgba(124, 92, 252, 0.5) !important;
+}
+html[data-theme] #root .ft__top,
+html[data-theme] #root .ft__contact,
+html[data-theme] #root .ft__bottom {
+  border-color: rgba(124, 92, 252, 0.16) !important;
+}
+html[data-theme] #root .ft__bottom {
+  border-top: 1px solid rgba(124, 92, 252, 0.16) !important;
+}
+html[data-theme] #root .ft__mark {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 52%, #F472B6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 20px -10px rgba(124, 92, 252, 0.7) !important;
+}
+html[data-theme] #root .ft__wordmark strong {
+  color: #241848 !important;
+}
+html[data-theme] #root .ft__wordmark small {
+  color: #7A6E9E !important;
+}
+html[data-theme] #root .ft__tagline {
+  color: #5F5480 !important;
+}
+html[data-theme] #root .ft__badge {
+  background: rgba(124, 92, 252, 0.12) !important;
+  border: 1px solid rgba(124, 92, 252, 0.22) !important;
+  color: #6B49F5 !important;
+}
+html[data-theme] #root .ft__badge svg {
+  color: #7C5CFC !important;
+}
+html[data-theme] #root .ft__col-title,
+html[data-theme] #root .ft__hours-title,
+html[data-theme] #root .ft__card-label {
+  color: #8B7BB8 !important;
+}
+html[data-theme] #root .ft__card-label svg {
+  color: #8B6BFF !important;
+}
+html[data-theme] #root .ft__col a {
+  color: #4B3F72 !important;
+}
+html[data-theme] #root .ft__col a:hover,
+html[data-theme] #root .ft__col a:focus-visible {
+  color: #6B49F5 !important;
+}
+html[data-theme] #root .ft__card {
+  background: rgba(255, 255, 255, 0.52) !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  border-radius: 20px !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    0 16px 32px -24px rgba(124, 92, 252, 0.5) !important;
+}
+html[data-theme] #root .ft__address,
+html[data-theme] #root .ft__address span {
+  color: #5F5480 !important;
+}
+html[data-theme] #root .ft__address strong,
+html[data-theme] #root .ft__phones a,
+html[data-theme] #root .ft__email {
+  color: #2B1F52 !important;
+}
+html[data-theme] #root .ft__phones a:hover,
+html[data-theme] #root .ft__email:hover {
+  color: #6B49F5 !important;
+}
+html[data-theme] #root .ft__phones li > span,
+html[data-theme] #root .ft__status-detail {
+  color: #7A6E9E !important;
+}
+html[data-theme] #root .ft__wa {
+  color: #6B49F5 !important;
+}
+html[data-theme] #root .ft__hours dt {
+  color: #4B3F72 !important;
+}
+html[data-theme] #root .ft__hours dd {
+  color: #2B1F52 !important;
+}
+html[data-theme] #root .ft__hours dd.is-muted {
+  color: #8B80AD !important;
+}
+html[data-theme] #root .ft__always {
+  color: #6B49F5 !important;
+}
+html[data-theme] #root .ft__copyright {
+  color: #4B3F72 !important;
+}
+html[data-theme] #root .ft__designed {
+  color: #7A6E9E !important;
+}
+html[data-theme] #root .ft__status.is-open {
+  color: #0F8A5F !important;
+  background: rgba(52, 211, 153, 0.18) !important;
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.35) !important;
+}
+html[data-theme] #root .ft__status.is-closed {
+  color: #9A6206 !important;
+  background: rgba(251, 191, 36, 0.2) !important;
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.38) !important;
+}
+
+/* dark variant */
+html[data-theme="dark"] #root .ft {
+  color: #E9E1FF !important;
+}
+html[data-theme="dark"] #root .ft__inner {
+  background: rgba(44, 28, 78, 0.46) !important;
+  border-color: rgba(190, 165, 255, 0.22) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.14),
+    0 30px 60px -34px rgba(0, 0, 0, 0.7) !important;
+}
+html[data-theme="dark"] #root .ft__wordmark strong,
+html[data-theme="dark"] #root .ft__address strong,
+html[data-theme="dark"] #root .ft__phones a,
+html[data-theme="dark"] #root .ft__email,
+html[data-theme="dark"] #root .ft__copyright,
+html[data-theme="dark"] #root .ft__hours dd {
+  color: #F4EEFF !important;
+}
+html[data-theme="dark"] #root .ft__tagline,
+html[data-theme="dark"] #root .ft__address span,
+html[data-theme="dark"] #root .ft__col a,
+html[data-theme="dark"] #root .ft__hours dt {
+  color: #C6B8E8 !important;
+}
+html[data-theme="dark"] #root .ft__card {
+  background: rgba(58, 38, 98, 0.5) !important;
+  border-color: rgba(190, 165, 255, 0.22) !important;
+}
+html[data-theme="dark"] #root .ft__col-title,
+html[data-theme="dark"] #root .ft__hours-title,
+html[data-theme="dark"] #root .ft__card-label,
+html[data-theme="dark"] #root .ft__phones li > span,
+html[data-theme="dark"] #root .ft__status-detail,
+html[data-theme="dark"] #root .ft__designed {
+  color: #A695CF !important;
+}
+
+/* banner + footer on phones */
+@media (max-width: 600px) {
+  html[data-theme] #root .home-contact-banner {
+    padding: 1.35rem 1.25rem !important;
+    border-radius: 24px !important;
+    gap: 1rem !important;
+  }
+  html[data-theme] #root .home-contact-banner .btn-liquid-white {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.8rem 1.1rem !important;
+  }
+  html[data-theme] #root .ft__inner {
+    padding: 1.35rem 1.1rem 1.1rem !important;
+    border-radius: 24px !important;
+  }
+  html[data-theme] #root .ft__card {
+    border-radius: 18px !important;
+  }
+}
+
+
+/* ------------------------------------------------------- iteration 8 fixes */
+
+/* banner: text left, CTA right on one line */
+html[data-theme] #root .home-contact-banner {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+html[data-theme] #root .home-contact-banner > div {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+html[data-theme] #root .home-contact-banner .btn-liquid-white {
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 600px) {
+  /* footer slab reads clearly on phones */
+  html[data-theme] #root .ft__inner {
+    background: rgba(255, 255, 255, 0.56) !important;
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.95),
+      0 24px 48px -28px rgba(124, 92, 252, 0.45) !important;
+  }
+  html[data-theme="dark"] #root .ft__inner {
+    background: rgba(48, 30, 84, 0.6) !important;
+  }
+  html[data-theme] #root .home-contact-banner {
+    flex-wrap: wrap !important;
+  }
+  html[data-theme] #root .home-contact-banner .btn-liquid-white {
+    flex: 1 1 100% !important;
+  }
+}
+
+
+/* ------------------------------------------------------- iteration 9 fixes */
+
+@media (max-width: 600px) {
+  /* inset the footer slab so the glass panel is actually visible */
+  html[data-theme] #root .ft {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  html[data-theme] #root .ft__inner {
+    width: 100% !important;
+    background: rgba(255, 255, 255, 0.62) !important;
+    border-radius: 26px !important;
+  }
+  /* link columns pair up instead of one endless stack */
+  html[data-theme] #root .ft__top {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.25rem 1rem !important;
+  }
+  html[data-theme] #root .ft__brand {
+    grid-column: 1 / -1 !important;
+    max-width: none !important;
+  }
+  html[data-theme] #root .ft__contact {
+    grid-template-columns: 1fr !important;
+  }
+  html[data-theme] #root .ft__bottom {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+}
+
+
+/* ==========================================================================
+   COMPONENT COVERAGE — every surface follows the sunset palette
+   ========================================================================== */
+
+/* icon bubbles across home, vendor programme, wedding profile, dashboards */
+html[data-theme] #root .cl-cat-icon,
+html[data-theme] #root .home-contact-icon-bubble,
+html[data-theme] #root .wprof-cat-icon-wrap,
+html[data-theme] #root .vp-benefit__icon,
+html[data-theme] #root .vp-cat__icon,
+html[data-theme] #root .vp-adv__icon,
+html[data-theme] #root .utask-meeting-avatar {
+  background: linear-gradient(140deg, #A78BFA 0%, #7C5CFC 100%) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 12px 22px -14px rgba(124, 92, 252, 0.75) !important;
+}
+
+/* violet text accents that were hard-coded blue */
+html[data-theme] #root .cl-cat-link,
+html[data-theme] #root .home-contact-card-subtitle,
+html[data-theme] #root .pf-foot__link,
+html[data-theme] #root .vp-quote__mark,
+html[data-theme] #root .wprof-couple-sub,
+html[data-theme] #root .vreg-prefix,
+html[data-theme] #root .ai-banner-title {
+  color: #6B49F5 !important;
+}
+html[data-theme="dark"] #root .cl-cat-link,
+html[data-theme="dark"] #root .home-contact-card-subtitle,
+html[data-theme="dark"] #root .pf-foot__link,
+html[data-theme="dark"] #root .wprof-couple-sub,
+html[data-theme="dark"] #root .vreg-prefix,
+html[data-theme="dark"] #root .ai-banner-title {
+  color: #C4B5FD !important;
+}
+
+/* numbered steps, active filter pills, today markers */
+html[data-theme] #root .vp-step__num,
+html[data-theme] #root .vp-stepset__num,
+html[data-theme] #root .vp-pill.is-active,
+html[data-theme] #root .pf-filter.is-active,
+html[data-theme] #root .cal-day.is-today,
+html[data-theme] #root .vreg-pill-btn.is-active {
+  background: linear-gradient(150deg, #8B6BFF 0%, #7C5CFC 55%, #F472B6 100%) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  box-shadow: 0 10px 20px -12px rgba(124, 92, 252, 0.75) !important;
+}
+
+/* count badges, schedule pills, amenity chips */
+html[data-theme] #root .mkt-cat-badge,
+html[data-theme] #root .mkt-badge,
+html[data-theme] #root .badge-cerulean,
+html[data-theme] #root .utask-schedule-pill,
+html[data-theme] #root .vd-cat-badge {
+  background: rgba(124, 92, 252, 0.14) !important;
+  color: #6B49F5 !important;
+  border: 1px solid rgba(124, 92, 252, 0.22) !important;
+}
+html[data-theme] #root .vd-amenity-pill {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  color: #3B2E66 !important;
+}
+html[data-theme] #root .vd-amenity-pill svg {
+  color: #7C5CFC !important;
+}
+
+/* wedding profile hero + submit */
+html[data-theme] #root .wprof-header-banner {
+  background:
+    radial-gradient(120% 160% at 0% 0%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 55%),
+    linear-gradient(135deg, rgba(139, 107, 255, 0.9) 0%, rgba(124, 92, 252, 0.86) 48%, rgba(244, 114, 182, 0.86) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  color: #fff !important;
+}
+html[data-theme] #root .wprof-header-banner * {
+  color: #fff !important;
+}
+html[data-theme] #root .wprof-submit,
+html[data-theme] #root .vp-submit,
+html[data-theme] #root .vp-btn--primary,
+html[data-theme] #root .home-contact-btn.btn-primary {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  color: #fff !important;
+}
+
+/* vendor programme glass panels */
+html[data-theme] #root .vp-panel__side,
+html[data-theme] #root .vp-price-preview,
+html[data-theme] #root .vp-close__inner {
+  background: rgba(255, 255, 255, 0.48) !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 22px 44px -26px rgba(124, 92, 252, 0.45) !important;
+}
+html[data-theme="dark"] #root .vp-panel__side,
+html[data-theme="dark"] #root .vp-price-preview,
+html[data-theme="dark"] #root .vp-close__inner {
+  background: rgba(52, 34, 90, 0.5) !important;
+  border-color: rgba(190, 165, 255, 0.22) !important;
+}
+
+/* AI planner chips + badges */
+html[data-theme] #root .ai-reset-btn,
+html[data-theme] #root .ai-checklist-badge-pill {
+  background: rgba(124, 92, 252, 0.14) !important;
+  color: #6B49F5 !important;
+  border: 1px solid rgba(124, 92, 252, 0.25) !important;
+}
+html[data-theme] #root .ai-glass-badge {
+  background: rgba(124, 92, 252, 0.12) !important;
+  border: 1px solid rgba(124, 92, 252, 0.22) !important;
+  color: #6B49F5 !important;
+}
+
+/* home photo overlay + gallery filter */
+html[data-theme] #root .hero-photo-overlay {
+  background:
+    linear-gradient(180deg, rgba(30, 12, 60, 0.05) 0%, rgba(30, 12, 60, 0.28) 62%, rgba(52, 20, 90, 0.5) 100%) !important;
+}
+
+/* admin approve buttons: mint-teal instead of raw blue */
+html[data-theme] #root .btn-emerald {
+  background: linear-gradient(135deg, #5EEAD4 0%, #34D399 52%, #22D3EE 100%) !important;
+  color: #06382C !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    0 14px 26px -16px rgba(34, 211, 238, 0.6) !important;
+}
+
+/* final sweep: any remaining hard-coded blue text/links */
+html[data-theme] #root a:not(.cl-link):not(.ft__col a):not(.btn-primary):not(.cl-login) {
+  color: #6B49F5;
+}
+html[data-theme="dark"] #root a:not(.cl-link):not(.ft__col a):not(.btn-primary):not(.cl-login) {
+  color: #C4B5FD;
+}
+
+
+/* AI assistant orb — the last blue thing on every page */
+html[data-theme] #root .ai-pill__orb,
+html[data-theme] #root .ai-pill__orb svg {
+  background: radial-gradient(circle at 32% 28%, #E9DFFF 0%, #B9A2FF 28%, #7C5CFC 62%, #5B3AE0 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 22px -10px rgba(124, 92, 252, 0.85) !important;
+}
+html[data-theme] #root .ai-pill {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 18px 36px -20px rgba(124, 92, 252, 0.6) !important;
+}
+html[data-theme="dark"] #root .ai-pill {
+  background: rgba(54, 36, 96, 0.6) !important;
+  border-color: rgba(190, 165, 255, 0.25) !important;
+}
+
+
+/* the shared "puck" gradient token was the last source of azure */
+html[data-theme] {
+  --puck-bg: linear-gradient(180deg, #9B80FF 0%, #7C5CFC 55%, #F472B6 100%);
+  --p3d-grad-primary: linear-gradient(180deg, #9B80FF 0%, #7C5CFC 55%, #F472B6 100%);
+}
+
+
+/* wedding profile form card becomes glass, not a white slab */
+html[data-theme] #root .wprof-card {
+  background: rgba(255, 255, 255, 0.5) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(180%) !important;
+  backdrop-filter: blur(26px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  border-radius: 26px !important;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 26px 52px -30px rgba(124, 92, 252, 0.5) !important;
+}
+html[data-theme] #root .wprof-header-banner {
+  border-radius: 24px 24px 0 0 !important;
+}
+html[data-theme="dark"] #root .wprof-card {
+  background: rgba(50, 32, 88, 0.5) !important;
+  border-color: rgba(190, 165, 255, 0.22) !important;
+}
+
+
+/* ==========================================================================
+   MODALS — booking, appointment, payment, auth
+   ========================================================================== */
+
+html[data-theme] #root .modal-card,
+html[data-theme] #root .modal-card.clay-card,
+html[data-theme] #root .ax-modal-shell {
+  background: rgba(255, 255, 255, 0.58) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  border-radius: 30px !important;
+  color: #241848 !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    0 44px 90px -44px rgba(60, 20, 120, 0.6) !important;
+}
+html[data-theme="dark"] #root .modal-card,
+html[data-theme="dark"] #root .modal-card.clay-card,
+html[data-theme="dark"] #root .ax-modal-shell {
+  background: rgba(46, 30, 82, 0.66) !important;
+  border-color: rgba(190, 165, 255, 0.25) !important;
+  color: #F4EEFF !important;
+}
+html[data-theme] #root .modal-backdrop,
+html[data-theme] #root .ax-modal-backdrop {
+  background: rgba(36, 18, 64, 0.38) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+}
+html[data-theme] #root .modal-card .btn-primary,
+html[data-theme] #root .modal-card .btn-primary.btn-sweep,
+html[data-theme] #root .ax-modal-shell .btn-primary {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    0 16px 30px -16px rgba(124, 92, 252, 0.8) !important;
+}
+html[data-theme] #root .modal-close-btn {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.85) !important;
+  color: #4B3F72 !important;
+}
+html[data-theme] #root .modal-card h2,
+html[data-theme] #root .modal-card h3,
+html[data-theme] #root .modal-card h4,
+html[data-theme] #root .modal-card strong,
+html[data-theme] #root .ax-modal-shell h2,
+html[data-theme] #root .ax-modal-shell h3 {
+  color: #241848 !important;
+}
+html[data-theme="dark"] #root .modal-card h2,
+html[data-theme="dark"] #root .modal-card h3,
+html[data-theme="dark"] #root .modal-card h4,
+html[data-theme="dark"] #root .modal-card strong,
+html[data-theme="dark"] #root .ax-modal-shell h2,
+html[data-theme="dark"] #root .ax-modal-shell h3 {
+  color: #F7F2FF !important;
+}
+html[data-theme] #root .modal-card p,
+html[data-theme] #root .modal-card label,
+html[data-theme] #root .modal-card li,
+html[data-theme] #root .appointment-modal-sub {
+  color: #4B3F72 !important;
+}
+html[data-theme="dark"] #root .modal-card p,
+html[data-theme="dark"] #root .modal-card label,
+html[data-theme="dark"] #root .modal-card li {
+  color: #CDBFEA !important;
+}
+html[data-theme] #root .modal-card .rate-row,
+html[data-theme] #root .modal-card [class*="deposit"] {
+  color: #6B49F5 !important;
+}
+
+
+/* modals are portaled to <body>, outside #root — match them there too */
+html[data-theme] .modal-card,
+html[data-theme] .modal-card.clay-card,
+html[data-theme] .ax-modal-shell {
+  background: rgba(255, 255, 255, 0.6) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 30px !important;
+  color: #241848 !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    0 44px 90px -44px rgba(60, 20, 120, 0.6) !important;
+}
+html[data-theme="dark"] .modal-card,
+html[data-theme="dark"] .modal-card.clay-card,
+html[data-theme="dark"] .ax-modal-shell {
+  background: rgba(46, 30, 82, 0.68) !important;
+  border-color: rgba(190, 165, 255, 0.25) !important;
+  color: #F4EEFF !important;
+}
+html[data-theme] .modal-backdrop,
+html[data-theme] .ax-modal-backdrop {
+  background: rgba(36, 18, 64, 0.38) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+}
+html[data-theme] .modal-card .btn-primary,
+html[data-theme] .modal-card .btn-primary.btn-sweep,
+html[data-theme] .ax-modal-shell .btn-primary {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    0 16px 30px -16px rgba(124, 92, 252, 0.8) !important;
+}
+html[data-theme] .modal-close-btn {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.88) !important;
+  color: #4B3F72 !important;
+}
+html[data-theme] .modal-card h2,
+html[data-theme] .modal-card h3,
+html[data-theme] .modal-card h4,
+html[data-theme] .modal-card strong,
+html[data-theme] .ax-modal-shell h2,
+html[data-theme] .ax-modal-shell h3 {
+  color: #241848 !important;
+}
+html[data-theme="dark"] .modal-card h2,
+html[data-theme="dark"] .modal-card h3,
+html[data-theme="dark"] .modal-card h4,
+html[data-theme="dark"] .modal-card strong,
+html[data-theme="dark"] .ax-modal-shell h2,
+html[data-theme="dark"] .ax-modal-shell h3 {
+  color: #F7F2FF !important;
+}
+html[data-theme] .modal-card p,
+html[data-theme] .modal-card label,
+html[data-theme] .modal-card li,
+html[data-theme] .appointment-modal-sub {
+  color: #4B3F72 !important;
+}
+html[data-theme="dark"] .modal-card p,
+html[data-theme="dark"] .modal-card label,
+html[data-theme="dark"] .modal-card li {
+  color: #CDBFEA !important;
+}
+html[data-theme] .modal-card [class*="deposit"],
+html[data-theme] .modal-card [class*="amount"] strong {
+  color: #6B49F5 !important;
+}
+
+
+/* payment options + sweep buttons */
+html[data-theme] .motion-payment-option.is-selected {
+  border-color: rgba(124, 92, 252, 0.85) !important;
+  background: rgba(124, 92, 252, 0.12) !important;
+  color: #6B49F5 !important;
+  box-shadow: inset 0 0 0 1px rgba(124, 92, 252, 0.45), 0 8px 18px -12px rgba(124, 92, 252, 0.7) !important;
+}
+html[data-theme] .btn-primary.btn-sweep,
+html[data-theme] .btn-sweep.btn-primary {
+  background-image: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+}
+html[data-theme] .btn-primary.btn-sweep::before,
+html[data-theme] .btn-primary.btn-sweep::after {
+  background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.55) 45%, transparent 70%) !important;
+}
+
+/* mobile drawer + auth verify modal */
+html[data-theme] .cl-drawer,
+html[data-theme] .ax-modal-shell {
+  background: rgba(255, 255, 255, 0.62) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  color: #241848 !important;
+}
+html[data-theme="dark"] .cl-drawer,
+html[data-theme="dark"] .ax-modal-shell {
+  background: rgba(46, 30, 82, 0.7) !important;
+  border-color: rgba(190, 165, 255, 0.25) !important;
+  color: #F4EEFF !important;
+}
+
+
+/* last blue ring: selected payment chip focus outline */
+html[data-theme] .motion-payment-option.is-selected {
+  outline: 2px solid rgba(124, 92, 252, 0.9) !important;
+  outline-offset: 0 !important;
+}
+html[data-theme] .motion-payment-option.is-selected:focus-visible {
+  outline-color: rgba(124, 92, 252, 0.9) !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.28) !important;
+}
+
+/* mobile drawer language switch (was still using the old azure) */
+html[data-theme] .cl-drawer__lang button.is-active {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 55%, #F472B6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px -8px rgba(124, 92, 252, 0.75) !important;
+}
+html[data-theme] .cl-drawer {
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+html[data-theme="dark"] .cl-drawer {
+  background: rgba(44, 28, 78, 0.82) !important;
+}
+
+
+/* portaled modals must use the violet focus ring, not the browser's azure one */
+html[data-theme] .modal-card button:focus-visible,
+html[data-theme] .modal-card a:focus-visible,
+html[data-theme] .modal-card [role="button"]:focus-visible,
+html[data-theme] .ax-modal-shell button:focus-visible,
+html[data-theme] .ax-modal-shell input:focus-visible,
+html[data-theme] .cl-drawer button:focus-visible,
+html[data-theme] .cl-drawer a:focus-visible {
+  outline: none !important;
+  border-color: rgba(124, 92, 252, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.3) !important;
+}
+html[data-theme] .modal-card .motion-payment-option:focus,
+html[data-theme] .modal-card .motion-payment-option:focus-visible {
+  outline: none !important;
+  border-color: rgba(124, 92, 252, 0.85) !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.3) !important;
+}

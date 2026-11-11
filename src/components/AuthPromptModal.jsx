@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useAppContext } from '../context/AppContext';
 import { Heart, Sparkles, X, ShieldCheck, ArrowRight, LogIn } from 'lucide-react';
+import { useBodyScrollLock } from '../lib/overlayLock';
 
 export default function AuthPromptModal({
   isOpen,
@@ -13,6 +14,7 @@ export default function AuthPromptModal({
 }) {
   const { language, t } = useAppContext();
   const isSw = language === 'sw';
+  useBodyScrollLock(Boolean(isOpen), onClose);
 
   if (!isOpen) return null;
 

@@ -79,8 +79,8 @@ function ProviderDashboardPage() {
           </div>
           <div>
             <h1 style={{ fontSize: '1.75rem', color: 'var(--app-text-primary, #0F172A)', marginBottom: '0.2rem', fontWeight: 900, letterSpacing: '-0.025em' }}>{provider.name}</h1>
-            <p style={{ fontSize: '0.88rem', color: 'var(--app-text-muted, #64748B)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <MapPin size={14} color="var(--color-primary, #0071E3)" /> {provider.location} • {isSw ? 'Kategoria' : 'Category'}: <strong style={{ textTransform: 'capitalize', color: 'var(--app-text-primary, #0F172A)' }}>{provider.category}</strong>
+            <p style={{ fontSize: '0.88rem', color: 'var(--app-text-muted, #64748B)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem 0.45rem' }}>
+              <MapPin size={14} color="var(--color-primary, #0071E3)" style={{ flexShrink: 0 }} /> {provider.location} • {isSw ? 'Kategoria' : 'Category'}: <strong style={{ textTransform: 'capitalize', color: 'var(--app-text-primary, #0F172A)' }}>{provider.category}</strong>
             </p>
           </div>
         </div>
@@ -198,7 +198,7 @@ function ProviderDashboardPage() {
 
               {providerBookings.length === 0 ? (
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', padding: '1rem 0' }}>
-                  No active bookings yet. Once couples book your service on the marketplace, requests will appear here.
+                  {isSw ? 'Bado hakuna nafasi zilizoombwa. Wanandoa wakishaweka nafasi kwa huduma yako kwenye soko, maombi yataonekana hapa.' : 'No active bookings yet. Once couples book your service on the marketplace, requests will appear here.'}
                 </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

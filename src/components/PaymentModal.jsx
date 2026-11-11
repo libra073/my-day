@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppContext } from '../context/AppContext';
 import { X, Smartphone, CreditCard, CheckCircle2, ShieldCheck } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { useBodyScrollLock } from '../lib/overlayLock';
 
 const PAYMENT_PROVIDERS = [
   { id: 'mpesa', name: 'M-Pesa (Vodacom)', color: '#E60000', code: '*150*00#' },
@@ -24,12 +24,21 @@ function PaymentModal({ bookingId, amount, isFullPayment = false, onClose, onSuc
   const [step, setStep] = useState('input'); // 'input' | 'processing' | 'success'
   const [txnRef, setTxnRef] = useState('');
 
+  useBodyScrollLock(true, () => {
+    if (step !== 'processing') onClose?.();
+  });
+
   const triggerSuccessEffects = () => {
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
+    import('canvas-confetti')
+      .then((mod) => {
+        const confetti = mod.default;
+        confetti?.({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      })
+      .catch(() => {});
   };
 
   const handlePaymentSubmit = (e) => {
@@ -57,6 +66,9 @@ function PaymentModal({ bookingId, amount, isFullPayment = false, onClose, onSuc
       className="modal-backdrop motion-modal-backdrop"
       role="dialog"
       aria-modal="true"
+      onClick={() => {
+        if (step !== 'processing') onClose?.();
+      }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -64,18 +76,19 @@ function PaymentModal({ bookingId, amount, isFullPayment = false, onClose, onSuc
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1100,
+        zIndex: 1350,
         padding: '1rem'
       }}
     >
       <div
         className="modal-card clay-card motion-modal-card"
+        onClick={(e) => e.stopPropagation()}
         style={{
           background: 'var(--clay-cream-2, #ffffff)',
           borderRadius: '36px',
           maxWidth: '480px',
           width: '100%',
-          maxHeight: '90vh',
+          maxHeight: '90dvh',
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: 'clamp(1.5rem, 3.5vw, 2.25rem)',

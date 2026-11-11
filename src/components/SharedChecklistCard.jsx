@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { demoText } from '../i18n/demoContent';
 import { getTodayDarEsSalaam } from '../services/businessSchedule';
 import {
   CheckSquare, PlusCircle, CheckCircle2, Clock, AlertTriangle, XCircle,
@@ -323,11 +324,11 @@ export default function SharedChecklistCard() {
                         color: isCompleted ? 'var(--color-text-muted)' : 'var(--color-text)',
                         textDecoration: isCompleted ? 'line-through' : 'none'
                       }}>
-                        {task.title}
+                        {demoText(task.title, language === 'sw')}
                       </div>
                       {task.description && (
                         <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                          {task.description}
+                          {demoText(task.description, language === 'sw')}
                         </div>
                       )}
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.4rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
@@ -460,7 +461,7 @@ export default function SharedChecklistCard() {
                                     {new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </div>
-                                <div style={{ color: 'var(--color-text)' }}>{c.text}</div>
+                                <div style={{ color: 'var(--color-text)' }}>{demoText(c.text, language === 'sw')}</div>
                               </div>
                             ))
                           )}

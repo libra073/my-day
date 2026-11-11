@@ -9,6 +9,17 @@ import React, { useEffect } from 'react';
  */
 export default function LiquidGlassInteractionProvider({ children }) {
   useEffect(() => {
+    const finePointerQuery =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)');
+    const reducedMotionQuery =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    if ((finePointerQuery && !finePointerQuery.matches) || reducedMotionQuery?.matches) {
+      return undefined;
+    }
+
     let rafId = null;
     let pendingX = 50;
     let pendingY = 30;
@@ -27,6 +38,7 @@ export default function LiquidGlassInteractionProvider({ children }) {
     };
 
     const handlePointerMove = (e) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
       const x = (e.clientX / window.innerWidth) * 100;
       const y = (e.clientY / window.innerHeight) * 100;
       pendingX = x;

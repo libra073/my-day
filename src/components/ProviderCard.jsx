@@ -58,6 +58,8 @@ export default function ProviderCard({ provider }) {
         <img 
           src={image || defaultImage} 
           alt={name}
+          loading="lazy"
+          decoding="async"
           style={{
             width: '100%',
             height: '100%',

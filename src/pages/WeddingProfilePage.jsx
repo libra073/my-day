@@ -258,12 +258,12 @@ export default function WeddingProfilePage() {
               <Flame size={16} color="var(--color-primary, #0071E3)" />
               {daysRemaining} {isSw ? 'Siku Zilizobaki' : 'Days to the Big Day'}
             </span>
-            <span style={{ color: 'var(--app-text-muted, #cbd5e1)' }}>•</span>
+            <span className="wprof-status-sep" style={{ color: 'var(--app-text-muted, #cbd5e1)' }}>•</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.86rem', fontWeight: 750, color: 'var(--app-text-primary, #21143D)' }}>
               <Calendar size={15} color="var(--color-primary, #0071E3)" />
-              {formatDisplayDate(formData.date)}
+              {formData.date ? formatDisplayDate(formData.date) : (isSw ? 'Chagua tarehe' : 'Set wedding date')}
             </span>
-            <span style={{ color: 'var(--app-text-muted, #cbd5e1)' }}>•</span>
+            <span className="wprof-status-sep" style={{ color: 'var(--app-text-muted, #cbd5e1)' }}>•</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.86rem', fontWeight: 750, color: 'var(--app-success, #059669)' }}>
               <MapPin size={15} color="var(--app-success, #059669)" />
               {formData.location}
@@ -350,18 +350,20 @@ export default function WeddingProfilePage() {
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="E.g. John & Sarah's Grand Celebration"
+                  placeholder={isSw ? 'Mf. Harusi ya John & Sarah' : "E.g. John & Sarah's Grand Celebration"}
                   required
                 />
               </div>
 
               {/* Title Suggestions */}
               <div className="vreg-pills" style={{ marginTop: '0.45rem' }}>
-                {(formData.groom && formData.bride ? [
-                  `${formData.groom} & ${formData.bride}'s Wedding`,
+                {(formData.groom && formData.bride ? (isSw ? [
                   `Harusi ya ${formData.groom} & ${formData.bride}`,
-                  `${formData.groom} & ${formData.bride}'s Royal Celebration`
+                  `Sherehe ya Kifahari ya ${formData.groom} & ${formData.bride}`
                 ] : [
+                  `${formData.groom} & ${formData.bride}'s Wedding`,
+                  `${formData.groom} & ${formData.bride}'s Royal Celebration`
+                ]) : [
                   isSw ? 'Harusi Yetu ya Ndoto' : 'Our Dream Wedding',
                   isSw ? 'Sherehe Yetu' : 'Our Big Celebration',
                   isSw ? 'Siku Yetu' : 'Our Special Day'

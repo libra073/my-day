@@ -16,9 +16,11 @@ import {
 } from '../services/businessSchedule';
 import { Calendar, Clock, X, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import GlassDatePicker from './ui/GlassDatePicker';
+import { useBodyScrollLock } from '../lib/overlayLock';
 
 export default function AppointmentModal({ provider, onClose, onSuccess }) {
   const { user, wedding, t, language, isLoggedIn, openAuthPrompt } = useAppContext();
+  useBodyScrollLock(true, onClose);
 
   const todayStr = getTodayDarEsSalaam();
   // Tomorrow in Africa/Dar_es_Salaam as default date
@@ -126,8 +128,9 @@ export default function AppointmentModal({ provider, onClose, onSuccess }) {
         borderRadius: '32px',
         maxWidth: '560px',
         width: '100%',
-        maxHeight: '90vh',
+        maxHeight: '90dvh',
         overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
         boxShadow: 'var(--slab-shadow)',
         border: 'var(--slab-border, 1px solid rgba(255, 255, 255, 0.35))',
         padding: 'clamp(1.5rem, 4vw, 2.25rem)',

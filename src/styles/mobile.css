@@ -84,62 +84,125 @@
   }
 
   /* -------------------------------------------------------------- hero */
-  html[data-theme] #root .hero-trust-minimal {
+  html[data-theme] #root .hero-section {
+    padding: 1.25rem 0 2rem !important;
+  }
+  html[data-theme] #root .hero-container {
+    padding-inline: 14px !important;
+  }
+  html[data-theme] #root .hero-editorial-badge {
+    font-size: 0.74rem !important;
+    padding: 0.42rem 0.9rem !important;
+    max-width: 100% !important;
+    line-height: 1.35 !important;
+    margin-bottom: 0.95rem !important;
+    white-space: normal !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  html[data-theme] #root .hero-editorial-headline {
+    font-size: clamp(2.1rem, 8.6vw, 2.75rem) !important;
+    line-height: 1.08 !important;
+    margin-bottom: 0.75rem !important;
+  }
+  html[data-theme] #root .hero-editorial-subtitle {
+    font-size: 0.94rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 1.35rem !important;
+  }
+  html[data-theme] #root .hero-editorial-actions {
     display: flex !important;
     flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    flex-wrap: nowrap !important;
-    gap: 8px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 0.65rem !important;
+    margin-bottom: 1.35rem !important;
+  }
+
+  html[data-theme] #root .hero-trust-minimal {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.45rem 0.85rem !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 14px 16px !important;
+    padding: 0.7rem 0.95rem !important;
     border-radius: 20px !important;
   }
   html[data-theme] #root .hero-trust-point {
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
-    justify-content: flex-start !important;
-    width: 100% !important;
-    font-size: 0.86rem !important;
+    justify-content: center !important;
+    width: auto !important;
+    font-size: 0.78rem !important;
+    line-height: 1.3 !important;
+    white-space: normal !important;
   }
   html[data-theme] #root .hero-trust-dot {
-    display: none !important;
+    display: inline-block !important;
+    width: 6px !important;
+    height: 6px !important;
+    flex-shrink: 0 !important;
   }
   html[data-theme] #root .hero-trust-sep {
     display: none !important;
   }
 
-  html[data-theme] #root .hero-photo-viewport--triptych {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    min-height: 0 !important;
-    height: auto !important;
-    padding: 0 !important;
-  }
-  html[data-theme] #root .hero-photo-viewport--triptych .hero-photo-pill,
-  html[data-theme] #root .hero-photo-viewport--triptych .hero-photo-pill-top,
-  html[data-theme] #root .hero-photo-viewport--triptych .hero-photo-pill-bottom {
-    position: static !important;
-    inset: auto !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    transform: none !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: none !important;
-    justify-content: center !important;
-    padding: 8px 12px !important;
-    font-size: 0.76rem !important;
-    line-height: 1.35 !important;
-    white-space: normal !important;
-    text-align: center;
-  }
   html[data-theme] #root .hero-photo-stage {
     margin-top: 14px !important;
+    border-radius: 24px !important;
+  }
+  html[data-theme] #root .hero-photo-viewport,
+  html[data-theme] #root .hero-photo-viewport--triptych {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2px !important;
+    height: clamp(190px, 50vw, 240px) !important;
+    min-height: 190px !important;
+    max-height: 240px !important;
+    border-radius: 24px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+  html[data-theme] #root .hero-photo-viewport--triptych .hero-photo-tile {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+  html[data-theme] #root .hero-photo-viewport--triptych .hero-photo-tile:nth-child(3) {
+    display: none !important;
+  }
+  html[data-theme] #root .hero-photo-viewport--triptych .hero-photo-pill-top {
+    position: absolute !important;
+    top: 0.6rem !important;
+    left: 0.6rem !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: calc(100% - 1.2rem) !important;
+    padding: 0.28rem 0.65rem !important;
+    font-size: 0.68rem !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    text-align: left !important;
+  }
+  html[data-theme] #root .hero-photo-viewport--triptych .hero-photo-pill-bottom {
+    position: absolute !important;
+    bottom: 0.6rem !important;
+    right: 0.6rem !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: calc(100% - 1.2rem) !important;
+    padding: 0.28rem 0.65rem !important;
+    font-size: 0.68rem !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    text-align: left !important;
   }
 
   html[data-theme] #root .celebration-couple-row {
@@ -159,18 +222,6 @@
     display: block !important;
   }
 
-  html[data-theme] #root .hero-glass-instrument {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 16px 14px !important;
-    border-radius: 24px !important;
-  }
-  html[data-theme] #root .hero-glass-instrument input,
-  html[data-theme] #root .hero-glass-instrument select,
-  html[data-theme] #root .hero-glass-sector {
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
   html[data-theme] #root .hero-cta-primary,
   html[data-theme] #root .hero-cta-secondary {
     width: 100% !important;
@@ -178,25 +229,41 @@
   }
 
   /* ------------------------------------------------- floating AI assistant */
-  html[data-theme] #root .ai-pill {
-    width: 50px !important;
-    height: 50px !important;
-    min-width: 50px !important;
+  html[data-theme] #root .lg-floating-ai-assistant.ai-pill {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    max-width: 48px !important;
     padding: 0 !important;
     border-radius: 50% !important;
-    right: 14px !important;
-    bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+    right: calc(14px + env(safe-area-inset-right, 0px)) !important;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    animation: none !important;
   }
   html[data-theme] #root .ai-pill__text {
     display: none !important;
   }
   html[data-theme] #root .ai-pill__orb {
-    width: 100% !important;
-    height: 100% !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+  html[data-theme] #root .budget-float {
+    left: calc(14px + env(safe-area-inset-left, 0px)) !important;
+    right: 76px !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 92px) !important;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
   }
   html[data-theme] #root .app-shell,
   html[data-theme] #root main {
-    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
   }
 
   /* ---------------------------------------------------------- marketplace */
@@ -273,37 +340,56 @@
   }
 
 
-  /* ------------------------------------------------- solid fields on phones
-     Nested backdrop-filter is unreliable on iOS Safari (white overflow,
-     flicker) and expensive. Solid surfaces read better at this width. */
-  html[data-theme] #root .ax-input,
-  html[data-theme] #root .mkt-search-wrap,
-  html[data-theme] #root .hero-glass-instrument input,
-  html[data-theme] #root .hero-glass-sector,
-  html[data-theme] #root .lg-field__control,
-  html[data-theme] #root .gsel__button,
-  html[data-theme] #root .gcb__input,
-  html[data-theme] #root .gdp__button {
+  /* ------------------------------------------------- solid fields on phones (light theme non-hero inputs) */
+  html[data-theme="light"] #root .ax-input,
+  html[data-theme="light"] #root .mkt-search-wrap,
+  html[data-theme="light"] #root .lg-field__control,
+  html[data-theme="light"] #root .gsel__button,
+  html[data-theme="light"] #root .gcb__input,
+  html[data-theme="light"] #root .gdp__button {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     background: rgba(255, 255, 255, 0.88) !important;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.95), 0 2px 6px rgba(15, 23, 42, 0.06) !important;
   }
 
-  /* categories: wrap instead of hiding chips off-screen */
+  /* marketplace trust bar & category swipe strip (compact 1-row rail, 0 overflow) */
+  html[data-theme] #root .mkt-trust-bar {
+    gap: 0.65rem 1rem !important;
+    padding: 0.75rem 1.15rem !important;
+    border-radius: 22px !important;
+  }
+  html[data-theme] #root .mkt-trust-sep {
+    display: none !important;
+  }
   html[data-theme] #root .mkt-categories-bar {
-    flex-wrap: wrap !important;
-    overflow-x: visible !important;
-    scroll-snap-type: none !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    gap: 8px !important;
+    padding: 4px 2px 10px !important;
+    margin-bottom: 1.15rem !important;
+    max-width: 100% !important;
+  }
+  html[data-theme] #root .mkt-cat-btn {
+    width: auto !important;
+    flex: 0 0 auto !important;
   }
 
-  /* keep the hero collage from becoming an endless column of photos */
-  html[data-theme] #root .hero-photo-viewport--triptych > *,
-  html[data-theme] #root .hero-photo-viewport--triptych img {
-    max-height: 230px !important;
-    width: 100% !important;
-    object-fit: cover !important;
-    border-radius: 18px !important;
+  /* homepage category / vendor card mobile wrapping */
+  html[data-theme] #root .homepage-categories-grid,
+  html[data-theme] #root .homepage-vendors-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  html[data-theme] #root .cl-category-card {
+    padding: 1.35rem 1.25rem !important;
+  }
+  html[data-theme] #root .cl-category-card > div > div:first-child {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
   }
 
   /* vendor benefit cards: tag must never clip past the card edge */
@@ -347,9 +433,24 @@
   html[data-theme] #root .ax-input input {
     min-width: 0 !important;
     font-size: 16px !important; /* prevents iOS zoom-on-focus */
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding-inline: 0 !important;
   }
   html[data-theme] #root .ax-submit {
     width: 100% !important;
+  }
+
+  /* notifications drawer stays inside mobile screen bounds */
+  html[data-theme] #root .cl-notif-panel {
+    position: fixed !important;
+    top: calc(68px + env(safe-area-inset-top, 0px)) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    z-index: 1260 !important;
   }
 
   html[data-theme] #root .celebration-budget-grid,
@@ -365,9 +466,484 @@
 
 @media (max-width: 380px) {
   html[data-theme] #root .cl-header .nav-bell {
-    display: none !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+  html[data-theme] #root .cl-header .cl-user__avatar,
+  html[data-theme] #root .cl-header .cl-burger {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+  html[data-theme] #root .cl-header .cl-login {
+    padding-inline: 0.65rem !important;
+    font-size: 0.78rem !important;
   }
   html[data-theme] #root .utask-stats-row {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE STACKED HERO SEARCH INSTRUMENT & INLINE OPTICAL PICKER TRAYS
+   Covers mobile portrait (320-430px), mobile landscape (568-844px),
+   and portrait tablet (768px) cleanly with zero overlap or clipping.
+   ========================================================================== */
+@media (max-width: 860px) {
+  html[data-theme] #root .hero-glass-instrument {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 10px !important;
+    gap: 8px !important;
+    border-radius: 24px !important;
+  }
+
+  html[data-theme] #root .hero-glass-divider {
+    display: none !important;
+  }
+
+  html[data-theme] #root .hero-glass-sector,
+  html[data-theme] #root .hero-glass-sector--search,
+  html[data-theme] #root .hero-glass-sector--dropdown {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 52px !important;
+    padding: 10px 14px !important;
+    border-radius: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    transform: none !important;
+  }
+
+  html[data-theme="light"] #root .hero-glass-sector,
+  html[data-theme="light"] #root #hero-category-trigger,
+  html[data-theme="light"] #root #hero-region-trigger,
+  html[data-theme="light"] #root #hero-date-trigger {
+    background: rgba(255, 255, 255, 0.56) !important;
+    border: 1px solid rgba(255, 255, 255, 0.88) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.96),
+      0 4px 14px -6px rgba(12, 34, 68, 0.10) !important;
+  }
+
+  html[data-theme="light"] #root .hero-glass-sector.is-active,
+  html[data-theme="light"] #root #hero-category-trigger.is-active,
+  html[data-theme="light"] #root #hero-region-trigger.is-active,
+  html[data-theme="light"] #root #hero-date-trigger.is-active {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border-color: rgba(255, 255, 255, 0.98) !important;
+    box-shadow:
+      inset 0 1.5px 0 #FFFFFF,
+      0 8px 22px -8px rgba(12, 34, 68, 0.14) !important;
+  }
+
+  html[data-theme="dark"] #root .hero-glass-sector,
+  html[data-theme="dark"] #root #hero-category-trigger,
+  html[data-theme="dark"] #root #hero-region-trigger,
+  html[data-theme="dark"] #root #hero-date-trigger {
+    background: rgba(22, 32, 56, 0.68) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 6px 16px -6px rgba(0, 0, 0, 0.55) !important;
+  }
+
+  html[data-theme="dark"] #root .hero-glass-sector.is-active,
+  html[data-theme="dark"] #root #hero-category-trigger.is-active,
+  html[data-theme="dark"] #root #hero-region-trigger.is-active,
+  html[data-theme="dark"] #root #hero-date-trigger.is-active {
+    background: rgba(28, 42, 72, 0.84) !important;
+    border-color: rgba(255, 255, 255, 0.24) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      0 10px 24px -8px rgba(0, 0, 0, 0.7) !important;
+  }
+
+  html[data-theme] #root .hero-search-mobile-label {
+    display: block !important;
+    font-size: 0.67rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: var(--app-text-muted) !important;
+    line-height: 1.1 !important;
+    margin-bottom: 2px !important;
+  }
+
+  html[data-theme] #root .hero-glass-instrument .hero-input,
+  html[data-theme] #root .hero-glass-instrument input.hero-input {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 2px 0 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+    color: var(--app-text-primary) !important;
+  }
+
+  html[data-theme] #root .hero-popover,
+  html[data-theme] #root .hero-popover.glass-smoked,
+  html[data-theme] #root .hero-popover--category,
+  html[data-theme] #root .hero-popover--region,
+  html[data-theme] #root .hero-popover--date {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 10px !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+    animation: none !important;
+    z-index: 2 !important;
+  }
+
+  html[data-theme="light"] #root .hero-popover,
+  html[data-theme="light"] #root .hero-popover.glass-smoked {
+    background: rgba(255, 255, 255, 0.70) !important;
+    border: 1px solid rgba(255, 255, 255, 0.92) !important;
+    box-shadow:
+      inset 0 1px 0 #FFFFFF,
+      0 8px 20px -10px rgba(12, 34, 68, 0.14) !important;
+  }
+
+  html[data-theme="dark"] #root .hero-popover,
+  html[data-theme="dark"] #root .hero-popover.glass-smoked {
+    background: rgba(12, 18, 36, 0.78) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 10px 24px -10px rgba(0, 0, 0, 0.65) !important;
+  }
+
+  html[data-theme] #root .hero-popover-header {
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 8px !important;
+  }
+
+  html[data-theme] #root .hero-popover-title {
+    display: block !important;
+    font-size: 0.92rem !important;
+    line-height: 1.25 !important;
+    text-align: left !important;
+  }
+
+  html[data-theme] #root .hero-popover-badge {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  html[data-theme] #root .hero-glass-instrument .hero-search-btn,
+  html[data-theme] #root .hero-glass-instrument .hero-glass-puck {
+    width: 100% !important;
+    min-height: 48px !important;
+    border-radius: 16px !important;
+    justify-content: center !important;
+  }
+
+  html[data-theme] #root .hero-trust-minimal {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+
+/* Compact 2-column Optical Tiles on Suitable Phone Widths (360px - 560px) */
+@media (max-width: 560px) {
+  html[data-theme] #root .hero-cat-grid,
+  html[data-theme] #root .hero-region-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  html[data-theme] #root .hero-cat-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    padding: 10px !important;
+    border-radius: 14px !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-top {
+    width: 100% !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 9px !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-check-mobile {
+    display: inline-flex !important;
+    flex-shrink: 0 !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-check-desktop {
+    display: none !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-body {
+    width: 100% !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-title {
+    font-size: 0.79rem !important;
+    line-height: 1.25 !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-desc {
+    font-size: 0.69rem !important;
+    line-height: 1.32 !important;
+  }
+
+  html[data-theme] #root .hero-region-item {
+    padding: 10px !important;
+    gap: 5px !important;
+    border-radius: 14px !important;
+  }
+
+  html[data-theme] #root .hero-region-item-top {
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px 8px !important;
+  }
+
+  html[data-theme] #root .hero-region-item-lead {
+    display: contents !important;
+  }
+
+  html[data-theme] #root .hero-region-item-flag {
+    order: 1 !important;
+    font-size: 1.15rem !important;
+  }
+
+  html[data-theme] #root .hero-region-item-count {
+    order: 2 !important;
+    margin-left: auto !important;
+  }
+
+  html[data-theme] #root .hero-region-item-name-row {
+    order: 3 !important;
+    flex: 1 0 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    margin-top: 2px !important;
+  }
+
+  html[data-theme] #root .hero-region-item-name {
+    font-size: 0.80rem !important;
+    line-height: 1.24 !important;
+    text-align: left !important;
+  }
+
+  html[data-theme] #root .hero-region-item-desc {
+    padding-left: 0 !important;
+    font-size: 0.69rem !important;
+    line-height: 1.32 !important;
+  }
+
+  html[data-theme] #root .hero-quick-chips {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+}
+
+/* Ultra-Compact Single-Column Tiles on 320px Widths */
+@media (max-width: 359px) {
+  html[data-theme] #root .container,
+  html[data-theme] #root .hero-container {
+    padding-inline: 10px !important;
+  }
+
+  html[data-theme] #root .hero-glass-sector,
+  html[data-theme] #root .hero-glass-sector--search,
+  html[data-theme] #root .hero-glass-sector--dropdown {
+    padding: 10px 12px !important;
+  }
+
+  html[data-theme] #root .hero-cat-grid,
+  html[data-theme] #root .hero-region-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-theme] #root .hero-cat-item {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 10px !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-top {
+    width: auto !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-icon {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-check-mobile {
+    display: none !important;
+  }
+
+  html[data-theme] #root .hero-cat-item-check-desktop {
+    display: inline-flex !important;
+  }
+
+  html[data-theme] #root .hero-region-item-lead {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+  }
+
+  html[data-theme] #root .hero-region-item-flag,
+  html[data-theme] #root .hero-region-item-count {
+    order: initial !important;
+    margin-left: 0 !important;
+  }
+
+  html[data-theme] #root .hero-region-item-name-row {
+    order: initial !important;
+    flex: 0 1 auto !important;
+    width: auto !important;
+    margin-top: 0 !important;
+  }
+
+  html[data-theme] #root .hero-region-item-desc {
+    padding-left: 1.7rem !important;
+  }
+}
+
+
+/* suggestion chip rows wrap instead of spilling out of the form column */
+html[data-theme] #root .vreg-pills {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+html[data-theme] #root .vreg-pills .vreg-pill-btn {
+  max-width: 100%;
+}
+
+
+/* wedding profile form grids collapse to one column on phones & small tablets */
+@media (max-width: 640px) {
+  html[data-theme] #root .wprof-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  html[data-theme] #root .wprof-field,
+  html[data-theme] #root .wprof-input-wrap,
+  html[data-theme] #root .wprof-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  html[data-theme] #root .wprof-field label {
+    flex-wrap: wrap !important;
+    gap: 4px 10px !important;
+  }
+  html[data-theme] #root .wprof-header-banner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+  html[data-theme] #root .wprof-couple-avatars {
+    font-size: 1.2rem !important;
+    padding: 0.35rem 0.7rem !important;
+  }
+  html[data-theme] #root .modal-card {
+    border-radius: 26px !important;
+    max-height: 90dvh !important;
+  }
+  html[data-theme] #root .modal-close-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    top: 0.9rem !important;
+    right: 0.9rem !important;
+  }
+}
+
+/* ==========================================================================
+   MOBILE & TABLET GPU PERFORMANCE TIERING
+   Prunes redundant nested inner backdrop-filters inside frosted parent slabs
+   so scrolling remains fluid on mobile GPUs while keeping primary Liquid Glass
+   surfaces (header, drawer, hero console, popovers, BackToTop, AI orb,
+   modals, and floating widgets) crisp and translucent.
+   ========================================================================== */
+@media (max-width: 900px) {
+  html[data-theme] #root .cl-header .cl-icon-btn,
+  html[data-theme] #root .cl-header .cl-burger,
+  html[data-theme] #root .cl-cat-badge,
+  html[data-theme] #root .pcard-featured,
+  html[data-theme] #root .pcard-verified,
+  html[data-theme] #root .btn-favorite-heart,
+  html[data-theme] #root .ai-prompt-chip,
+  html[data-theme] #root .vreg-pill-btn,
+  html[data-theme] #root .mkt-cat-btn:not(.is-active),
+  html[data-theme] #root .mkt-cat-badge,
+  html[data-theme] #root .pf-filter:not(.is-active),
+  html[data-theme] #root .pf-card__arrow,
+  html[data-theme] #root .hero-cat-item,
+  html[data-theme] #root .hero-region-item,
+  html[data-theme] #root .hero-quick-chip,
+  html[data-theme] #root .hero-cal-nav-btn,
+  html[data-theme] #root .ft__card,
+  html[data-theme] #root .ft__badge,
+  html[data-theme] #root .home-contact-card,
+  html[data-theme] #root .utask-chip {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+
+/* language control now shows the full labels (English / Kiswahili) */
+html[data-theme] #root .cl-lang.motion-lang-toggle {
+  width: auto !important;
+  min-width: 132px;
+  max-width: 168px;
+}
+html[data-theme] #root .cl-lang.motion-lang-toggle .motion-lang-btn {
+  flex: 1 1 50%;
+  padding: 0.32rem 0.5rem !important;
+  font-size: 0.68rem !important;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+@media (max-width: 1180px) {
+  html[data-theme] #root .cl-lang.motion-lang-toggle {
+    min-width: 0;
+  }
+  html[data-theme] #root .cl-lang.motion-lang-toggle .motion-lang-btn {
+    font-size: 0.62rem !important;
+    padding: 0.3rem 0.38rem !important;
   }
 }

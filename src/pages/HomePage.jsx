@@ -14,7 +14,7 @@ import {
 import { getCurrentOfficeStatus } from '../services/businessSchedule';
 
 export default function HomePage() {
-  const { providers, t } = useAppContext();
+  const { providers, t, language } = useAppContext();
   const officeStatus = getCurrentOfficeStatus();
 
   const featuredVendors = providers.slice(0, 6);
@@ -87,13 +87,13 @@ export default function HomePage() {
               {/* Interactive prompt pills */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.75rem' }}>
                 <Link to="/planner" className="ai-prompt-chip">
-                  <span>🏖️ Venues in Mbezi Beach under TSh 5M</span>
+                  <span>{language === 'sw' ? '🏖️ Kumbi Mbezi Beach chini ya TSh 5M' : '🏖️ Venues in Mbezi Beach under TSh 5M'}</span>
                 </Link>
                 <Link to="/planner" className="ai-prompt-chip">
                   <span>🍰 300-guest cake & catering allocation</span>
                 </Link>
                 <Link to="/planner" className="ai-prompt-chip">
-                  <span>📅 12-month timeline for Dar es Salaam</span>
+                  <span>{language === 'sw' ? '📅 Ratiba ya miezi 12 kwa Dar es Salaam' : '📅 12-month timeline for Dar es Salaam'}</span>
                 </Link>
               </div>
 
@@ -112,7 +112,7 @@ export default function HomePage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--liquid-sapphire-500)', boxShadow: '0 0 10px var(--liquid-sapphire-500)' }} />
                   <span style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--liquid-sapphire-500)' }}>
-                    Live Budget Architecture
+                    {language === 'sw' ? 'Muundo Hai wa Bajeti' : 'Live Budget Architecture'}
                   </span>
                 </div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--app-text-muted)' }}>TZS • Dar es Salaam</span>
@@ -127,11 +127,11 @@ export default function HomePage() {
 
               {/* Progress spectrum bar */}
               <div style={{ height: '8px', borderRadius: '9999px', background: 'rgba(0, 102, 238, 0.12)', overflow: 'hidden', display: 'flex', gap: '2px', marginBottom: '1.25rem' }}>
-                <div style={{ width: '30%', background: 'var(--liquid-sapphire-500)', borderRadius: '9999px' }} title="Venues (30%)" />
-                <div style={{ width: '25%', background: 'var(--liquid-sapphire-400)', borderRadius: '9999px' }} title="Decor & Floral (25%)" />
-                <div style={{ width: '20%', background: 'var(--liquid-sapphire-300)', borderRadius: '9999px' }} title="Catering (20%)" />
-                <div style={{ width: '15%', background: '#60A5FA', borderRadius: '9999px' }} title="Music & Photo (15%)" />
-                <div style={{ width: '10%', background: '#93C5FD', borderRadius: '9999px' }} title="Reserve (10%)" />
+                <div style={{ width: '30%', background: 'var(--liquid-sapphire-500)', borderRadius: '9999px' }} title={language === 'sw' ? 'Kumbi (30%)' : 'Venues (30%)'} />
+                <div style={{ width: '25%', background: 'var(--liquid-sapphire-400)', borderRadius: '9999px' }} title={language === 'sw' ? 'Mapambo na Maua (25%)' : 'Decor & Floral (25%)'} />
+                <div style={{ width: '20%', background: 'var(--liquid-sapphire-300)', borderRadius: '9999px' }} title={language === 'sw' ? 'Huduma za Chakula (20%)' : 'Catering (20%)'} />
+                <div style={{ width: '15%', background: '#60A5FA', borderRadius: '9999px' }} title={language === 'sw' ? 'Muziki na Picha (15%)' : 'Music & Photo (15%)'} />
+                <div style={{ width: '10%', background: '#93C5FD', borderRadius: '9999px' }} title={language === 'sw' ? 'Malipo ya Awali (10%)' : 'Reserve (10%)'} />
               </div>
 
               {/* Escrow badge */}

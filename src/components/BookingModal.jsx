@@ -5,9 +5,11 @@ import { X } from 'lucide-react';
 import GlassDatePicker from './ui/GlassDatePicker';
 import GlassSelect from './ui/GlassSelect';
 import { getTodayDarEsSalaam, validateBookingDate } from '../services/businessSchedule';
+import { useBodyScrollLock } from '../lib/overlayLock';
 
 function BookingModal({ provider, selectedPackage, initialDate, onClose, onSuccess }) {
   const { wedding, createBooking, isLoggedIn, openAuthPrompt, language = 'en' } = useAppContext();
+  useBodyScrollLock(true, onClose);
   const todayStr = getTodayDarEsSalaam();
 
   // Ensure default date is valid and strictly not in the past
@@ -133,6 +135,7 @@ function BookingModal({ provider, selectedPackage, initialDate, onClose, onSucce
       className="modal-backdrop motion-modal-backdrop"
       role="dialog"
       aria-modal="true"
+      onClick={onClose}
       style={{
         position: 'fixed',
         inset: 0,
@@ -140,18 +143,19 @@ function BookingModal({ provider, selectedPackage, initialDate, onClose, onSucce
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000,
+        zIndex: 1300,
         padding: '1rem'
       }}
     >
       <div
         className="modal-card clay-card motion-modal-card"
+        onClick={(e) => e.stopPropagation()}
         style={{
           background: 'var(--clay-cream-2, #ffffff)',
           borderRadius: '36px',
           maxWidth: '520px',
           width: '100%',
-          maxHeight: '90vh',
+          maxHeight: '90dvh',
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: 'clamp(1.5rem, 4vw, 2.25rem)',

@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useAppContext } from '../../context/AppContext';
 
-const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
+const WEEKDAYS = {
+  en: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+  sw: ['Jp', 'Jt', 'Jn', 'Jt', 'Al', 'Ij', 'Jm'],
+};
+const MONTHS = {
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  sw: ['Januari', 'Februari', 'Machi', 'Aprili', 'Mei', 'Juni', 'Julai', 'Agosti', 'Septemba', 'Oktoba', 'Novemba', 'Desemba'],
+};
 
 const pad = (n) => String(n).padStart(2, '0');
 const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -24,10 +28,14 @@ export default function GlassDatePicker({
   value,
   onChange,
   min,
-  ariaLabel = 'Choose a date',
-  placeholder = 'Select a date',
+  ariaLabel,
+  placeholder,
   id,
 }) {
+  const { language } = useAppContext();
+  const isSw = language === 'sw';
+  const ariaLabelText = ariaLabel || (isSw ? 'Chagua tarehe' : 'Choose a date');
+  const placeholderText = placeholder || (isSw ? 'Chagua tarehe' : 'Select a date');
   const listId = useId();
   const buttonId = id || `${listId}-button`;
   const rootRef = useRef(null);
@@ -144,8 +152,8 @@ export default function GlassDatePicker({
       >
         <span className={`gdp__value ${selected ? '' : 'is-placeholder'}`}>
           {selected
-            ? selected.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-            : placeholder}
+            ? selected.toLocaleDateString(isSw ? 'sw-TZ' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+            : placeholderText}
         </span>
         <svg className="gdp__chevron" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
           <rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -154,21 +162,21 @@ export default function GlassDatePicker({
       </button>
 
       {open ? (
-        <div className="gdp__panel" id={listId} role="dialog" aria-modal="false" aria-label={ariaLabel}>
+        <div className="gdp__panel" id={listId} role="dialog" aria-modal="false" aria-label={ariaLabelText}>
           <div className="gdp__head">
-            <button type="button" className="gdp__nav" onClick={() => shiftMonth(-1)} aria-label="Previous month">
+            <button type="button" className="gdp__nav" onClick={() => shiftMonth(-1)} aria-label={isSw ? 'Mwezi uliopita' : 'Previous month'}>
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><polyline points="15 18 9 12 15 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
             <span className="gdp__month" aria-live="polite">
-              {MONTHS[view.getMonth()]} {view.getFullYear()}
+              {MONTHS[isSw ? 'sw' : 'en'][view.getMonth()]} {view.getFullYear()}
             </span>
-            <button type="button" className="gdp__nav" onClick={() => shiftMonth(1)} aria-label="Next month">
+            <button type="button" className="gdp__nav" onClick={() => shiftMonth(1)} aria-label={isSw ? 'Mwezi ujao' : 'Next month'}>
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><polyline points="9 18 15 12 9 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </div>
 
           <div className="gdp__weekdays" aria-hidden="true">
-            {WEEKDAYS.map((d) => <span key={d}>{d}</span>)}
+            {WEEKDAYS[isSw ? 'sw' : 'en'].map((d) => <span key={d}>{d}</span>)}
           </div>
 
           <div className="gdp__grid" ref={gridRef} tabIndex={-1} role="grid" onKeyDown={onGridKeyDown}>

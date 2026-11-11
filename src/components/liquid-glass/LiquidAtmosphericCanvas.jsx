@@ -15,13 +15,6 @@ import React from 'react';
 export default function LiquidAtmosphericCanvas() {
   return (
     <div className="lg-atmosphere" aria-hidden="true">
-      <img
-        className="lg-atmosphere__photo"
-        src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80"
-        alt=""
-        loading="eager"
-        decoding="async"
-      />
       <div className="lg-atmosphere__wash" />
       <div className="lg-atmosphere__ribbon lg-atmosphere__ribbon--a" />
       <div className="lg-atmosphere__ribbon lg-atmosphere__ribbon--b" />

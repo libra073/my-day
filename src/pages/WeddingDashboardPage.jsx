@@ -7,6 +7,7 @@ import {
   ShieldAlert, ShieldCheck
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import { demoText } from '../i18n/demoContent';
 import PaymentModal from '../components/PaymentModal';
 import WorkspaceCollaborationCard from '../components/WorkspaceCollaborationCard';
 import SharedChecklistCard from '../components/SharedChecklistCard';
@@ -207,7 +208,7 @@ export default function WeddingDashboardPage() {
       )}
 
       {/* ── Cute Top Greeting Banner (Matching uTask Reference) ─── */}
-      <section className="utask-greeting-card" aria-label="Greeting">
+      <section className="utask-greeting-card" aria-label={isSw ? 'Salamu' : 'Greeting'}>
         <div className="utask-greeting-text">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.88rem', marginBottom: '6px' }}>
             <Sparkles size={16} /> {isSw ? 'Habari ya asubuhi' : 'Good morning'}, {userName}!
@@ -253,7 +254,7 @@ export default function WeddingDashboardPage() {
       </section>
 
       {/* ── 4 Quick Stats Pills Row (Exact uTask Metrics Row) ───── */}
-      <section className="utask-stats-row" aria-label="Key metrics">
+      <section className="utask-stats-row" aria-label={isSw ? 'Vipimo muhimu' : 'Key metrics'}>
         <div className="utask-stat-pill-card">
           <div className="utask-stat-icon-wrap purple">
             <Layers size={22} />
@@ -285,7 +286,7 @@ export default function WeddingDashboardPage() {
         </div>
 
         <div className="utask-stat-pill-card">
-          <div style={{ position: 'relative', width: 44, height: 44 }}>
+          <div style={{ position: 'relative', width: 44, height: 44, flexShrink: 0 }}>
             <svg width="44" height="44" viewBox="0 0 44 44">
               <circle cx="22" cy="22" r="17" fill="none" stroke="var(--clay-line)" strokeWidth="4" />
               <circle
@@ -308,7 +309,7 @@ export default function WeddingDashboardPage() {
           <div>
             <div className="utask-stat-number" style={{ color: 'var(--color-primary)' }}>{budgetUsagePct}%</div>
             <div className="utask-stat-tag" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: 'var(--color-primary, #0071E3)' }} />
+              <span style={{ display: 'inline-block', width: 7, height: 7, flexShrink: 0, borderRadius: '50%', background: 'var(--color-primary, #0071E3)' }} />
               {isSw ? 'Bajeti Imepangwa' : 'Budget Planned'}
             </div>
           </div>
@@ -345,14 +346,14 @@ export default function WeddingDashboardPage() {
                 pointerEvents: 'none',
                 transform: 'translateX(-50%)'
               }}>
-                5 Tasks
+                {isSw ? '5 Majukumu' : '5 Tasks'}
               </div>
 
               <svg className="utask-wave-svg" viewBox="0 0 500 130" fill="none">
                 <defs>
                   <linearGradient id="waveGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0A84FF" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#0A84FF" stopOpacity="0.0" />
+                    <stop offset="0%" stopColor="#7C5CFC" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#7C5CFC" stopOpacity="0.0" />
                   </linearGradient>
                   <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor="#CBD5E1" />
@@ -375,13 +376,13 @@ export default function WeddingDashboardPage() {
               </svg>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--app-text-muted, #64748b)' }}>
-                <span>Mon</span>
-                <span>Tue</span>
-                <span>Wed</span>
-                <span>Thu</span>
-                <span style={{ color: 'var(--color-primary)', fontWeight: 800 }}>20 Fri</span>
-                <span>Sat</span>
-                <span>Sun</span>
+                <span>{isSw ? 'Jpi' : 'Mon'}</span>
+                <span>{isSw ? 'Jtt' : 'Tue'}</span>
+                <span>{isSw ? 'Jnn' : 'Wed'}</span>
+                <span>{isSw ? 'Tnn' : 'Thu'}</span>
+                <span style={{ color: 'var(--color-primary)', fontWeight: 800 }}>{isSw ? '20 Ijm' : '20 Fri'}</span>
+                <span>{isSw ? 'Ijm' : 'Sat'}</span>
+                <span>{isSw ? 'Jms' : 'Sun'}</span>
               </div>
             </div>
           </div>
@@ -537,14 +538,14 @@ export default function WeddingDashboardPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)' }}>{isSw ? 'Majukumu Yangu' : 'My tasks'}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--app-text-muted, #64748b)', fontWeight: 700 }}>
-                <span>{wedding.date || 'August, 2 Monday'}</span>
+                <span>{wedding.date || (isSw ? '2 Agosti, Jumatatu' : 'August, 2 Monday')}</span>
                 <ArrowRightIcon size={13} />
               </div>
             </div>
 
             {/* Calendar Days Numbers Grid */}
             <div className="utask-calendar-grid">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
+              {(isSw ? ['Jpi', 'Jtt', 'Jnn', 'Tnn', 'Alh', 'Ijm', 'Jms'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']).map(d => (
                 <div key={d} className="utask-cal-day-header">{d}</div>
               ))}
               {[26, 27, 28, 29, 30, 31, 1, 2, 3, 4, 5, 6, 7, 8].map((day, idx) => (
@@ -558,7 +559,7 @@ export default function WeddingDashboardPage() {
             <div style={{ marginTop: '1.25rem' }}>
               <div className="utask-schedule-pill">
                 <Clock size={14} />
-                <span>09:00 — {isSw ? 'Kikao cha Mapitio & Vows' : 'Morning Vows & Schedule Review'}</span>
+                <span>09:00 — {isSw ? 'Kikao cha Mapitio ya Harusi na Ratiba' : 'Morning Vows & Schedule Review'}</span>
               </div>
               <div className="utask-schedule-pill">
                 <Clock size={14} />
@@ -612,7 +613,7 @@ export default function WeddingDashboardPage() {
                     {cat.icon}
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text)' }}>{cat.name}</h3>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text)' }}>{demoText(cat.name, isSw)}</h3>
                     <div style={{ fontSize: '0.75rem', color: cat.isBooked ? '#059669' : '#64748b', fontWeight: 700 }}>
                       {cat.isBooked ? '✓ Reserved & Booked' : 'Not Reserved Yet'}
                     </div>
@@ -634,14 +635,14 @@ export default function WeddingDashboardPage() {
                   border: '1px solid rgba(0, 102, 238, 0.15)',
                   fontSize: '0.85rem'
                 }}>
-                  <div style={{ fontWeight: 750, color: 'var(--color-text)' }}>{cat.provider?.name || 'Vendor'}</div>
-                  <div style={{ color: 'var(--app-text-muted, #64748b)', fontSize: '0.8rem', marginTop: '0.15rem' }}>Location: {cat.provider?.location}</div>
+                  <div style={{ fontWeight: 750, color: 'var(--color-text)' }}>{cat.provider?.name || (isSw ? 'Mtoa Huduma' : 'Vendor')}</div>
+                  <div style={{ color: 'var(--app-text-muted, #64748b)', fontSize: '0.8rem', marginTop: '0.15rem' }}>{isSw ? 'Eneo:' : 'Location:'} {cat.provider?.location}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontWeight: 750, color: 'var(--color-primary, #0071E3)' }}>
-                    <span>Service Cost:</span>
+                    <span>{isSw ? 'Gharama ya Huduma:' : 'Service Cost:'}</span>
                     <span>TSh {cat.booking.price.toLocaleString()}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--app-text-muted, #64748b)', marginTop: '0.2rem' }}>
-                    <span>Paid to Date:</span>
+                    <span>{isSw ? 'Malipo Hadi Sasa:' : 'Paid to Date:'}</span>
                     <span style={{ color: '#059669', fontWeight: 700 }}>TSh {(cat.booking.paidAmount || 0).toLocaleString()}</span>
                   </div>
                 </div>

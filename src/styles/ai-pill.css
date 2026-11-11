@@ -37,6 +37,7 @@ html[data-theme] #root .ai-pill .ai-pill__orb {
     inset 0 -6px 12px -4px rgba(0, 36, 96, 0.55),
     0 8px 18px -8px rgba(0, 84, 210, 0.85) !important;
   overflow: hidden !important;
+  contain: paint;
   isolation: isolate !important;
 }
 
@@ -51,11 +52,12 @@ html[data-theme] #root .ai-pill .ai-pill__orb::after {
   pointer-events: none !important;
 }
 
-/* slow light sweep across the orb */
+/* slow light sweep across the orb (contained within orb bounds so scrollWidth never overflows) */
 html[data-theme] #root .ai-pill .ai-pill__orb::before {
   content: '' !important;
   position: absolute !important;
-  inset: -40% !important;
+  inset: 15% !important;
+  border-radius: 50% !important;
   background: conic-gradient(from 0deg, rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.45) 40deg, rgba(255, 255, 255, 0) 90deg, rgba(255, 255, 255, 0) 360deg) !important;
   animation: ai-orb-sweep 6.5s linear infinite !important;
   pointer-events: none !important;
@@ -136,23 +138,28 @@ html[data-theme] #root .ai-pill:active {
   transform: scale(0.98) !important;
 }
 
-/* mobile: icon only, so it never covers content */
+/* tablet & mobile: pure circular orb without a mismatched outer pill halo */
 @media (max-width: 900px) {
-  html[data-theme] #root .ai-pill {
+  html[data-theme] #root .lg-floating-ai-assistant.ai-pill {
     padding: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
     min-height: 44px !important;
     max-width: 44px !important;
-    width: 44px !important;
     gap: 0 !important;
     justify-content: center !important;
     background: transparent !important;
     background-image: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     box-shadow: none !important;
     border: 0 !important;
+    animation: none !important;
   }
 
-  html[data-theme] #root .ai-pill::before,
-  html[data-theme] #root .ai-pill::after {
+  html[data-theme] #root .lg-floating-ai-assistant.ai-pill::before,
+  html[data-theme] #root .lg-floating-ai-assistant.ai-pill::after {
     display: none !important;
   }
 
@@ -165,6 +172,25 @@ html[data-theme] #root .ai-pill:active {
     height: 44px !important;
     min-width: 44px !important;
     min-height: 44px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html[data-theme] #root .lg-floating-ai-assistant.ai-pill {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    max-width: 48px !important;
+    right: calc(1rem + env(safe-area-inset-right, 0px)) !important;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html[data-theme] #root .ai-pill .ai-pill__orb {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
   }
 }
 

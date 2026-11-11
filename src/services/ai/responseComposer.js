@@ -95,7 +95,7 @@ function buildFullPlanText(context, calculation, isSwahili) {
         entertainment: isSwahili ? "🎤 MC na Burudani" : "🎤 MC & Entertainment",
         transport: isSwahili ? "🚗 Usafiri wa Maharusi" : "🚗 Bridal Transport",
         saloon: isSwahili ? "💄 Saloon na Mapambo ya Mwili" : "💄 Saloon & Makeup",
-        misc: isSwahili ? "📦 Miscellaneous" : "📦 Miscellaneous"
+        misc: isSwahili ? "📦 Mengineyo" : "📦 Miscellaneous"
       };
       return `${labels[k] || k}: **${fmt(v)}**`;
     }).join("\n");

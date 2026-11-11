@@ -16,6 +16,24 @@ const DEFAULT_CHECKLIST = [
   { id: 'chk-8', task: 'Confirm advance bookings (30% deposit guarantee)', category: 'general', completed: false },
 ];
 
+
+// Bilingual checklist text: ids stay stable, copy follows the active language
+const CHECKLIST_TEXT = {
+  'chk-1': { en: 'Choose wedding venue (Kumbi)', sw: 'Chagua ukumbi wa harusi (Kumbi)' },
+  'chk-2': { en: 'Confirm estimated guest count', sw: 'Thibitisha idadi ya wageni' },
+  'chk-3': { en: 'Select catering service and sample menu', sw: 'Chagua huduma za chakula na menyu ya kuonja' },
+  'chk-4': { en: 'Select decoration & floral theme (Wapambaji)', sw: 'Chagua mapambo na maua (Wapambaji)' },
+  'chk-5': { en: 'Hire Master of Ceremonies (MC) & DJ', sw: 'Ajiri MC na DJ' },
+  'chk-6': { en: 'Book professional wedding photographer & video', sw: 'Weka nafasi ya mpiga picha na video wa kitaalamu' },
+  'chk-7': { en: 'Confirm bridal transport & convoy', sw: 'Thibitisha usafiri wa bibi harusi na msafara' },
+  'chk-8': { en: 'Confirm advance bookings (30% deposit guarantee)', sw: 'Thibitisha nafasi za awali (malipo ya awali 30%)' },
+};
+
+const localizeChecklist = (list, language) => list.map((item) => {
+  const text = CHECKLIST_TEXT[item.id];
+  return text ? { ...item, task: text[language] || text.en } : item;
+});
+
 const DEFAULT_STATE = {
   messages: [
     {
@@ -98,6 +116,7 @@ export const AiPlannerProvider = ({ children }) => {
           ...prev,
           language,
           messages: updatedMessages,
+          checklist: localizeChecklist(prev.checklist, language),
         };
       });
     }
@@ -211,7 +230,7 @@ export const AiPlannerProvider = ({ children }) => {
       });
     } catch (err) {
       console.error('Error processing AI Planner message:', err);
-      setError('An error occurred while analyzing your request. Please try again.');
+      setError(language === 'sw' ? 'Hitilafu imetokea wakati wa kuchambua ombi lako. Tafadhali jaribu tena.' : 'An error occurred while analyzing your request. Please try again.');
       const fallbackAiMsg = {
         id: `ai-err-${Date.now()}`,
         sender: 'ai',

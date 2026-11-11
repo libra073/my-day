@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import GlassSelect from '../ui/GlassSelect';
 import GlassCombobox from '../ui/GlassCombobox';
+import { useBodyScrollLock } from '../../lib/overlayLock';
 import '../../styles/auth-experience.css';
 
 const VENDOR_CATEGORIES = [
@@ -39,7 +40,7 @@ export default function AuthExperience({
   resetTokenFromUrl = '',
   onNavigate,
 }) {
-  const { loginUser, registerUser, requestPasswordReset, completePasswordReset, language } = useAppContext();
+  const { loginUser, registerUser, requestPasswordReset, completePasswordReset, language, setLanguage } = useAppContext();
   const supabaseAuth = isSupabaseConfigured;
   const isSw = language === 'sw';
 
@@ -86,19 +87,7 @@ export default function AuthExperience({
     return () => clearTimeout(t);
   }, [mode]);
 
-  useEffect(() => {
-    if (!isModal) return undefined;
-    const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [isModal, onClose]);
-
-  useEffect(() => {
-    if (!isModal) return undefined;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [isModal]);
+  useBodyScrollLock(Boolean(isModal), onClose);
 
   const guideLine = {
     login: isSw ? 'Karibu tena — nikuingize.' : "Welcome back — let's get you in.",
@@ -443,6 +432,11 @@ export default function AuthExperience({
             <span className="ax-brand__mark"><Heart size={15} fill="currentColor" stroke="none" /></span>
             <span className="ax-brand__name">MY DAY</span>
           </a>
+
+          <div className="ax-lang" role="group" aria-label={isSw ? 'Lugha' : 'Language'}>
+            <button type="button" className={language === 'en' ? 'is-active' : ''} onClick={() => setLanguage('en')}>English</button>
+            <button type="button" className={language === 'sw' ? 'is-active' : ''} onClick={() => setLanguage('sw')}>Kiswahili</button>
+          </div>
 
           {isModal && (
             <button type="button" className="ax-close" onClick={onClose} aria-label={isSw ? 'Funga' : 'Close'}>

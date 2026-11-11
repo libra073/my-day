@@ -10,24 +10,32 @@ import Footer from './components/Footer';
 import PageTitle from './lib/PageTitle';
 import BudgetWidget from './components/BudgetWidget';
 import AIFloatingButton from './components/AIFloatingButton';
-import AuthCallbackPage from './pages/AuthCallbackPage';
+import BackToTop from './components/BackToTop';
 import HomePage from './pages/HomePage';
-import AIChatPage from './pages/AIChatPage';
-import WeddingProfilePage from './pages/WeddingProfilePage';
-import MarketplacePage from './pages/MarketplacePage';
-import VendorDetailPage from './pages/VendorDetailPage';
-import WeddingDashboardPage from './pages/WeddingDashboardPage';
-import MyBookingsPage from './pages/MyBookingsPage';
-import BecomeVendorPage from './pages/BecomeVendorPage';
-import ContactUsPage from './pages/ContactUsPage';
+
+const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'));
+const AIChatPage = lazy(() => import('./pages/AIChatPage'));
+const WeddingProfilePage = lazy(() => import('./pages/WeddingProfilePage'));
+const MarketplacePage = lazy(() => import('./pages/MarketplacePage'));
+const VendorDetailPage = lazy(() => import('./pages/VendorDetailPage'));
+const WeddingDashboardPage = lazy(() => import('./pages/WeddingDashboardPage'));
+const MyBookingsPage = lazy(() => import('./pages/MyBookingsPage'));
+const BecomeVendorPage = lazy(() => import('./pages/BecomeVendorPage'));
+const ContactUsPage = lazy(() => import('./pages/ContactUsPage'));
 const LabLensPage = lazy(() => import('./pages/LabLensPage'));
-import ProviderDashboardPage from './pages/ProviderDashboardPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import AcceptInvitationPage from './pages/AcceptInvitationPage';
-import AuthPage from './pages/AuthPage';
+const ProviderDashboardPage = lazy(() => import('./pages/ProviderDashboardPage'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const AcceptInvitationPage = lazy(() => import('./pages/AcceptInvitationPage'));
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+
+function PageRouteFallback() {
+  return (
+    <div style={{ minHeight: '60vh', display: 'grid', placeItems: 'center', padding: '3rem 1rem' }} aria-busy="true" />
+  );
+}
 
 function AppContent() {
-  const { role } = useAppContext();
+  const { role, language } = useAppContext();
   const location = useLocation();
   const isAuthPage = ['/login', '/register', '/signup', '/forgot-password', '/reset-password', '/verify-email'].includes(location.pathname);
 
@@ -36,7 +44,9 @@ function AppContent() {
     return (
       <>
         <PageTitle />
-        <AuthCallbackPage />
+        <Suspense fallback={<PageRouteFallback />}>
+          <AuthCallbackPage />
+        </Suspense>
       </>
     );
   }
@@ -51,7 +61,9 @@ function AppContent() {
     return (
       <>
         <PageTitle />
-        <AuthPage initialTab={initialTab} />
+        <Suspense fallback={<PageRouteFallback />}>
+          <AuthPage initialTab={initialTab} />
+        </Suspense>
       </>
     );
   }
@@ -73,56 +85,52 @@ function AppContent() {
       <ScrollToTop />
       <PageTitle />
       <LiquidAtmosphericCanvas />
-      <a href="#main-content" className="skip-link">Skip to content</a>
+      <a href="#main-content" className="skip-link">{language === 'sw' ? 'Ruka hadi maudhui' : 'Skip to content'}</a>
       <Navbar />
       <main id="main-content" tabIndex={-1} style={{ flexGrow: 1 }} className="motion-page-container">
         <div key={location.pathname} className="motion-page-transition">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<AuthPage initialTab="login" />} />
-            <Route path="/register" element={<AuthPage initialTab="register" />} />
-            <Route path="/signup" element={<AuthPage initialTab="register" />} />
-            <Route path="/forgot-password" element={<AuthPage initialTab="forgot" />} />
-            <Route path="/reset-password" element={<AuthPage initialTab="reset" />} />
-            <Route path="/verify-email" element={<AuthPage initialTab="verify" />} />
-            <Route path="/prototype" element={<Navigate to="/" replace />} />
-            <Route path="/liquid-glass" element={<Navigate to="/" replace />} />
-            <Route path="/planner" element={<AIChatPage />} />
-            <Route path="/wedding" element={<WeddingProfilePage />} />
-            <Route path="/invite/:token" element={<AcceptInvitationPage />} />
-            <Route path="/marketplace" element={<MarketplacePage />} />
-            <Route path="/vendor/:category/:id" element={<VendorDetailPage />} />
-            <Route path="/bookings" element={<MyBookingsPage />} />
-            <Route path="/become-vendor" element={<BecomeVendorPage />} />
-            <Route path="/contact" element={<ContactUsPage />} />
-            {import.meta.env.DEV && (
+          <Suspense fallback={<PageRouteFallback />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<AuthPage initialTab="login" />} />
+              <Route path="/register" element={<AuthPage initialTab="register" />} />
+              <Route path="/signup" element={<AuthPage initialTab="register" />} />
+              <Route path="/forgot-password" element={<AuthPage initialTab="forgot" />} />
+              <Route path="/reset-password" element={<AuthPage initialTab="reset" />} />
+              <Route path="/verify-email" element={<AuthPage initialTab="verify" />} />
+              <Route path="/prototype" element={<Navigate to="/" replace />} />
+              <Route path="/liquid-glass" element={<Navigate to="/" replace />} />
+              <Route path="/planner" element={<AIChatPage />} />
+              <Route path="/wedding" element={<WeddingProfilePage />} />
+              <Route path="/invite/:token" element={<AcceptInvitationPage />} />
+              <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/vendor/:category/:id" element={<VendorDetailPage />} />
+              <Route path="/bookings" element={<MyBookingsPage />} />
+              <Route path="/become-vendor" element={<BecomeVendorPage />} />
+              <Route path="/contact" element={<ContactUsPage />} />
+              {import.meta.env.DEV && (
+                <Route path="/lab/lens" element={<LabLensPage />} />
+              )}
               <Route
-                path="/lab/lens"
-                element={
-                  <Suspense fallback={<div style={{ padding: "6rem 1rem", textAlign: "center" }}>Loading lens lab…</div>}>
-                    <LabLensPage />
-                  </Suspense>
-                }
+                path="/dashboard"
+                element={<ProtectedRoute allowedRoles={["customer"]}><WeddingDashboardPage /></ProtectedRoute>}
               />
-            )}
-            <Route
-              path="/dashboard"
-              element={<ProtectedRoute allowedRoles={["customer"]}><WeddingDashboardPage /></ProtectedRoute>}
-            />
-            <Route
-              path="/provider"
-              element={<ProtectedRoute allowedRoles={["provider"]}><ProviderDashboardPage /></ProtectedRoute>}
-            />
-            <Route
-              path="/admin"
-              element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboardPage /></ProtectedRoute>}
-            />
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              <Route
+                path="/provider"
+                element={<ProtectedRoute allowedRoles={["provider"]}><ProviderDashboardPage /></ProtectedRoute>}
+              />
+              <Route
+                path="/admin"
+                element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboardPage /></ProtectedRoute>}
+              />
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </div>
       </main>
         <BudgetWidget />
+        <BackToTop />
         <AIFloatingButton />
         <Footer />
       </div>

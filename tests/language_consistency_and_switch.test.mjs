@@ -32,7 +32,7 @@ console.log('3. Checking Natural Tanzanian Kiswahili core terminology...');
 const termsToCheck = [
   { key: 'nav_browse', expectedSw: 'Tafuta Huduma' },
   { key: 'widget_title', expectedSw: 'Mfuatiliaji wa Bajeti' },
-  { key: 'book_now', expectedSw: 'Hifadhi Sasa' },
+  { key: 'book_now', expectedSw: 'Weka Nafasi Sasa' },
   { key: 'cat_venues_title', expectedSw: 'Kumbi za Harusi' },
   { key: 'cat_decorators_title', expectedSw: 'Wapambaji wa Harusi' },
   { key: 'cat_entertainment_title', expectedSw: 'MCs & Burudani' },

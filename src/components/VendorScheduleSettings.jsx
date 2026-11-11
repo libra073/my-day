@@ -335,8 +335,8 @@ export default function VendorScheduleSettings({ vendorId }) {
                 value={newDayOff}
                 min={getTodayDarEsSalaam()}
                 onChange={setNewDayOff}
-                ariaLabel="Day off date"
-                placeholder="Pick a date"
+                ariaLabel={isSw ? 'Tarehe ya mapumziko' : 'Day off date'}
+                placeholder={isSw ? 'Chagua tarehe' : 'Pick a date'}
               />
             </div>
             <button

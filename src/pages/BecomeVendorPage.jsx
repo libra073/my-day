@@ -404,10 +404,10 @@ export default function BecomeVendorPage() {
 
           <figure className="vp-hero__visual">
             <div className="vp-hero__frame vp-hero__frame--main">
-              <img src="/portfolio/kanga-sisters.jpg" alt={isSw ? 'Sherehe ya harusi Tanzania' : 'A Tanzanian wedding celebration'} />
+              <img src="/portfolio/kanga-sisters.jpg" alt={isSw ? 'Sherehe ya harusi Tanzania' : 'A Tanzanian wedding celebration'} decoding="async" />
             </div>
             <div className="vp-hero__frame vp-hero__frame--inset">
-              <img src="/portfolio/gele-portrait.jpg" alt={isSw ? 'Bibi harusi wa Tanzania' : 'A Tanzanian bride'} />
+              <img src="/portfolio/gele-portrait.jpg" alt={isSw ? 'Bibi harusi wa Tanzania' : 'A Tanzanian bride'} decoding="async" />
             </div>
             <figcaption className="vp-hero__caption">
               <BadgeCheck size={15} /> {isSw ? 'Biashara washirika kote Tanzania' : 'Partner businesses across Tanzania'}
@@ -484,7 +484,7 @@ export default function BecomeVendorPage() {
       <section className="vp-section" aria-labelledby="vp-adv-title">
         <div className="container vp-split">
           <figure className="vp-split__visual">
-            <img src="/portfolio/coastal-bride.jpg" alt={isSw ? 'Sherehe ya harusi' : 'Wedding celebration'} />
+            <img src="/portfolio/coastal-bride.jpg" alt={isSw ? 'Sherehe ya harusi' : 'Wedding celebration'} loading="lazy" decoding="async" />
             <figcaption>{isSw ? 'Sherehe halisi, washirika halisi' : 'Real celebrations, real partners'}</figcaption>
           </figure>
 
@@ -534,7 +534,7 @@ export default function BecomeVendorPage() {
               </span>
             </figcaption>
             </div>
-            <img className="vp-quote__photo" src="/portfolio/bouquet-and-shoes.jpg" alt="" aria-hidden="true" />
+            <img className="vp-quote__photo" src="/portfolio/bouquet-and-shoes.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
           </figure>
         </div>
       </section>

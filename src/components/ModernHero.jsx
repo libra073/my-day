@@ -342,16 +342,26 @@ export default function ModernHero() {
     searchBarRef.current.style.setProperty('--specular-opacity', '1');
   };
 
+  const toggleDropdownKey = (e, name) => {
+    if (e.target !== e.currentTarget && e.target.closest('.hero-popover')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setActiveDropdown((prev) => (prev === name ? null : name));
+    }
+  };
+
   return (
-    <section style={{
-      background: 'transparent',
-      color: '#0f172a',
-      padding: 'clamp(2.5rem, 5vw, 4rem) 1.25rem clamp(3rem, 6vw, 4.5rem)',
-      position: 'relative',
-      zIndex: 30,
-      overflow: 'visible'
-    }}>
-      <div className="container" style={{ maxWidth: '1180px', position: 'relative', zIndex: 10, textAlign: 'center' }}>
+    <section
+      className="hero-section"
+      style={{
+        background: 'transparent',
+        color: '#0f172a',
+        position: 'relative',
+        zIndex: 30,
+        overflow: 'visible'
+      }}
+    >
+      <div className="container hero-container" style={{ maxWidth: '1180px', position: 'relative', zIndex: 10, textAlign: 'center' }}>
         
         {/* Editorial Top Badge */}
         <div className="glass-clear-crystal hero-editorial-badge">
@@ -405,72 +415,73 @@ export default function ModernHero() {
         >
           <span className="hero-lens" aria-hidden="true" />
           {/* Keyword Search Input */}
-          <div className="hero-glass-sector" style={{ flex: '1.85 1 300px' }}>
-            <Search size={18} color="var(--liquid-sapphire-500)" style={{ flexShrink: 0 }} />
-            <input
-              className="hero-input"
-              type="text"
-              aria-label={language === 'sw' ? 'Tafuta watoa huduma' : 'Search vendors'}
-              placeholder={t('hero_search_input_placeholder', 'Search venue, decorator, MC, cake...')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setActiveDropdown(null)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                color: 'var(--app-text-primary)',
-                fontSize: '0.88rem',
-                fontWeight: 600
-              }}
-            />
+          <div className="hero-glass-sector hero-glass-sector--search">
+            <div className="hero-sector-trigger-row">
+              <Search size={18} color="var(--liquid-sapphire-500)" style={{ flexShrink: 0 }} />
+              <div className="hero-sector-copy">
+                <label htmlFor="hero-search-input" className="hero-search-mobile-label">
+                  {language === 'sw' ? 'Tafuta Huduma' : 'Search Vendors'}
+                </label>
+                <input
+                  id="hero-search-input"
+                  className="hero-input"
+                  type="text"
+                  aria-label={language === 'sw' ? 'Tafuta watoa huduma' : 'Search vendors'}
+                  placeholder={t('hero_search_input_placeholder', 'Search venue, decorator, MC, cake...')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setActiveDropdown(null)}
+                />
+              </div>
+            </div>
           </div>
 
           <span className="hero-glass-divider" />
 
           {/* Custom Category Picker Trigger */}
-          <div 
+          <div
             id="hero-category-trigger"
-            className={`hero-glass-sector ${activeDropdown === 'category' ? 'is-active' : ''}`}
+            className={`hero-glass-sector hero-glass-sector--dropdown ${activeDropdown === 'category' ? 'is-active' : ''}`}
             onClick={() => setActiveDropdown(activeDropdown === 'category' ? null : 'category')}
+            onKeyDown={(e) => toggleDropdownKey(e, 'category')}
             role="button"
             tabIndex={0}
             aria-expanded={activeDropdown === 'category'}
             aria-haspopup="listbox"
           >
-            <Sparkles size={17} color="var(--liquid-sapphire-500)" />
-            <div style={{ flex: 1, minWidth: 0, textAlign: 'left', overflow: 'hidden' }}>
-              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--app-text-muted)', lineHeight: 1 }}>
-                {t('nav_categories', 'Category')}
-              </span>
-              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: 'var(--app-text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
-                {currentCategory.label}
-              </span>
+            <div className="hero-sector-trigger-row">
+              <Sparkles size={17} color="var(--liquid-sapphire-500)" style={{ flexShrink: 0 }} />
+              <div className="hero-sector-copy">
+                <span className="hero-sector-label">
+                  {t('nav_categories', 'Category')}
+                </span>
+                <span className="hero-sector-value">
+                  {currentCategory.label}
+                </span>
+              </div>
+              <ChevronDown
+                size={15}
+                color="var(--liquid-sapphire-500)"
+                style={{
+                  flexShrink: 0,
+                  transition: 'transform 0.22s ease',
+                  transform: activeDropdown === 'category' ? 'rotate(180deg)' : 'none'
+                }}
+              />
             </div>
-            <ChevronDown 
-              size={15} 
-              color="var(--liquid-sapphire-500)" 
-              style={{ 
-                flexShrink: 0,
-                transition: 'transform 0.22s ease', 
-                transform: activeDropdown === 'category' ? 'rotate(180deg)' : 'none' 
-              }} 
-            />
 
             {/* Custom Category Popover Dropdown */}
             {activeDropdown === 'category' && (
-              <div 
-                className="hero-popover glass-smoked" 
-                style={{ left: 0, width: '500px', maxWidth: 'min(500px, calc(100vw - 2.5rem))' }}
+              <div
+                className="hero-popover hero-popover--category glass-smoked"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="hero-popover-header">
-                  <div>
+                  <div className="hero-popover-heading">
                     <span className="hero-popover-title">
                       {language === 'sw' ? 'Chagua Kategoria ya Huduma' : 'Select Service Category'}
                     </span>
-                    <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--app-text-muted)', fontWeight: 500 }}>
+                    <p className="hero-popover-subtitle">
                       {language === 'sw' ? 'Huduma zote zilizothibitishwa Tanzania' : 'Verified wedding vendors across Tanzania'}
                     </p>
                   </div>
@@ -491,29 +502,24 @@ export default function ModernHero() {
                           setActiveDropdown(null);
                         }}
                       >
-                        <div style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '10px',
-                          background: isSelectedCat ? 'var(--puck-bg)' : 'rgba(0, 102, 238, 0.08)',
-                          color: isSelectedCat ? '#FFFFFF' : 'var(--liquid-sapphire-500)',
-                          border: isSelectedCat ? 'none' : '1px solid rgba(0, 102, 238, 0.16)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                          boxShadow: isSelectedCat ? '0 4px 12px rgba(0, 102, 238, 0.35)' : 'none'
-                        }}>
-                          <CatIcon size={18} />
+                        <div className="hero-cat-item-top">
+                          <div className={`hero-cat-item-icon ${isSelectedCat ? 'is-selected' : ''}`}>
+                            <CatIcon size={17} />
+                          </div>
+                          {isSelectedCat && (
+                            <Check size={14} color="var(--liquid-sapphire-500)" strokeWidth={3} className="hero-cat-item-check-mobile" />
+                          )}
                         </div>
-                        <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', minWidth: 0 }}>
-                            <span style={{ fontSize: '0.80rem', fontWeight: 800, color: 'var(--app-text-primary)', whiteSpace: 'nowrap' }}>
+                        <div className="hero-cat-item-body">
+                          <div className="hero-cat-item-title-row">
+                            <span className="hero-cat-item-title">
                               {cat.label}
                             </span>
-                            {isSelectedCat && <Check size={14} color="var(--liquid-sapphire-500)" strokeWidth={3} style={{ flexShrink: 0 }} />}
+                            {isSelectedCat && (
+                              <Check size={14} color="var(--liquid-sapphire-500)" strokeWidth={3} className="hero-cat-item-check-desktop" />
+                            )}
                           </div>
-                          <span style={{ display: 'block', fontSize: '0.70rem', color: 'var(--app-text-muted)', whiteSpace: 'nowrap' }}>
+                          <span className="hero-cat-item-desc">
                             {cat.desc}
                           </span>
                         </div>
@@ -528,47 +534,49 @@ export default function ModernHero() {
           <span className="hero-glass-divider" />
 
           {/* Custom Region Picker Trigger */}
-          <div 
+          <div
             id="hero-region-trigger"
-            className={`hero-glass-sector ${activeDropdown === 'region' ? 'is-active' : ''}`}
+            className={`hero-glass-sector hero-glass-sector--dropdown ${activeDropdown === 'region' ? 'is-active' : ''}`}
             onClick={() => setActiveDropdown(activeDropdown === 'region' ? null : 'region')}
+            onKeyDown={(e) => toggleDropdownKey(e, 'region')}
             role="button"
             tabIndex={0}
             aria-expanded={activeDropdown === 'region'}
             aria-haspopup="listbox"
           >
-            <MapPin size={17} color="var(--liquid-sapphire-500)" />
-            <div style={{ flex: 1, minWidth: 0, textAlign: 'left', overflow: 'hidden' }}>
-              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--app-text-muted)', lineHeight: 1 }}>
-                {t('hero_region_label', 'Region')}
-              </span>
-              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: 'var(--app-text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
-                {currentRegion.name}
-              </span>
+            <div className="hero-sector-trigger-row">
+              <MapPin size={17} color="var(--liquid-sapphire-500)" style={{ flexShrink: 0 }} />
+              <div className="hero-sector-copy">
+                <span className="hero-sector-label">
+                  {t('hero_region_label', 'Region')}
+                </span>
+                <span className="hero-sector-value">
+                  {currentRegion.name}
+                </span>
+              </div>
+              <ChevronDown
+                size={15}
+                color="var(--liquid-sapphire-500)"
+                style={{
+                  flexShrink: 0,
+                  transition: 'transform 0.22s ease',
+                  transform: activeDropdown === 'region' ? 'rotate(180deg)' : 'none'
+                }}
+              />
             </div>
-            <ChevronDown 
-              size={15} 
-              color="var(--liquid-sapphire-500)" 
-              style={{ 
-                flexShrink: 0,
-                transition: 'transform 0.22s ease', 
-                transform: activeDropdown === 'region' ? 'rotate(180deg)' : 'none' 
-              }} 
-            />
 
             {/* Custom Region Popover Dropdown */}
             {activeDropdown === 'region' && (
-              <div 
-                className="hero-popover glass-smoked" 
-                style={{ left: 0, width: '440px', maxWidth: 'min(440px, calc(100vw - 2.5rem))' }}
+              <div
+                className="hero-popover hero-popover--region glass-smoked"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="hero-popover-header">
-                  <div>
+                  <div className="hero-popover-heading">
                     <span className="hero-popover-title">
                       {language === 'sw' ? 'Chagua Eneo / Mkoa wa Harusi' : 'Select Wedding Destination'}
                     </span>
-                    <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--app-text-muted)', fontWeight: 500 }}>
+                    <p className="hero-popover-subtitle">
                       {language === 'sw' ? 'Miji na maeneo maarufu ya harusi' : 'Top destinations & wedding hubs in Tanzania'}
                     </p>
                   </div>
@@ -588,31 +596,20 @@ export default function ModernHero() {
                           setActiveDropdown(null);
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
-                          <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{reg.icon}</span>
-                          <div style={{ textAlign: 'left', minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                              <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--app-text-primary)' }}>
-                                {reg.name}
-                              </span>
-                              {isSelectedReg && <Check size={14} color="var(--liquid-sapphire-500)" strokeWidth={3} />}
-                            </div>
-                            <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--app-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {reg.desc}
+                        <div className="hero-region-item-top">
+                          <div className="hero-region-item-lead">
+                            <span className="hero-region-item-flag">{reg.icon}</span>
+                            <span className="hero-region-item-name-row">
+                              <span className="hero-region-item-name">{reg.name}</span>
+                              {isSelectedReg && <Check size={14} color="var(--liquid-sapphire-500)" strokeWidth={3} style={{ flexShrink: 0 }} />}
                             </span>
                           </div>
+                          <span className={`hero-region-item-count ${isSelectedReg ? 'is-selected' : ''}`}>
+                            {reg.count.split(' ')[0]}
+                          </span>
                         </div>
-                        <span style={{
-                          fontSize: '0.68rem',
-                          fontWeight: 700,
-                          color: isSelectedReg ? 'var(--liquid-sapphire-500)' : 'var(--app-text-secondary)',
-                          background: isSelectedReg ? 'rgba(0, 102, 238, 0.12)' : 'rgba(15, 23, 42, 0.05)',
-                          padding: '0.2rem 0.5rem',
-                          borderRadius: '8px',
-                          whiteSpace: 'nowrap',
-                          marginLeft: '0.4rem'
-                        }}>
-                          {reg.count.split(' ')[0]}
+                        <span className="hero-region-item-desc">
+                          {reg.desc}
                         </span>
                       </button>
                     );
@@ -625,75 +622,80 @@ export default function ModernHero() {
           <span className="hero-glass-divider" />
 
           {/* Custom Date Picker Trigger */}
-          <div 
+          <div
             id="hero-date-trigger"
-            className={`hero-glass-sector ${activeDropdown === 'date' ? 'is-active' : ''}`}
+            className={`hero-glass-sector hero-glass-sector--dropdown ${activeDropdown === 'date' ? 'is-active' : ''}`}
             onClick={() => setActiveDropdown(activeDropdown === 'date' ? null : 'date')}
+            onKeyDown={(e) => toggleDropdownKey(e, 'date')}
             role="button"
             tabIndex={0}
             aria-expanded={activeDropdown === 'date'}
             aria-haspopup="dialog"
           >
-            <Calendar size={17} color="var(--liquid-sapphire-500)" />
-            <div style={{ flex: 1, minWidth: 0, textAlign: 'left', overflow: 'hidden' }}>
-              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--app-text-muted)', lineHeight: 1 }}>
-                {t('event_date', 'Event Date')}
-              </span>
-              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: eventDate ? 'var(--liquid-sapphire-500)' : 'var(--app-text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
-                {formatDateLabel(eventDate)}
-              </span>
+            <div className="hero-sector-trigger-row">
+              <Calendar size={17} color="var(--liquid-sapphire-500)" style={{ flexShrink: 0 }} />
+              <div className="hero-sector-copy">
+                <span className="hero-sector-label">
+                  {t('event_date', 'Event Date')}
+                </span>
+                <span
+                  className="hero-sector-value"
+                  style={{ color: eventDate ? 'var(--liquid-sapphire-500)' : 'var(--app-text-primary)' }}
+                >
+                  {formatDateLabel(eventDate)}
+                </span>
+              </div>
+
+              {eventDate ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEventDate('');
+                  }}
+                  style={{
+                    background: 'rgba(0, 102, 238, 0.12)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--liquid-sapphire-500)',
+                    padding: 0,
+                    flexShrink: 0
+                  }}
+                  title={language === 'sw' ? 'Futa tarehe' : 'Clear date'}
+                >
+                  <X size={12} />
+                </button>
+              ) : (
+                <ChevronDown
+                  size={15}
+                  color="var(--liquid-sapphire-500)"
+                  style={{
+                    flexShrink: 0,
+                    transition: 'transform 0.22s ease',
+                    transform: activeDropdown === 'date' ? 'rotate(180deg)' : 'none'
+                  }}
+                />
+              )}
             </div>
-            
-            {eventDate ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEventDate('');
-                }}
-                style={{ 
-                  background: 'rgba(0, 102, 238, 0.12)', 
-                  border: 'none', 
-                  borderRadius: '50%',
-                  width: '20px',
-                  height: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer', 
-                  color: 'var(--liquid-sapphire-500)',
-                  padding: 0,
-                  flexShrink: 0
-                }}
-                title={language === 'sw' ? 'Futa tarehe' : 'Clear date'}
-              >
-                <X size={12} />
-              </button>
-            ) : (
-              <ChevronDown 
-                size={15} 
-                color="var(--liquid-sapphire-500)" 
-                style={{ 
-                  flexShrink: 0,
-                  transition: 'transform 0.22s ease', 
-                  transform: activeDropdown === 'date' ? 'rotate(180deg)' : 'none' 
-                }} 
-              />
-            )}
 
             {/* Custom Calendar Popover */}
             {activeDropdown === 'date' && (
-              <div 
-                className="hero-popover hero-cal-wrapper glass-smoked" 
-                style={{ right: 0, width: '340px', maxWidth: 'min(340px, calc(100vw - 2.5rem))' }}
+              <div
+                className="hero-popover hero-popover--date hero-cal-wrapper glass-smoked"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="hero-popover-header" style={{ marginBottom: '0.5rem' }}>
-                  <div>
+                  <div className="hero-popover-heading">
                     <span className="hero-popover-title">
                       {language === 'sw' ? 'Tarehe ya Harusi' : 'Select Wedding Date'}
                     </span>
-                    <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--app-text-muted)', fontWeight: 500 }}>
+                    <p className="hero-popover-subtitle">
                       {language === 'sw' ? 'Angalia upatikanaji wa watoa huduma' : 'Check vendor availability for your big day'}
                     </p>
                   </div>
@@ -830,10 +832,10 @@ export default function ModernHero() {
               <img src="/portfolio/beach-tide.jpg" alt="Bride and groom on the beach in Zanzibar" loading="eager" />
             </div>
             <div className="hero-photo-tile" ref={(el) => { heroTiles.current[1] = el; }}>
-              <img src="/portfolio/gele-portrait.jpg" alt="Tanzanian bride in gold and veil" loading="eager" />
+              <img src="/portfolio/gele-portrait.jpg" alt={language === 'sw' ? 'Bibi harusi wa Kitanzania akiwa na dhahabu na shela' : 'Tanzanian bride in gold and veil'} loading="eager" />
             </div>
             <div className="hero-photo-tile" ref={(el) => { heroTiles.current[2] = el; }}>
-              <img src="/portfolio/stone-town-vows.jpg" alt="Couple in kanzu and lace in Stone Town" loading="eager" />
+              <img src="/portfolio/stone-town-vows.jpg" alt={language === 'sw' ? 'Wanandoa wakiwa na kanzu na lace Stone Town' : 'Couple in kanzu and lace in Stone Town'} loading="eager" />
             </div>
             <div className="hero-photo-overlay" />
 

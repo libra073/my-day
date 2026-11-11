@@ -32,12 +32,12 @@ export default function MarketplacePage() {
 
   const CATEGORIES = [
     { id: '', name: isSw ? 'Makundi Yote' : 'All Categories', icon: '✨', short: 'All' },
-    { id: 'kumbi', name: isSw ? 'Kumbi – Venues' : 'Kumbi – Venues', icon: '🏰', short: 'Venues' },
-    { id: 'wapambaji', name: isSw ? 'Wapambaji – Mapambo' : 'Wapambaji – Decorators', icon: '🎨', short: 'Decorators' },
+    { id: 'kumbi', name: isSw ? 'Kumbi' : 'Venues', icon: '🏰', short: 'Venues' },
+    { id: 'wapambaji', name: isSw ? 'Wapambaji' : 'Decorators', icon: '🎨', short: 'Decorators' },
     { id: 'entertainment', name: isSw ? 'MCs & Burudani' : 'MCs & Entertainment', icon: '🎤', short: 'MCs & Music' },
-    { id: 'catering', name: isSw ? 'Chakula & Vinywaji' : 'Catering & Food', icon: '🍽️', short: 'Catering' },
+    { id: 'catering', name: isSw ? 'Huduma za Chakula' : 'Catering & Food', icon: '🍽️', short: 'Catering' },
     { id: 'saloon', name: isSw ? 'Saluni & Urembo' : 'Saloon & Beauty', icon: '💇', short: 'Saloon' },
-    { id: 'transport', name: isSw ? 'Usafiri & Magari' : 'Transport & Luxury Cars', icon: '🚗', short: 'Transport' },
+    { id: 'transport', name: isSw ? 'Usafiri' : 'Transport & Luxury Cars', icon: '🚗', short: 'Transport' },
   ];
 
   const LOCATIONS = [
@@ -164,11 +164,11 @@ export default function MarketplacePage() {
           <span className="mkt-trust-item">
             <ShieldCheck size={16} color="#16A34A" /> {isSw ? 'Watoa Huduma Waliothibitishwa' : '100% Verified Partners'}
           </span>
-          <span style={{ color: '#E5D7C7' }}>•</span>
+          <span className="mkt-trust-sep" aria-hidden="true">•</span>
           <span className="mkt-trust-item">
             <Wallet size={16} color="var(--color-primary, #0071E3)" /> {isSw ? 'Amana ya 30% Imelindwa' : 'Protected 30% Escrow'}
           </span>
-          <span style={{ color: '#E5D7C7' }}>•</span>
+          <span className="mkt-trust-sep" aria-hidden="true">•</span>
           <span className="mkt-trust-item">
             <Star size={16} color="#F5A623" fill="#F5A623" /> {isSw ? 'Ukadiriaji wa Nyota 4.9' : '4.9★ Average Rating'}
           </span>

@@ -105,7 +105,7 @@ export default function SharedBudgetLedgerCard() {
   };
 
   const handleDeleteExpense = async (expId) => {
-    if (!window.confirm('Delete this expense entry?')) return;
+    if (!window.confirm(language === 'sw' ? 'Futa gharama hii?' : 'Delete this expense entry?')) return;
     try {
       await deleteExpense(expId);
     } catch (err) {

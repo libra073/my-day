@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { demoText } from '../i18n/demoContent';
 import { Bell, Check, CheckCheck, Clock, AlertTriangle, CheckCircle2, DollarSign } from 'lucide-react';
 
 const NOTIF_ICONS = {
@@ -22,15 +23,22 @@ export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdown on click outside or Escape
   useEffect(() => {
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     }
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') setIsOpen(false);
+    }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleMarkRead = (e, notifId) => {
@@ -146,10 +154,10 @@ export default function NotificationBell() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.8rem', fontWeight: n.read ? 600 : 800, color: 'var(--color-text)' }}>
-                      {n.title}
+                      {demoText(n.title, language === 'sw')}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.15rem' }}>
-                      {n.message}
+                      {demoText(n.message, language === 'sw')}
                     </div>
                     <div style={{ fontSize: '0.68rem', color: 'var(--color-text-dim)', marginTop: '0.25rem' }}>
                       {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

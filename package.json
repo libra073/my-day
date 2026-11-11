@@ -11,7 +11,8 @@
     "test:ai": "node tests/qa_runner.mjs",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:i18n": "node tools/i18n/keys.mjs && node tools/i18n/ternaries.mjs && node tools/i18n/browser-audit.mjs && node tools/i18n/flows-audit.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",

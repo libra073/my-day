@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { demoText } from '../i18n/demoContent';
 import {
   Vote, PlusCircle, Pin, ThumbsUp
 } from 'lucide-react';
@@ -55,7 +56,7 @@ export default function SharedDecisionsCard() {
     e.preventDefault();
     const cleanOptions = decOptions.filter(o => o.trim().length > 0);
     if (!decTitle.trim() || cleanOptions.length < 2) {
-      alert('Please provide a decision title and at least 2 options.');
+      alert(isSw ? 'Tafadhali weka kichwa cha uamuzi na chaguo angalau 2.' : 'Please provide a decision title and at least 2 options.');
       return;
     }
 
@@ -71,7 +72,7 @@ export default function SharedDecisionsCard() {
       setDecOptions(['', '']);
       setShowNewDecisionModal(false);
     } catch (err) {
-      alert(err.message || 'Failed to create decision');
+      alert(err.message || (isSwahili ? 'Imeshindikana kuunda uamuzi' : 'Failed to create decision'));
     }
   };
 
@@ -79,17 +80,17 @@ export default function SharedDecisionsCard() {
     try {
       await voteDecision(decisionId, optionId);
     } catch (err) {
-      alert(err.message || 'Failed to register vote');
+      alert(err.message || (isSwahili ? 'Imeshindikana kusajili kura' : 'Failed to register vote'));
     }
   };
 
   const handleFinalizeDecision = async (decisionId, status) => {
-    const notesInput = window.prompt(`Finalize decision as ${status.toUpperCase()}? Add notes/rationale:`, '');
+    const notesInput = window.prompt(isSwahili ? `Thibitisha uamuzi kama ${status.toUpperCase()}? Ongeza maelezo au sababu:` : `Finalize decision as ${status.toUpperCase()}? Add notes/rationale:`, '');
     if (notesInput === null) return;
     try {
       await updateDecision(decisionId, { status, decisionNotes: notesInput });
     } catch (err) {
-      alert(err.message || 'Failed to update decision');
+      alert(err.message || (isSwahili ? 'Imeshindikana kusasisha uamuzi' : 'Failed to update decision'));
     }
   };
 
@@ -109,7 +110,7 @@ export default function SharedDecisionsCard() {
       setNotePinned(false);
       setShowNewNoteModal(false);
     } catch (err) {
-      alert(err.message || 'Failed to create note');
+      alert(err.message || (isSwahili ? 'Imeshindikana kuunda dokezo' : 'Failed to create note'));
     }
   };
 
@@ -401,7 +402,7 @@ export default function SharedDecisionsCard() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>{dec.title}</span>
+                        <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>{demoText(dec.title, isSwahili)}</span>
                         <span style={{
                           fontSize: '0.7rem',
                           fontWeight: 800,
@@ -414,7 +415,7 @@ export default function SharedDecisionsCard() {
                         </span>
                       </div>
                       {dec.description && (
-                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: '0.2rem 0 0.5rem' }}>{dec.description}</p>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: '0.2rem 0 0.5rem' }}>{demoText(dec.description, isSwahili)}</p>
                       )}
                     </div>
 
@@ -484,7 +485,7 @@ export default function SharedDecisionsCard() {
                         >
                           <div>
                             <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text)' }}>
-                              {opt.text || opt.label}
+                              {demoText(opt.text || opt.label, isSwahili)}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
                               {voteLabel}

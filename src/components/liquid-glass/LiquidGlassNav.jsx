@@ -9,6 +9,7 @@ import {
 import AuthModal from '../AuthModal';
 import NotificationBell from '../NotificationBell';
 import { useSparkleBurst } from '../motion/MotionSparkles';
+import { useBodyScrollLock } from '../../lib/overlayLock';
 
 export default function LiquidGlassNav({ onOpenAuth }) {
   const { role, user, isLoggedIn, logoutUser, bookings, language, setLanguage, t, theme, toggleTheme, openAuthModal } = useAppContext();
@@ -16,6 +17,8 @@ export default function LiquidGlassNav({ onOpenAuth }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const { triggerSparkles, SparkleOverlay } = useSparkleBurst();
+
+  useBodyScrollLock(mobileOpen, () => setMobileOpen(false));
 
   // ── Liquid Navigation Animation State ───────────────────────────
   const navRef = useRef(null);
@@ -191,7 +194,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
         <nav
           ref={navRef}
           className="cl-links motion-nav-container"
-          aria-label="Main Navigation"
+          aria-label={language === 'sw' ? 'Urambazaji Mkuu' : 'Main Navigation'}
         >
           {/* Moving liquid bulge indicator that stretches and settles */}
           <div
@@ -214,7 +217,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
 
         <div className="cl-actions">
           {/* Elastic Spring Language Switcher */}
-          <div className="cl-lang motion-lang-toggle" role="group" aria-label="Language">
+          <div className="cl-lang motion-lang-toggle" role="group" aria-label={language === 'sw' ? 'Lugha' : 'Language'}>
             <div
               className="motion-lang-slider"
               style={{
@@ -231,7 +234,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
                 setLanguage('en');
               }}
             >
-              EN
+              English
             </button>
             <button
               type="button"
@@ -242,7 +245,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
                 setLanguage('sw');
               }}
             >
-              SW
+              Kiswahili
             </button>
           </div>
 
@@ -254,18 +257,18 @@ export default function LiquidGlassNav({ onOpenAuth }) {
               triggerSparkles(e);
               toggleTheme();
             }}
-            aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
-            title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+            aria-label={language === 'sw' ? (theme === 'dark' ? 'Badilisha kwenye mwonekano mweupe' : 'Badilisha kwenye mwonekano mweusi') : (theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme')}
+            title={language === 'sw' ? (theme === 'dark' ? 'Badilisha kwenye mwonekano mweupe' : 'Badilisha kwenye mwonekano mweusi') : (theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme')}
           >
             {theme === 'dark' ? (
               <span className="cl-theme-pill__inner">
                 <Sun size={14} className="theme-icon-sun" />
-                <span className="cl-theme-label">Light</span>
+                <span className="cl-theme-label">{language === 'sw' ? 'Mwanga' : 'Light'}</span>
               </span>
             ) : (
               <span className="cl-theme-pill__inner">
                 <Moon size={14} className="theme-icon-moon" />
-                <span className="cl-theme-label">Dark</span>
+                <span className="cl-theme-label">{language === 'sw' ? 'Giza' : 'Dark'}</span>
               </span>
             )}
           </button>
@@ -294,7 +297,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
                   <span>{language === 'sw' ? 'Thibitisha' : 'Verify'}</span>
                 </button>
               )}
-              <button className="cl-user__logout motion-sweep" onClick={logoutUser} title="Logout" aria-label="Logout">
+              <button className="cl-user__logout motion-sweep" onClick={logoutUser} title={language === 'sw' ? 'Toka' : 'Logout'} aria-label={language === 'sw' ? 'Toka' : 'Logout'}>
                 <LogOut size={14} />
               </button>
             </div>
@@ -314,7 +317,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
             type="button"
             className="cl-icon-btn cl-burger"
             onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle menu"
+            aria-label={language === 'sw' ? 'Fungua au funga menyu' : 'Toggle menu'}
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
@@ -325,7 +328,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
       {mobileOpen && (
         <>
           <div className="cl-drawer-backdrop" onClick={() => setMobileOpen(false)} aria-hidden="true" />
-          <aside className="cl-drawer" aria-label="Mobile Navigation">
+          <aside className="cl-drawer" aria-label={language === 'sw' ? 'Urambazaji wa Simu' : 'Mobile Navigation'}>
             <div>
               <div className="cl-drawer__head">
                 <span style={{ fontFamily: 'var(--clay-display)', fontWeight: 700, fontSize: '1.05rem' }}>MY DAY</span>
@@ -333,7 +336,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
                   type="button"
                   className="cl-icon-btn"
                   onClick={() => setMobileOpen(false)}
-                  aria-label="Close menu"
+                  aria-label={language === 'sw' ? 'Funga menyu' : 'Close menu'}
                 >
                   <X size={16} />
                 </button>
@@ -356,17 +359,17 @@ export default function LiquidGlassNav({ onOpenAuth }) {
                 type="button"
                 className="cl-theme-pill cl-theme-pill-drawer motion-sweep"
                 onClick={toggleTheme}
-                aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+                aria-label={language === 'sw' ? (theme === 'dark' ? 'Badilisha kwenye mwonekano mweupe' : 'Badilisha kwenye mwonekano mweusi') : (theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme')}
               >
                 {theme === 'dark' ? (
                   <span className="cl-theme-pill__inner">
                     <Sun size={14} className="theme-icon-sun" />
-                    <span>Light Mode</span>
+                    <span>{language === 'sw' ? 'Mwonekano Mweupe' : 'Light Mode'}</span>
                   </span>
                 ) : (
                   <span className="cl-theme-pill__inner">
                     <Moon size={14} className="theme-icon-moon" />
-                    <span>Dark Mode</span>
+                    <span>{language === 'sw' ? 'Mwonekano Mweusi' : 'Dark Mode'}</span>
                   </span>
                 )}
               </button>
@@ -393,7 +396,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
                   )}
                   <button className="cl-login btn-sweep" onClick={() => { logoutUser(); setMobileOpen(false); }}>
                     <LogOut size={14} />
-                    <span>Logout</span>
+                    <span>{language === 'sw' ? 'Toka' : 'Logout'}</span>
                   </button>
                 </>
               ) : (
