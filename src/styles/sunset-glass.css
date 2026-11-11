@@ -1341,3 +1341,89 @@ html[data-theme] .modal-card .motion-payment-option:focus-visible {
   border-color: rgba(124, 92, 252, 0.85) !important;
   box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.3) !important;
 }
+
+
+/* ==========================================================================
+   AUTH MODAL (portaled to body) — same sunset glass as the standalone pages
+   ========================================================================== */
+
+html[data-theme] .ax-submit,
+html[data-theme] .ax-modal-shell .ax-submit,
+html[data-theme] #root .ax-submit {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+  background-image: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 48%, #F472B6 100%) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    0 16px 30px -16px rgba(124, 92, 252, 0.8) !important;
+}
+html[data-theme] .ax-submit:hover {
+  background-image: linear-gradient(135deg, #9B80FF 0%, #8B6BFF 48%, #FF86C2 100%) !important;
+}
+
+/* role tabs, links and fields inside the dialog */
+html[data-theme] .ax-modal-shell .ax-role__btn.is-active {
+  color: #6B49F5 !important;
+  background: rgba(124, 92, 252, 0.14) !important;
+  border-color: rgba(124, 92, 252, 0.35) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 6px 16px -10px rgba(124, 92, 252, 0.6) !important;
+}
+html[data-theme] .ax-modal-shell .ax-switch button,
+html[data-theme] .ax-modal-shell .ax-forgot,
+html[data-theme] .ax-modal-shell .ax-link {
+  color: #6B49F5 !important;
+}
+html[data-theme] .ax-modal-shell .ax-input {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.92) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 10px 22px -18px rgba(124, 92, 252, 0.4) !important;
+}
+html[data-theme] .ax-modal-shell input:focus-visible,
+html[data-theme] .ax-modal-shell button:focus-visible,
+html[data-theme] .ax-modal-shell a:focus-visible {
+  outline: none !important;
+  border-color: rgba(124, 92, 252, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.3) !important;
+}
+html[data-theme] .ax-modal-shell .ax-close {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.9) !important;
+  color: #4B3F72 !important;
+}
+html[data-theme="dark"] .ax-modal-shell .ax-input {
+  background: rgba(58, 38, 98, 0.7) !important;
+  border-color: rgba(190, 165, 255, 0.28) !important;
+}
+html[data-theme="dark"] .ax-modal-shell .ax-switch button,
+html[data-theme="dark"] .ax-modal-shell .ax-forgot,
+html[data-theme="dark"] .ax-modal-shell .ax-link {
+  color: #C4B5FD !important;
+}
+
+
+/* role tab group should not keep the old azure glow */
+html[data-theme] .ax-modal-shell .ax-role {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.75) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 10px 22px -18px rgba(124, 92, 252, 0.45) !important;
+}
+html[data-theme] .ax-modal-shell .ax-role__btn {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  color: #5F5480 !important;
+}
+html[data-theme="dark"] .ax-modal-shell .ax-role__btn {
+  color: #C6B8E8 !important;
+}
+
+
+/* MY DAY mark inside the auth dialog follows the palette */
+html[data-theme] .ax-brand__mark,
+html[data-theme] #root .ax-brand__mark {
+  background: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 52%, #F472B6 100%) !important;
+  background-image: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 52%, #F472B6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px -10px rgba(124, 92, 252, 0.8) !important;
+}
