@@ -105,10 +105,13 @@ export function handleApiRequest(req, res, urlObj) {
     });
   };
 
-  // Helper to get authenticated user
+  // Helper to get authenticated user.
+  // A Supabase access token is resolved once per request; legacy session
+  // tokens keep working for local development and the test suite.
+  let supabaseUser = null;
   const authenticate = () => {
     const token = parseBearerToken(req);
-    const user = getUserByToken(token);
+    const user = supabaseUser || getUserByToken(token);
     return { token, user };
   };
 
