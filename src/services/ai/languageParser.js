@@ -457,7 +457,7 @@ export const CATEGORY_SYNONYMS = {
   decor: ["decor", "decoration", "mapambo", "wapambaji", "maua", "backdrop", "stage", "table dressing"],
   photography: ["photography", "photographer", "photo", "picha", "video", "videographer", "videography", "mpiga picha"],
   entertainment: ["entertainment", "mc", "dj", "muziki", "sound", "burudani", "emcee", "vipaza sauti"],
-  transport: ["transport", "usafiri", "magari", "gari", "convoy", "bridal car", "limo"],
+  transport: ["transport", "usafiri", "nauli", "magari", "gari", "convoy", "bridal car", "limo"],
   saloon: ["saloon", "salon", "barber", "barbershop", "makeup", "kupambwa", "nywele"]
 };
 
@@ -479,7 +479,7 @@ export function parseCategory(text = "") {
 
 /**
  * Extract requirements, additions, or exclusions.
- * e.g. "sitaki DJ", "venue tayari ipo", "chakula lazima", "nataka mpiga picha"
+ * e.g. "sitaki DJ", "venue tayari ipo", "chakula lazima", "nataka mpiga picha", "nauli na chakula"
  */
 export function parseRequirements(text = "") {
   if (!text || typeof text !== "string") return {};
@@ -488,8 +488,8 @@ export function parseRequirements(text = "") {
 
   // Negations / removals: "sitaki X", "bila X", "ondoa X", "no need for X", "X not needed", "X tayari ipo"
   const negationMatches = [
-    { regex: /(?:sitaki|bila|ondoa|remove|no need for|cut|tayari\s*ipo|already\s*sorted|already\s*have)\s+(?:the\s+)?(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)/gi, value: false },
-    { regex: /(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)\s+(?:tayari\s*ipo|already\s*sorted|already\s*have|sihitaji|sitaki)/gi, value: false }
+    { regex: /(?:sitaki|bila|ondoa|remove|no need for|cut|tayari\s*ipo|already\s*sorted|already\s*have)\s+(?:the\s+)?(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|nauli|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)/gi, value: false },
+    { regex: /(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|nauli|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)\s+(?:tayari\s*ipo|already\s*sorted|already\s*have|sihitaji|sitaki)/gi, value: false }
   ];
 
   for (const neg of negationMatches) {
@@ -500,12 +500,22 @@ export function parseRequirements(text = "") {
     }
   }
 
-  // Affirmations: "nataka X", "lazima X", "muhimu X", "weka X", "need X"
-  const affirmRegex = /(?:nataka|lazima|muhimu|weka|need|want|include)\s+(?:the\s+)?(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)/gi;
+  // Affirmations: "nataka X", "lazima X", "muhimu X", "weka X", "need X", "kwa ajili ya X"
+  const affirmRegex = /(?:nataka|lazima|muhimu|weka|need|want|include|kwa\s+ajili\s+ya)\s+(?:the\s+)?(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|nauli|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)/gi;
   let affMatch;
   while ((affMatch = affirmRegex.exec(lowered)) !== null) {
     const cat = parseCategory(affMatch[1]);
     if (cat && reqs[cat] === undefined) reqs[cat] = true;
+  }
+
+  // Category pairings / listings: e.g. "nauli na chakula", "chakula na mapambo"
+  const listPairRegex = /\b(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|nauli|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)\s+na\s+(mc|dj|entertainment|muziki|decor|decoration|mapambo|wapambaji|transport|usafiri|nauli|photography|photo|picha|venue|ukumbi|kumbi|catering|chakula)\b/gi;
+  let pairMatch;
+  while ((pairMatch = listPairRegex.exec(lowered)) !== null) {
+    const c1 = parseCategory(pairMatch[1]);
+    const c2 = parseCategory(pairMatch[2]);
+    if (c1 && reqs[c1] === undefined) reqs[c1] = true;
+    if (c2 && reqs[c2] === undefined) reqs[c2] = true;
   }
 
   return reqs;

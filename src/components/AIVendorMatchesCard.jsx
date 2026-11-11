@@ -41,13 +41,13 @@ export default function AIVendorMatchesCard() {
   };
 
   return (
-    <div className="card" style={{
-      padding: 'clamp(0.9rem, 3vw, 1.5rem)',
+    <div className="glass-card" style={{
+      padding: 'clamp(1rem, 3vw, 1.75rem)',
       marginTop: '1.25rem',
-      background: '#FFFFFF',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)',
+      background: 'var(--app-card-bg, rgba(255, 255, 255, 0.72))',
+      borderRadius: 'var(--radius-xl)',
+      border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+      boxShadow: '0 12px 30px rgba(15, 23, 42, 0.05)',
       minWidth: 0,
       width: '100%'
     }}>
@@ -56,23 +56,24 @@ export default function AIVendorMatchesCard() {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.35rem',
-          background: 'var(--color-primary-light)',
-          color: 'var(--color-accent)',
-          padding: '0.25rem 0.75rem',
+          background: 'rgba(0, 102, 238, 0.12)',
+          color: 'var(--color-primary, #0071E3)',
+          padding: '0.3rem 0.85rem',
           borderRadius: 'var(--radius-pill)',
           fontSize: '0.75rem',
           fontWeight: 800,
           textTransform: 'uppercase',
           letterSpacing: '0.04em',
-          marginBottom: '0.35rem'
+          border: '1px solid rgba(0, 102, 238, 0.22)',
+          marginBottom: '0.45rem'
         }}>
-          <ShieldCheck size={14} color="#F5A623" />
+          <ShieldCheck size={14} color="var(--color-primary, #0071E3)" />
           <span>{t('ai_verified_vendors_badge', 'Verified Vendor Matches')}</span>
         </div>
-        <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-text)', overflowWrap: 'anywhere' }}>
+        <h3 style={{ fontSize: '1.4rem', fontWeight: 850, color: 'var(--app-text-primary, #0F172A)', overflowWrap: 'anywhere' }}>
           {t('ai_vendor_matches_title', 'Matched Service Providers')}
         </h3>
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', overflowWrap: 'anywhere' }}>
+        <p style={{ fontSize: '0.88rem', color: 'var(--app-text-secondary, #475569)', overflowWrap: 'anywhere', fontWeight: 500 }}>
           {t('ai_vendor_matches_subtitle', 'Real providers matching your category allocations and location from the MY DAY marketplace.')}
         </p>
       </div>
@@ -86,10 +87,10 @@ export default function AIVendorMatchesCard() {
             <div
               key={category}
               style={{
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-sm)',
-                padding: 'clamp(0.75rem, 2vw, 1rem)',
-                background: 'var(--color-surface-soft)',
+                border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.85))',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'clamp(0.85rem, 2vw, 1.15rem)',
+                background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.45))',
                 minWidth: 0
               }}
             >
@@ -107,12 +108,13 @@ export default function AIVendorMatchesCard() {
                   </span>
                   <span style={{
                     fontSize: '0.75rem',
-                    background: '#FFFFFF',
-                    border: '1px solid var(--color-border)',
-                    padding: '0.15rem 0.55rem',
+                    background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
+                    border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+                    padding: '0.2rem 0.65rem',
                     borderRadius: 'var(--radius-pill)',
-                    fontWeight: 700,
-                    color: 'var(--color-text-muted)',
+                    fontWeight: 750,
+                    color: 'var(--app-text-muted, #64748b)',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                     whiteSpace: 'nowrap'
                   }}>
                     {t('ai_allocated_budget', 'Allocated')}: TSh {allocatedBudget.toLocaleString()}
@@ -130,12 +132,12 @@ export default function AIVendorMatchesCard() {
               {status === 'no_match' && (
                 <div style={{
                   padding: '1rem',
-                  background: '#FFFFFF',
-                  borderRadius: 'var(--radius-sm)',
+                  background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.55))',
+                  borderRadius: 'var(--radius-md)',
                   fontSize: '0.85rem',
-                  color: 'var(--color-text-muted)',
+                  color: 'var(--app-text-muted, #64748b)',
                   fontStyle: 'italic',
-                  border: '1px dashed var(--color-border)',
+                  border: '1px dashed var(--app-border, rgba(148, 163, 184, 0.4))',
                   minWidth: 0,
                   overflowWrap: 'anywhere'
                 }}>
@@ -161,15 +163,19 @@ export default function AIVendorMatchesCard() {
                       <div
                         key={prov.id}
                         style={{
-                          background: '#FFFFFF',
-                          border: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                          borderRadius: 'var(--radius)',
-                          padding: 'clamp(0.75rem, 2vw, 1rem)',
+                          background: isSelected
+                            ? 'var(--p3d-grad-champagne, linear-gradient(145deg, #FDF9F3 0%, #F5ECE0 58%, #EBDDCB 100%))'
+                            : 'var(--app-surface-elevated, rgba(255, 252, 247, 0.92))',
+                          border: isSelected ? '2px solid var(--color-primary, #0071E3)' : '1.5px solid var(--app-border, rgba(168, 101, 62, 0.2))',
+                          borderRadius: 'var(--radius-lg)',
+                          padding: 'clamp(0.85rem, 2vw, 1.15rem)',
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
-                          boxShadow: isSelected ? 'var(--shadow-glow)' : 'var(--shadow-xs)',
-                          transition: 'var(--transition)',
+                          boxShadow: isSelected
+                            ? '0 8px 24px rgba(0, 102, 238, 0.2), inset 0 1px 2px rgba(255,255,255,0.9)'
+                            : 'inset 0 1px 1.5px rgba(255,255,255,0.9), 0 4px 16px rgba(84, 50, 29, 0.06)',
+                          transition: 'all 0.2s ease',
                           minWidth: 0
                         }}
                       >
@@ -268,7 +274,7 @@ export default function AIVendorMatchesCard() {
                               minWidth: 0,
                               padding: '0.45rem 0.65rem',
                               fontSize: '0.76rem',
-                              background: isSelected ? 'var(--color-surface-soft)' : '#FFFFFF',
+                              background: isSelected ? 'var(--color-surface-soft)' : 'var(--app-card-bg, #FFFFFF)',
                               color: isSelected ? 'var(--color-text-muted)' : 'var(--color-accent)',
                               border: '1px solid var(--color-accent)',
                               borderRadius: 'var(--radius-pill)',

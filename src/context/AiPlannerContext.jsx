@@ -43,7 +43,7 @@ const DEFAULT_STATE = {
 const AiPlannerContext = createContext();
 
 export const AiPlannerProvider = ({ children }) => {
-  const { wedding } = useAppContext();
+  const { wedding, language } = useAppContext();
 
   // 1. Initial State Restoration with Corrupted JSON Protection
   const [plannerState, setPlannerState] = useState(() => {
@@ -76,6 +76,32 @@ export const AiPlannerProvider = ({ children }) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Synchronize language with AppContext active language
+  useEffect(() => {
+    if (language && plannerState.language !== language) {
+      setPlannerState(prev => {
+        // If message list only has the initial welcome message, adapt it to active language
+        const isOnlyInitialWelcome = prev.messages.length === 1 && prev.messages[0].id === 'msg-welcome';
+        const updatedMessages = isOnlyInitialWelcome
+          ? [{
+              id: 'msg-welcome',
+              sender: 'ai',
+              text: language === 'sw'
+                ? "Habari! Karibu kwenye MY DAY AI Mpangaji wa Harusi. Ninaweza kukusaidia kupanga harusi au sherehe yako nchini Tanzania. Niambie bajeti yako (mfano: 500k, 5m, au TSh 15,000,000), idadi ya wageni, au eneo ili upate mpango halisi wa bajeti na watoa huduma waliothibitishwa!"
+                : "Habari! Welcome to MY DAY AI Planner. I can help you plan your wedding or event in Tanzania. Tell me your budget (e.g. 500k, 5m, or TSh 15,000,000), guest count, or location to get a realistic budget plan and verified vendor matches!",
+              timestamp: new Date().toISOString(),
+            }]
+          : prev.messages;
+
+        return {
+          ...prev,
+          language,
+          messages: updatedMessages,
+        };
+      });
+    }
+  }, [language, plannerState.language]);
 
   // Sync event date or wedding details if available from profile
   useEffect(() => {

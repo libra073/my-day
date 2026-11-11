@@ -63,7 +63,7 @@ export default function AIChatPage() {
   };
 
   return (
-    <div style={{ background: 'var(--color-bg-base)', minHeight: 'calc(100vh - 72px)', padding: '1.5rem 0 4rem' }}>
+    <div style={{ background: 'transparent', minHeight: 'calc(100vh - 72px)', padding: '1.5rem 0 4rem' }}>
       <div className="container" style={{ maxWidth: '1200px' }}>
         
         {/* Navigation Breadcrumb & Header */}
@@ -96,20 +96,7 @@ export default function AIChatPage() {
           <button
             type="button"
             onClick={resetPlanner}
-            style={{
-              background: '#FFFFFF',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-muted)',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-pill)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              boxShadow: 'var(--shadow-xs)',
-              cursor: 'pointer'
-            }}
+            className="ai-reset-btn"
           >
             <RefreshCw size={14} /> {t('reset_planner', 'Reset Planner')}
           </button>
@@ -118,12 +105,8 @@ export default function AIChatPage() {
         {/* Responsive Two-Column Layout */}
         <div className="ai-planner-layout">
           
-          {/* Left Column: Conversational Chat Interface */}
-          <div className="card" style={{
-            background: '#FFFFFF',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--color-border)',
-            boxShadow: 'var(--shadow-sm)',
+          {/* Left Column: Conversational Chat Interface (VisionOS Frosted Acrylic Glass) */}
+          <div className="glass-card ai-chat-card" style={{
             display: 'flex',
             flexDirection: 'column',
             height: 'clamp(540px, 78vh, 750px)',
@@ -133,25 +116,15 @@ export default function AIChatPage() {
             overflow: 'hidden'
           }}>
             {/* Chat Top Banner */}
-            <div style={{
-              background: 'var(--color-surface-soft)',
-              padding: '0.85rem clamp(0.85rem, 2.5vw, 1.25rem)',
-              borderBottom: '1px solid var(--color-border)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '0.5rem',
-              minWidth: 0
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-accent)', minWidth: 0 }}>
-                <Bot size={18} color="var(--color-primary)" style={{ flexShrink: 0 }} />
+            <div className="ai-chat-banner">
+              <div className="ai-banner-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.84rem', fontWeight: 800, minWidth: 0 }}>
+                <Bot size={18} style={{ flexShrink: 0 }} />
                 <span style={{ overflowWrap: 'anywhere' }}>{isSwahili ? 'Msaidizi Halisi wa Sherehe Tanzania' : 'Tanzanian Event Planning Specialist'}</span>
               </div>
 
               {/* Status Indicator */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 700, flexShrink: 0 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-success)', display: 'inline-block' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: '#10b981', fontWeight: 800, flexShrink: 0 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px #10b981' }} />
                 <span>{isSwahili ? 'Mtandaoni' : 'Live & Ready'}</span>
               </div>
             </div>
@@ -160,14 +133,14 @@ export default function AIChatPage() {
             <div
               ref={chatScrollRef}
               onScroll={handleScroll}
+              className="ai-chat-stream"
               style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: 'clamp(0.85rem, 2.5vw, 1.25rem)',
+                padding: 'clamp(0.9rem, 2.5vw, 1.35rem)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '1rem',
-                background: '#FAF8F5',
                 minWidth: 0
               }}
             >
@@ -186,31 +159,13 @@ export default function AIChatPage() {
                     }}
                   >
                     {!isUser && (
-                      <div style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50%',
-                        background: 'var(--color-mocha-dark, #3D2D21)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#F5A623',
-                        flexShrink: 0,
-                        marginTop: 2
-                      }}>
+                      <div className="ai-avatar ai-avatar--bot" style={{ marginTop: 2 }}>
                         <Bot size={18} />
                       </div>
                     )}
 
-                    <div style={{
-                      background: isUser ? 'var(--color-mocha-dark, #3D2D21)' : '#FFFFFF',
-                      color: isUser ? '#FFFFFF' : 'var(--color-text)',
-                      padding: '0.85rem clamp(0.85rem, 2vw, 1.15rem)',
-                      borderRadius: '18px',
-                      borderBottomRightRadius: isUser ? '4px' : '18px',
-                      borderBottomLeftRadius: isUser ? '18px' : '4px',
-                      border: isUser ? 'none' : '1px solid var(--color-border)',
-                      boxShadow: 'var(--shadow-xs)',
+                    <div className={`ai-bubble${isUser ? ' ai-bubble--user' : ''} ai-bubble-animated`} style={{
+                      padding: '0.9rem clamp(0.9rem, 2vw, 1.25rem)',
                       fontSize: '0.92rem',
                       lineHeight: 1.6,
                       minWidth: 0,
@@ -238,15 +193,8 @@ export default function AIChatPage() {
                                   setPlanType(act.value);
                                 }
                               }}
+                              className={`ai-chip${planType === act.value ? ' is-active' : ''}`}
                               style={{
-                                background: planType === act.value ? 'var(--color-primary)' : '#FFFFFF',
-                                color: planType === act.value ? '#FFFFFF' : 'var(--color-text)',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: 'var(--radius-pill)',
-                                padding: '0.35rem 0.85rem',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                boxShadow: 'none',
                                 whiteSpace: 'normal',
                                 lineHeight: 1.3,
                                 textAlign: 'center'
@@ -260,18 +208,7 @@ export default function AIChatPage() {
                     </div>
 
                     {isUser && (
-                      <div style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50%',
-                        background: 'var(--color-primary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                        flexShrink: 0,
-                        marginTop: 2
-                      }}>
+                      <div className="ai-avatar ai-avatar--user" style={{ marginTop: 2 }}>
                         <User size={18} />
                       </div>
                     )}
@@ -281,34 +218,16 @@ export default function AIChatPage() {
 
               {/* Typing loader */}
               {isLoading && (
-                <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', minWidth: 0 }}>
-                  <div style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: 'var(--color-mocha-dark, #3D2D21)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#F5A623',
-                    flexShrink: 0
-                  }}>
+                <div className="ai-bubble-animated" style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', minWidth: 0 }}>
+                  <div className="ai-avatar ai-avatar--bot">
                     <Bot size={18} />
                   </div>
-                  <div style={{
-                    background: '#FFFFFF',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-pill)',
-                    padding: '0.6rem 1rem',
-                    fontSize: '0.85rem',
-                    color: 'var(--color-text-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    minWidth: 0,
-                    overflowWrap: 'anywhere'
-                  }}>
-                    <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2, flexShrink: 0 }} />
+                  <div className="ai-typing" style={{ minWidth: 0, overflowWrap: 'anywhere', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div className="ai-typing-dots">
+                      <span className="dot" />
+                      <span className="dot" />
+                      <span className="dot" />
+                    </div>
                     <span>{isSwahili ? 'MY DAY AI inachambua mpango wako...' : 'MY DAY AI is computing realistic allocations...'}</span>
                   </div>
                 </div>
@@ -317,11 +236,11 @@ export default function AIChatPage() {
               {error && (
                 <div style={{
                   padding: '0.75rem 1rem',
-                  background: '#FFEBEE',
-                  color: '#C62828',
+                  background: 'var(--color-error-bg, rgba(239, 68, 68, 0.14))',
+                  color: 'var(--color-error, #EF4444)',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '0.85rem',
-                  border: '1px solid #EF5350',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
                   minWidth: 0,
                   overflowWrap: 'anywhere'
                 }}>
@@ -330,51 +249,37 @@ export default function AIChatPage() {
               )}
             </div>
 
-            {/* Input Form */}
+            {/* Input Form (VisionOS Frosted Capsule) */}
             <form
               onSubmit={handleSend}
+              className="ai-chat-composer"
               style={{
-                padding: 'clamp(0.75rem, 2vw, 0.9rem) clamp(0.75rem, 2.5vw, 1.25rem)',
-                paddingBottom: 'max(clamp(0.75rem, 2vw, 0.9rem), env(safe-area-inset-bottom))',
-                background: '#FFFFFF',
-                borderTop: '1px solid var(--color-border)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                minWidth: 0
+                padding: 'clamp(0.85rem, 2vw, 1rem) clamp(0.85rem, 2.5vw, 1.25rem)',
+                paddingBottom: 'max(clamp(0.85rem, 2vw, 1rem), env(safe-area-inset-bottom))',
+                gap: '0.5rem'
               }}
             >
               <input
                 type="text"
+                className="ai-chat-input"
                 placeholder={t('type_message_placeholder', 'E.g. I have a wedding in Dar, budget 300k, 50 guests...')}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 style={{
                   flex: 1,
                   minWidth: 0,
-                  width: '100%',
-                  background: 'var(--color-surface-soft)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-pill)',
                   padding: '0.75rem clamp(0.85rem, 2vw, 1.25rem)',
                   fontSize: '0.92rem',
-                  fontWeight: 500,
-                  outline: 'none'
+                  fontWeight: 600
                 }}
               />
               <button
                 type="submit"
                 disabled={isLoading}
+                className="btn-primary"
                 style={{
-                  background: 'var(--color-primary)',
-                  color: '#FFFFFF',
-                  padding: '0.75rem clamp(1rem, 2vw, 1.4rem)',
-                  borderRadius: 'var(--radius-pill)',
-                  fontWeight: 800,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  boxShadow: 'var(--shadow-amber)',
+                  padding: '0.75rem clamp(1.15rem, 2vw, 1.5rem)',
+                  fontSize: '0.9rem',
                   flexShrink: 0
                 }}
               >
@@ -387,15 +292,12 @@ export default function AIChatPage() {
           {/* Right Column: Dynamic Planner Response Cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0, width: '100%' }}>
             {/* Quick Status Bar */}
-            <div className="card" style={{
+            <div className="glass-card glass-frosted-optical ai-status-card" style={{
               padding: '1.25rem',
-              background: '#FFFFFF',
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--color-border)',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center',
-              boxShadow: 'var(--shadow-sm)'
+              alignItems: 'center'
             }}>
               <div>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>

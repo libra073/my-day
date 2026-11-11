@@ -1,4 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useSparkleBurst } from './motion/MotionSparkles';
+import RefractionCanvas from './lab/RefractionCanvas';
+import useImageLens from './liquid-glass/useImageLens';
+import RacingSpark from './motion/RacingSpark';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { 
@@ -6,6 +10,10 @@ import {
   Building2, Palette, Music, UtensilsCrossed, Scissors, Car, 
   ShieldCheck, Star, Heart
 } from 'lucide-react';
+import {
+  getDarEsSalaamCalendarNow,
+  canNavigatePrevMonth
+} from '../services/businessSchedule';
 
 export default function ModernHero() {
   const navigate = useNavigate();
@@ -18,11 +26,68 @@ export default function ModernHero() {
 
   // Active popover: 'category' | 'region' | 'date' | null
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const { triggerSparkles, SparkleOverlay } = useSparkleBurst();
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Timezone-aware Dar es Salaam calendar state & midnight auto-recalculation
+  const [darNow, setDarNow] = useState(() => getDarEsSalaamCalendarNow());
+
+  useEffect(() => {
+    const checkMidnight = () => {
+      const latest = getDarEsSalaamCalendarNow();
+      setDarNow(prev => prev.todayStr !== latest.todayStr ? latest : prev);
+    };
+    const interval = setInterval(checkMidnight, 30000);
+    const onVis = () => { if (document.visibilityState === 'visible') checkMidnight(); };
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []);
 
   // Calendar month state
-  const [calMonth, setCalMonth] = useState(() => new Date());
+  const [calMonth, setCalMonth] = useState(() => {
+    const { year, month } = getDarEsSalaamCalendarNow();
+    return new Date(year, month, 1);
+  });
 
   const searchBarRef = useRef(null);
+  const heroTiles = useRef([]);
+  const stageRef = useRef(null);
+  const pillTopRef = useRef(null);
+  const pillBottomRef = useRef(null);
+  const topLens = useImageLens(pillTopRef, stageRef);
+  const bottomLens = useImageLens(pillBottomRef, stageRef);
+
+  // Scroll parallax: the three photographs drift at different rates.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const rates = [24, -16, 38];
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const tiles = heroTiles.current.filter(Boolean);
+      if (!tiles.length) return;
+      const progress = Math.min(window.scrollY, 820) / 820;
+      tiles.forEach((tile, i) => {
+        tile.style.transform = `translate3d(0, ${(progress * rates[i]).toFixed(2)}px, 0) scale(1.06)`;
+      });
+    };
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   // Close popovers on click outside or Escape
   useEffect(() => {
@@ -199,44 +264,48 @@ export default function ModernHero() {
   const weekdaysEn = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   const weekdaysSw = ['Jpi', 'Jtt', 'Jnn', 'Tnn', 'Alh', 'Ijm', 'Jms'];
 
-  const today = new Date();
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-
   const curYear = calMonth.getFullYear();
   const curMonthIndex = calMonth.getMonth();
   const daysInMonth = new Date(curYear, curMonthIndex + 1, 0).getDate();
   const firstDayOfWeek = new Date(curYear, curMonthIndex, 1).getDay();
 
-  // Prevent navigating to past months
-  const isCurrentMonthOrPast = 
-    curYear < today.getFullYear() || 
-    (curYear === today.getFullYear() && curMonthIndex <= today.getMonth());
+  // Prevent navigating to past months in Africa/Dar_es_Salaam
+  const isCurrentMonthOrPast = !canNavigatePrevMonth(curYear, curMonthIndex);
 
   const handlePrevMonth = () => {
     if (isCurrentMonthOrPast) return;
-    setCalMonth(new Date(curYear, curMonthIndex - 1, 1));
+    const prevMonth = curMonthIndex - 1;
+    const targetYear = prevMonth < 0 ? curYear - 1 : curYear;
+    const targetMonth = prevMonth < 0 ? 11 : prevMonth;
+    if (!canNavigatePrevMonth(targetYear, targetMonth + 1)) {
+      setCalMonth(new Date(darNow.year, darNow.month, 1));
+      return;
+    }
+    setCalMonth(new Date(targetYear, targetMonth, 1));
   };
   const handleNextMonth = () => {
     setCalMonth(new Date(curYear, curMonthIndex + 1, 1));
   };
 
   const isPastDate = (day) => {
-    const dayTimestamp = new Date(curYear, curMonthIndex, day).getTime();
-    return dayTimestamp < todayStart;
+    const formattedMonth = String(curMonthIndex + 1).padStart(2, '0');
+    const formattedDay = String(day).padStart(2, '0');
+    const dateStr = `${curYear}-${formattedMonth}-${formattedDay}`;
+    return dateStr < darNow.todayStr;
   };
 
   const handleSelectDay = (day) => {
-    if (isPastDate(day)) return; // Strictly ignore any click on passed dates
+    if (isPastDate(day)) return; // Strictly ignore any click on past dates
     const formattedMonth = String(curMonthIndex + 1).padStart(2, '0');
     const formattedDay = String(day).padStart(2, '0');
     const chosenDate = `${curYear}-${formattedMonth}-${formattedDay}`;
+    if (chosenDate < darNow.todayStr) return;
     setEventDate(chosenDate);
     setActiveDropdown(null);
   };
 
   const handleQuickTimeline = (monthsAhead) => {
-    const target = new Date();
-    target.setMonth(target.getMonth() + monthsAhead);
+    const target = new Date(darNow.year, darNow.month + monthsAhead, 1);
     setCalMonth(new Date(target.getFullYear(), target.getMonth(), 1));
     // Default to the first Saturday of that month for weddings
     const d = new Date(target.getFullYear(), target.getMonth(), 1);
@@ -250,8 +319,10 @@ export default function ModernHero() {
   };
 
   const isToday = (day) => {
-    const today = new Date();
-    return today.getFullYear() === curYear && today.getMonth() === curMonthIndex && today.getDate() === day;
+    const formattedMonth = String(curMonthIndex + 1).padStart(2, '0');
+    const formattedDay = String(day).padStart(2, '0');
+    const dateStr = `${curYear}-${formattedMonth}-${formattedDay}`;
+    return dateStr === darNow.todayStr;
   };
 
   const isSelected = (day) => {
@@ -261,160 +332,125 @@ export default function ModernHero() {
     return eventDate === `${curYear}-${formattedMonth}-${formattedDay}`;
   };
 
+  const handleInstrumentMouseMove = (e) => {
+    if (!searchBarRef.current) return;
+    const rect = searchBarRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    searchBarRef.current.style.setProperty('--specular-x', `${x}%`);
+    searchBarRef.current.style.setProperty('--specular-y', `${y}%`);
+    searchBarRef.current.style.setProperty('--specular-opacity', '1');
+  };
+
   return (
     <section style={{
-      background: 'var(--color-hero-gradient)',
-      color: '#FFFFFF',
-      padding: 'clamp(3rem, 6vw, 4.5rem) 1.25rem clamp(3.5rem, 7vw, 5.5rem)',
+      background: 'transparent',
+      color: '#0f172a',
+      padding: 'clamp(2.5rem, 5vw, 4rem) 1.25rem clamp(3rem, 6vw, 4.5rem)',
       position: 'relative',
       zIndex: 30,
       overflow: 'visible'
     }}>
-      {/* Background Ambient Glowing Orbs (contained to prevent horizontal overflow) */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
-        <div style={{
-          position: 'absolute',
-          top: '-120px',
-          right: '-80px',
-          width: '550px',
-          height: '550px',
-          background: 'radial-gradient(circle, rgba(245, 166, 35, 0.3) 0%, transparent 65%)',
-          borderRadius: '50%',
-          filter: 'blur(65px)',
-          pointerEvents: 'none'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-120px',
-          left: '-80px',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(140, 112, 91, 0.35) 0%, transparent 65%)',
-          borderRadius: '50%',
-          filter: 'blur(70px)',
-          pointerEvents: 'none'
-        }} />
-      </div>
-
-      <div className="container" style={{ maxWidth: '1080px', position: 'relative', zIndex: 10, textAlign: 'center' }}>
+      <div className="container" style={{ maxWidth: '1180px', position: 'relative', zIndex: 10, textAlign: 'center' }}>
         
-        {/* Floating Top Glass Badge & Ask MY DAY AI CTA */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            padding: '0.5rem 1.3rem',
-            borderRadius: 'var(--radius-pill)',
-            border: '1px solid rgba(255, 255, 255, 0.28)',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            color: '#FFFFFF',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-          }} className="float-animation">
-            <Sparkles size={16} color="#F5A623" />
-            <span>{t('hero_badge', 'Tanzania’s #1 Verified Wedding Platform')}</span>
-          </div>
+        {/* Editorial Top Badge */}
+        <div className="glass-clear-crystal hero-editorial-badge">
+          <Sparkles size={14} color="var(--liquid-sapphire-500)" />
+          <span>{t('hero_editorial_badge', "Tanzania's Premier Wedding Marketplace")}</span>
+        </div>
+
+        {/* Confident Editorial Headline */}
+        <h1 className="hero-editorial-headline">
+          {t('hero_headline_pre', 'Your day.')}{' '}
+          <span className="hero-editorial-shimmer">
+            {t('hero_headline_post', 'Beautifully planned.')}
+          </span>
+        </h1>
+
+        {/* Editorial Supporting Subtitle */}
+        <p className="hero-editorial-subtitle">
+          {t('hero_subtitle', 'Discover exceptional wedding professionals and bring your dream celebration to life.')}
+        </p>
+
+        {/* Editorial Dual Action Group */}
+        <div className="hero-editorial-actions">
+          <button
+            type="button"
+            onClick={() => navigate('/marketplace')}
+            className="btn-primary glass-puck hero-cta-primary"
+          >
+            <span>{t('hero_explore_vendors', 'Explore vendors')}</span>
+            <ChevronRight size={17} />
+          </button>
 
           <button
             type="button"
             onClick={() => navigate('/planner')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              background: 'linear-gradient(135deg, #F5A623 0%, #D98207 100%)',
-              color: '#FFFFFF',
-              padding: '0.55rem 1.3rem',
-              borderRadius: 'var(--radius-pill)',
-              border: '1px solid rgba(255, 255, 255, 0.4)',
-              fontSize: '0.85rem',
-              fontWeight: 800,
-              boxShadow: '0 6px 20px rgba(245, 166, 35, 0.45)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
+            className="glass-clear-crystal hero-cta-secondary"
           >
-            <span>✨ {t('ai_banner_btn', 'Ask MY DAY AI')}</span>
-            <ChevronRight size={15} />
+            <Sparkles size={16} color="var(--liquid-sapphire-500)" />
+            <span>{t('hero_plan_with_ai', 'Plan with AI')}</span>
           </button>
         </div>
 
-        {/* Main Hero Headline */}
-        <h1 style={{
-          fontSize: 'clamp(2.1rem, 5.2vw, 3.5rem)',
-          fontFamily: 'var(--font-header)',
-          fontWeight: 900,
-          lineHeight: 1.12,
-          letterSpacing: '-0.025em',
-          marginBottom: '1.1rem',
-          color: '#FFFFFF'
-        }}>
-          {t('hero_headline_pre', 'Plan Your Perfect Wedding Day')} <br />
-          <span className="gradient-text-amber">{t('hero_headline_post', 'With Verified Vendors & Escrow Security')}</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p style={{
-          fontSize: 'clamp(1rem, 2vw, 1.15rem)',
-          color: 'rgba(255, 255, 255, 0.92)',
-          maxWidth: '720px',
-          margin: '0 auto 2.25rem',
-          lineHeight: 1.65,
-          fontWeight: 500
-        }}>
-          {t('hero_subtitle', 'Browse vetted venues, master decorators, live musicians, and bespoke catering across Tanzania with instant transparent pricing.')}
-        </p>
-
-        {/* Multi-Field Glassmorphic Search Bar with Custom Popovers */}
-        <form 
+        {/* Engineered Optical Search Instrument */}
+        <div className="hero-search-instrument-container">
+          <form 
           ref={searchBarRef}
           onSubmit={handleSearchSubmit} 
-          className="hero-search" 
+          onMouseMove={handleInstrumentMouseMove}
+          onMouseLeave={() => searchBarRef.current?.style.setProperty('--specular-opacity', '0')}
+          className="hero-glass-instrument glass-reflective"
           role="search"
-          style={{ position: 'relative', zIndex: 100 }}
         >
+          <span className="hero-lens" aria-hidden="true" />
           {/* Keyword Search Input */}
-          <div className="hero-field hero-field-grow">
-            <Search size={19} color="#5C4331" />
+          <div className="hero-glass-sector" style={{ flex: '1.85 1 300px' }}>
+            <Search size={18} color="var(--liquid-sapphire-500)" style={{ flexShrink: 0 }} />
             <input
               className="hero-input"
               type="text"
-              aria-label="Search vendors"
+              aria-label={language === 'sw' ? 'Tafuta watoa huduma' : 'Search vendors'}
               placeholder={t('hero_search_input_placeholder', 'Search venue, decorator, MC, cake...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setActiveDropdown(null)}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: 'var(--app-text-primary)',
+                fontSize: '0.88rem',
+                fontWeight: 600
+              }}
             />
           </div>
 
-          <span className="hero-divider" />
+          <span className="hero-glass-divider" />
 
           {/* Custom Category Picker Trigger */}
           <div 
             id="hero-category-trigger"
-            className={`hero-field hero-field-interactive ${activeDropdown === 'category' ? 'is-active' : ''}`}
+            className={`hero-glass-sector ${activeDropdown === 'category' ? 'is-active' : ''}`}
             onClick={() => setActiveDropdown(activeDropdown === 'category' ? null : 'category')}
             role="button"
             tabIndex={0}
             aria-expanded={activeDropdown === 'category'}
             aria-haspopup="listbox"
           >
-            <Sparkles size={18} color="#B86E00" />
+            <Sparkles size={17} color="var(--liquid-sapphire-500)" />
             <div style={{ flex: 1, minWidth: 0, textAlign: 'left', overflow: 'hidden' }}>
-              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#8C705B', lineHeight: 1 }}>
+              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--app-text-muted)', lineHeight: 1 }}>
                 {t('nav_categories', 'Category')}
               </span>
-              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: '#3D2C1F', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
+              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: 'var(--app-text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
                 {currentCategory.label}
               </span>
             </div>
             <ChevronDown 
               size={15} 
-              color="#8C705B" 
+              color="var(--liquid-sapphire-500)" 
               style={{ 
                 flexShrink: 0,
                 transition: 'transform 0.22s ease', 
@@ -425,8 +461,8 @@ export default function ModernHero() {
             {/* Custom Category Popover Dropdown */}
             {activeDropdown === 'category' && (
               <div 
-                className="hero-popover" 
-                style={{ left: 0, width: '420px', maxWidth: 'min(420px, calc(100vw - 2.5rem))' }}
+                className="hero-popover glass-smoked" 
+                style={{ left: 0, width: '500px', maxWidth: 'min(500px, calc(100vw - 2.5rem))' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="hero-popover-header">
@@ -434,7 +470,7 @@ export default function ModernHero() {
                     <span className="hero-popover-title">
                       {language === 'sw' ? 'Chagua Kategoria ya Huduma' : 'Select Service Category'}
                     </span>
-                    <p style={{ margin: 0, fontSize: '0.74rem', color: '#8C705B', fontWeight: 500 }}>
+                    <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--app-text-muted)', fontWeight: 500 }}>
                       {language === 'sw' ? 'Huduma zote zilizothibitishwa Tanzania' : 'Verified wedding vendors across Tanzania'}
                     </p>
                   </div>
@@ -459,25 +495,25 @@ export default function ModernHero() {
                           width: '36px',
                           height: '36px',
                           borderRadius: '10px',
-                          background: isSelectedCat ? 'linear-gradient(135deg, #F5A623 0%, #D98207 100%)' : '#FFFFFF',
-                          color: isSelectedCat ? '#FFFFFF' : '#B86E00',
-                          border: isSelectedCat ? 'none' : '1px solid #E8DCCF',
+                          background: isSelectedCat ? 'var(--puck-bg)' : 'rgba(0, 102, 238, 0.08)',
+                          color: isSelectedCat ? '#FFFFFF' : 'var(--liquid-sapphire-500)',
+                          border: isSelectedCat ? 'none' : '1px solid rgba(0, 102, 238, 0.16)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
-                          boxShadow: isSelectedCat ? '0 4px 10px rgba(245, 166, 35, 0.4)' : 'none'
+                          boxShadow: isSelectedCat ? '0 4px 12px rgba(0, 102, 238, 0.35)' : 'none'
                         }}>
                           <CatIcon size={18} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#3D2C1F' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', minWidth: 0 }}>
+                            <span style={{ fontSize: '0.80rem', fontWeight: 800, color: 'var(--app-text-primary)', whiteSpace: 'nowrap' }}>
                               {cat.label}
                             </span>
-                            {isSelectedCat && <Check size={14} color="#B86E00" strokeWidth={3} />}
+                            {isSelectedCat && <Check size={14} color="var(--liquid-sapphire-500)" strokeWidth={3} style={{ flexShrink: 0 }} />}
                           </div>
-                          <span style={{ display: 'block', fontSize: '0.72rem', color: '#8C705B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <span style={{ display: 'block', fontSize: '0.70rem', color: 'var(--app-text-muted)', whiteSpace: 'nowrap' }}>
                             {cat.desc}
                           </span>
                         </div>
@@ -489,30 +525,30 @@ export default function ModernHero() {
             )}
           </div>
 
-          <span className="hero-divider" />
+          <span className="hero-glass-divider" />
 
           {/* Custom Region Picker Trigger */}
           <div 
             id="hero-region-trigger"
-            className={`hero-field hero-field-interactive ${activeDropdown === 'region' ? 'is-active' : ''}`}
+            className={`hero-glass-sector ${activeDropdown === 'region' ? 'is-active' : ''}`}
             onClick={() => setActiveDropdown(activeDropdown === 'region' ? null : 'region')}
             role="button"
             tabIndex={0}
             aria-expanded={activeDropdown === 'region'}
             aria-haspopup="listbox"
           >
-            <MapPin size={18} color="#B86E00" />
+            <MapPin size={17} color="var(--liquid-sapphire-500)" />
             <div style={{ flex: 1, minWidth: 0, textAlign: 'left', overflow: 'hidden' }}>
-              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#8C705B', lineHeight: 1 }}>
+              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--app-text-muted)', lineHeight: 1 }}>
                 {t('hero_region_label', 'Region')}
               </span>
-              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: '#3D2C1F', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
+              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: 'var(--app-text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
                 {currentRegion.name}
               </span>
             </div>
             <ChevronDown 
               size={15} 
-              color="#8C705B" 
+              color="var(--liquid-sapphire-500)" 
               style={{ 
                 flexShrink: 0,
                 transition: 'transform 0.22s ease', 
@@ -523,7 +559,7 @@ export default function ModernHero() {
             {/* Custom Region Popover Dropdown */}
             {activeDropdown === 'region' && (
               <div 
-                className="hero-popover" 
+                className="hero-popover glass-smoked" 
                 style={{ left: 0, width: '440px', maxWidth: 'min(440px, calc(100vw - 2.5rem))' }}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -532,7 +568,7 @@ export default function ModernHero() {
                     <span className="hero-popover-title">
                       {language === 'sw' ? 'Chagua Eneo / Mkoa wa Harusi' : 'Select Wedding Destination'}
                     </span>
-                    <p style={{ margin: 0, fontSize: '0.74rem', color: '#8C705B', fontWeight: 500 }}>
+                    <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--app-text-muted)', fontWeight: 500 }}>
                       {language === 'sw' ? 'Miji na maeneo maarufu ya harusi' : 'Top destinations & wedding hubs in Tanzania'}
                     </p>
                   </div>
@@ -556,12 +592,12 @@ export default function ModernHero() {
                           <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{reg.icon}</span>
                           <div style={{ textAlign: 'left', minWidth: 0 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                              <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#3D2C1F' }}>
+                              <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--app-text-primary)' }}>
                                 {reg.name}
                               </span>
-                              {isSelectedReg && <Check size={14} color="#B86E00" strokeWidth={3} />}
+                              {isSelectedReg && <Check size={14} color="var(--liquid-sapphire-500)" strokeWidth={3} />}
                             </div>
-                            <span style={{ display: 'block', fontSize: '0.7rem', color: '#8C705B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--app-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {reg.desc}
                             </span>
                           </div>
@@ -569,8 +605,8 @@ export default function ModernHero() {
                         <span style={{
                           fontSize: '0.68rem',
                           fontWeight: 700,
-                          color: isSelectedReg ? '#B86E00' : '#8C705B',
-                          background: isSelectedReg ? 'rgba(245, 166, 35, 0.2)' : '#EDE4D8',
+                          color: isSelectedReg ? 'var(--liquid-sapphire-500)' : 'var(--app-text-secondary)',
+                          background: isSelectedReg ? 'rgba(0, 102, 238, 0.12)' : 'rgba(15, 23, 42, 0.05)',
                           padding: '0.2rem 0.5rem',
                           borderRadius: '8px',
                           whiteSpace: 'nowrap',
@@ -586,24 +622,24 @@ export default function ModernHero() {
             )}
           </div>
 
-          <span className="hero-divider" />
+          <span className="hero-glass-divider" />
 
           {/* Custom Date Picker Trigger */}
           <div 
             id="hero-date-trigger"
-            className={`hero-field hero-field-interactive ${activeDropdown === 'date' ? 'is-active' : ''}`}
+            className={`hero-glass-sector ${activeDropdown === 'date' ? 'is-active' : ''}`}
             onClick={() => setActiveDropdown(activeDropdown === 'date' ? null : 'date')}
             role="button"
             tabIndex={0}
             aria-expanded={activeDropdown === 'date'}
             aria-haspopup="dialog"
           >
-            <Calendar size={18} color="#B86E00" />
+            <Calendar size={17} color="var(--liquid-sapphire-500)" />
             <div style={{ flex: 1, minWidth: 0, textAlign: 'left', overflow: 'hidden' }}>
-              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#8C705B', lineHeight: 1 }}>
+              <span style={{ display: 'block', fontSize: '0.67rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--app-text-muted)', lineHeight: 1 }}>
                 {t('event_date', 'Event Date')}
               </span>
-              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: eventDate ? '#B86E00' : '#3D2C1F', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
+              <span style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: eventDate ? 'var(--liquid-sapphire-500)' : 'var(--app-text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', marginTop: '2px' }}>
                 {formatDateLabel(eventDate)}
               </span>
             </div>
@@ -616,7 +652,7 @@ export default function ModernHero() {
                   setEventDate('');
                 }}
                 style={{ 
-                  background: 'rgba(140, 112, 91, 0.1)', 
+                  background: 'rgba(0, 102, 238, 0.12)', 
                   border: 'none', 
                   borderRadius: '50%',
                   width: '20px',
@@ -625,7 +661,7 @@ export default function ModernHero() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer', 
-                  color: '#8C705B',
+                  color: 'var(--liquid-sapphire-500)',
                   padding: 0,
                   flexShrink: 0
                 }}
@@ -636,7 +672,7 @@ export default function ModernHero() {
             ) : (
               <ChevronDown 
                 size={15} 
-                color="#8C705B" 
+                color="var(--liquid-sapphire-500)" 
                 style={{ 
                   flexShrink: 0,
                   transition: 'transform 0.22s ease', 
@@ -648,7 +684,7 @@ export default function ModernHero() {
             {/* Custom Calendar Popover */}
             {activeDropdown === 'date' && (
               <div 
-                className="hero-popover hero-cal-wrapper" 
+                className="hero-popover hero-cal-wrapper glass-smoked" 
                 style={{ right: 0, width: '340px', maxWidth: 'min(340px, calc(100vw - 2.5rem))' }}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -657,7 +693,7 @@ export default function ModernHero() {
                     <span className="hero-popover-title">
                       {language === 'sw' ? 'Tarehe ya Harusi' : 'Select Wedding Date'}
                     </span>
-                    <p style={{ margin: 0, fontSize: '0.74rem', color: '#8C705B', fontWeight: 500 }}>
+                    <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--app-text-muted)', fontWeight: 500 }}>
                       {language === 'sw' ? 'Angalia upatikanaji wa watoa huduma' : 'Check vendor availability for your big day'}
                     </p>
                   </div>
@@ -668,7 +704,7 @@ export default function ModernHero() {
                       style={{
                         background: 'transparent',
                         border: 'none',
-                        color: '#B86E00',
+                        color: 'var(--liquid-sapphire-500)',
                         fontSize: '0.74rem',
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -691,12 +727,8 @@ export default function ModernHero() {
                   <button type="button" className="hero-quick-chip" onClick={() => handleQuickTimeline(6)}>
                     {language === 'sw' ? 'Miezi 6' : 'In 6 Months'}
                   </button>
-                  <button type="button" className="hero-quick-chip" onClick={() => {
-                    setCalMonth(new Date(2026, 11, 1));
-                    setEventDate('2026-12-25');
-                    setActiveDropdown(null);
-                  }}>
-                    {language === 'sw' ? 'Des 2026' : 'Dec 2026'}
+                  <button type="button" className="hero-quick-chip" onClick={() => handleQuickTimeline(12)}>
+                    {language === 'sw' ? 'Mwaka 1' : 'In 1 Year'}
                   </button>
                 </div>
 
@@ -708,14 +740,14 @@ export default function ModernHero() {
                     onClick={handlePrevMonth} 
                     disabled={isCurrentMonthOrPast}
                     style={isCurrentMonthOrPast ? { opacity: 0.28, cursor: 'not-allowed', pointerEvents: 'none' } : {}}
-                    aria-label="Previous Month"
+                    aria-label={language === 'sw' ? "Mwezi uliopita" : "Previous Month"}
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <span className="hero-cal-month-title">
                     {language === 'sw' ? monthNamesFullSw[curMonthIndex] : monthNamesFullEn[curMonthIndex]} {curYear}
                   </span>
-                  <button type="button" className="hero-cal-nav-btn" onClick={handleNextMonth} aria-label="Next Month">
+                  <button type="button" className="hero-cal-nav-btn" onClick={handleNextMonth} aria-label={language === 'sw' ? "Mwezi ujao" : "Next Month"}>
                     <ChevronRight size={16} />
                   </button>
                 </div>
@@ -759,84 +791,93 @@ export default function ModernHero() {
             )}
           </div>
 
-          {/* Search Button */}
-          <button type="submit" className="btn-pill-amber hero-search-btn">
-            {t('hero_search_button', 'Search')} <ChevronRight size={18} />
+          {/* Search Button (Dimensional Reflective Glass Meniscus Puck) */}
+          <button type="submit" className="hero-search-btn hero-glass-puck glass-puck" onClick={(e) => triggerSparkles(e)}>
+            <span>{t('hero_explore_vendors', 'Explore vendors')}</span> <ChevronRight size={18} />
           </button>
         </form>
-
-        {/* Popular Tags / Quick Filter Pills */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: '0.6rem',
-          fontSize: '0.88rem',
-          color: 'rgba(255, 255, 255, 0.9)'
-        }}>
-          <span style={{ fontWeight: 700, color: '#FFC857' }}>{t('hero_popular_label', 'Popular:')}</span>
-          {POPULAR_TAGS.map((tag, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => {
-                setSearchQuery(tag);
-                navigate(`/marketplace?query=${encodeURIComponent(tag)}`);
-              }}
-              style={{
-                background: 'rgba(255, 255, 255, 0.12)',
-                border: '1px solid rgba(255, 255, 255, 0.22)',
-                color: '#FFFFFF',
-                borderRadius: 'var(--radius-pill)',
-                padding: '0.35rem 0.95rem',
-                fontSize: '0.84rem',
-                fontWeight: 600,
-                boxShadow: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {tag}
-            </button>
-          ))}
         </div>
 
-        {/* Trust Stats Bar */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '2.5rem',
-          marginTop: '2.5rem',
-          flexWrap: 'wrap',
-          borderTop: '1px solid rgba(255, 255, 255, 0.15)',
-          paddingTop: '1.75rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Star size={20} color="#F5A623" fill="#F5A623" />
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#FFFFFF' }}>{t('hero_verified_title', '100% Verified')}</div>
-              <div style={{ fontSize: '0.84rem', opacity: 0.92 }}>{t('hero_verified_sub', 'Curated Vendor Excellence')}</div>
-            </div>
+        {/* Minimal Integrated Trust Ribbon */}
+        <div
+          className="hero-trust-minimal glass-clear-crystal"
+          style={{
+            opacity: activeDropdown ? 0.08 : 1,
+            transition: 'opacity 0.22s ease',
+            pointerEvents: activeDropdown ? 'none' : 'auto'
+          }}
+        >
+          <div className="hero-trust-point">
+            <div className="hero-trust-dot" />
+            <span>{t('hero_mobile_money_stat', '30% Protected Escrow')}</span>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <ShieldCheck size={22} color="#F5A623" />
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#FFFFFF' }}>{t('hero_mobile_money_stat', 'M-Pesa & Tigo Pesa')}</div>
-              <div style={{ fontSize: '0.84rem', opacity: 0.92 }}>{t('hero_escrow_stat', 'Escrow Milestone Security')}</div>
-            </div>
+          <span className="hero-trust-sep">•</span>
+          <div className="hero-trust-point">
+            <div className="hero-trust-dot" />
+            <span>{t('hero_verified_title', '100% Curated & Vetted')}</span>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Heart size={20} color="#F5A623" fill="#F5A623" />
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#FFFFFF' }}>{t('hero_nationwide_title', 'Tanzania Nationwide')}</div>
-              <div style={{ fontSize: '0.84rem', opacity: 0.92 }}>{t('hero_nationwide_sub', 'Dar, Arusha, Zanzibar & Beyond')}</div>
-            </div>
+          <span className="hero-trust-sep">•</span>
+          <div className="hero-trust-point">
+            <div className="hero-trust-dot" />
+            <span>{t('hero_nationwide_title', 'Tanzania Nationwide')}</span>
           </div>
         </div>
 
+        {/* Photographic Wedding Stage */}
+        <div className="hero-photo-stage">
+          <div className="hero-photo-viewport hero-photo-viewport--triptych" ref={stageRef}>
+            <div className="hero-photo-tile" ref={(el) => { heroTiles.current[0] = el; }}>
+              <img src="/portfolio/beach-tide.jpg" alt="Bride and groom on the beach in Zanzibar" loading="eager" />
+            </div>
+            <div className="hero-photo-tile" ref={(el) => { heroTiles.current[1] = el; }}>
+              <img src="/portfolio/gele-portrait.jpg" alt="Tanzanian bride in gold and veil" loading="eager" />
+            </div>
+            <div className="hero-photo-tile" ref={(el) => { heroTiles.current[2] = el; }}>
+              <img src="/portfolio/stone-town-vows.jpg" alt="Couple in kanzu and lace in Stone Town" loading="eager" />
+            </div>
+            <div className="hero-photo-overlay" />
+
+            <div className="hero-photo-pill hero-photo-pill-top" ref={pillTopRef}>
+              {topLens && (
+                <RefractionCanvas
+                  texture={topLens.texture}
+                  origin={{ x: 0, y: 0 }}
+                  width={topLens.width}
+                  height={topLens.height}
+                  strength={12}
+                  blur={1.2}
+                  rim={0.3}
+                  tint={0.46}
+                  tintColor={[0.035, 0.07, 0.13]}
+                  className="hero-lens-canvas"
+                />
+              )}
+              <MapPin size={13} color="var(--liquid-sapphire-400)" />
+              <span>{t('hero_photo_caption_location', 'Coastal and Inland Tanzania • Curated Celebrations')}</span>
+            </div>
+
+            <div className="hero-photo-pill hero-photo-pill-bottom" ref={pillBottomRef}>
+              {bottomLens && (
+                <RefractionCanvas
+                  texture={bottomLens.texture}
+                  origin={{ x: 0, y: 0 }}
+                  width={bottomLens.width}
+                  height={bottomLens.height}
+                  strength={12}
+                  blur={1.2}
+                  rim={0.3}
+                  tint={0.46}
+                  tintColor={[0.035, 0.07, 0.13]}
+                  className="hero-lens-canvas"
+                />
+              )}
+              <ShieldCheck size={14} color="#10b981" />
+              <span>{t('hero_photo_caption_escrow', 'Protected 30% Escrow Guarantee')}</span>
+            </div>
+          </div>
+        </div>
+
+      {/* Closing .container */}
       </div>
     </section>
   );

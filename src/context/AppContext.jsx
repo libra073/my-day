@@ -2,59 +2,49 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import initialData from '../data/initialData';
 import { translations } from '../i18n/translations';
 import api from '../services/api';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
+import * as sbAuth from '../services/supabaseAuth';
+import { validateBookingDate } from '../services/businessSchedule';
 import AuthPromptModal from '../components/AuthPromptModal';
 import AuthModal from '../components/AuthModal';
 
-const AppContext = createContext();
-
-const PRESET_ACCOUNTS = {
-  groom: {
-    id: 'usr-groom',
-    name: 'John Msuya (Groom)',
-    email: 'john@myday.co.tz',
-    phone: '+255 777 123 456',
-    role: 'customer',
-    token: 'token-groom-session'
-  },
-  bride: {
-    id: 'usr-bride',
-    name: 'Sarah Kimaro (Bride)',
-    email: 'sarah@myday.co.tz',
-    phone: '+255 777 654 321',
-    role: 'customer',
-    token: 'token-bride-session'
-  },
-  planner: {
-    id: 'usr-planner',
-    name: 'Neema Wedding Planners',
-    email: 'neema@planning.co.tz',
-    phone: '+255 714 888 777',
-    role: 'customer',
-    token: 'token-planner-session'
-  },
-  provider: {
-    id: 'prov-1',
-    name: 'Grand Imperial Hall',
-    email: 'info@grandimperial.co.tz',
-    phone: '+255 777 999 888',
-    role: 'provider',
-    token: 'token-provider-session'
-  },
-  admin: {
-    id: 'admin-1',
-    name: 'MY DAY Superadmin',
-    email: 'admin@myday.co.tz',
-    phone: '+255 766 466 187',
-    role: 'admin',
-    token: 'token-admin-session'
-  }
+const defaultAppContext = {
+  wedding: {},
+  language: 'en',
+  t: (k, fb) => fb || k,
+  isLoggedIn: false,
+  user: null,
+  providers: [],
+  bookings: [],
+  role: 'customer',
+  cart: []
 };
+
+const AppContext = createContext(defaultAppContext);
 
 export const AppProvider = ({ children }) => {
   // i18n initialization
   const [language, setLanguageState] = useState(() => {
     return localStorage.getItem('myday_lang') || 'en';
   });
+
+  const [theme, setThemeState] = useState(() => {
+    return localStorage.getItem('myday_theme') || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('myday_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
+
+  const setTheme = useCallback((newTheme) => {
+    setThemeState(newTheme);
+  }, []);
 
   const setLanguage = (lang) => {
     setLanguageState(lang);
@@ -97,8 +87,6 @@ export const AppProvider = ({ children }) => {
     return 'customer';
   });
 
-  const [activeAccountKey, setActiveAccountKey] = useState(null);
-
   // Active Wedding Workspace (null by default for logged-out or new users)
   const [wedding, setWedding] = useState(() => {
     if (!localStorage.getItem('myday_token') || !localStorage.getItem('myday_user')) {
@@ -140,10 +128,12 @@ export const AppProvider = ({ children }) => {
     setAuthPromptState(prev => ({ ...prev, isOpen: false }));
   }, []);
 
-  const openAuthModal = useCallback(({ initialTab = 'login', onSuccess } = {}) => {
+  const openAuthModal = useCallback(({ initialTab = 'login', onSuccess, contextNote = '', initialEmail = '' } = {}) => {
     setAuthModalState({
       isOpen: true,
       initialTab,
+      contextNote,
+      initialEmail,
       onSuccess: onSuccess || null,
     });
   }, []);
@@ -308,14 +298,18 @@ export const AppProvider = ({ children }) => {
     }
   }, [user?.token, refreshWorkspace]);
 
-  // Switch between preset accounts (Internal testing / fallback helper)
-  const switchAccount = (accountKey) => {
-    const target = PRESET_ACCOUNTS[accountKey] || PRESET_ACCOUNTS.groom;
-    setActiveAccountKey(accountKey);
-    setRole(target.role);
-    setUser(target);
+  // One place that knows how a signed-in identity becomes app state.
+  const applySession = (appUser, token) => {
+    setUser(appUser);
+    setRole(appUser.globalRole || appUser.role || 'customer');
     setIsLoggedIn(true);
-    api.setToken(target.token);
+    api.setToken(token || null);
+    try {
+      if (token) localStorage.setItem('myday_token', token);
+      else localStorage.removeItem('myday_token');
+      localStorage.setItem('myday_user', JSON.stringify(appUser));
+      localStorage.removeItem('myday_wedding');
+    } catch {}
     setWedding(null);
     setWorkspaceMembers([]);
     setTasks([]);
@@ -323,130 +317,69 @@ export const AppProvider = ({ children }) => {
     setNotes([]);
     setBudgetData(null);
     setNotifications([]);
-    try {
-      localStorage.setItem('myday_token', target.token);
-      localStorage.setItem('myday_user', JSON.stringify(target));
-      localStorage.removeItem('myday_wedding');
-    } catch {}
   };
 
-  // Legacy role switch compatibility
-  const switchRole = newRole => {
-    if (newRole === 'customer') {
-      switchAccount('groom');
-    } else if (newRole === 'provider') {
-      switchAccount('provider');
-    } else if (newRole === 'admin') {
-      switchAccount('admin');
+  const loginUser = async ({ email, password }) => {
+    if (!email || !password) {
+      throw new Error(language === 'sw' ? 'Barua pepe na nenosiri vinahitajika.' : 'Email and password are required.');
     }
-  };
 
-  const loginUser = async ({ email, role: targetRole, name, password }) => {
-    if (password) {
-      const res = await api.login(email, password);
-      setUser(res.user);
-      setRole(res.user.globalRole || targetRole || 'customer');
-      setIsLoggedIn(true);
-      try {
-        localStorage.setItem('myday_token', res.token);
-        localStorage.setItem('myday_user', JSON.stringify(res.user));
-        localStorage.removeItem('myday_wedding');
-      } catch {}
-      api.setToken(res.token);
-      setWedding(null);
-      setWorkspaceMembers([]);
-      setTasks([]);
-      setDecisions([]);
-      setNotes([]);
-      setBudgetData(null);
-      setNotifications([]);
+    if (isSupabaseConfigured) {
+      const data = await sbAuth.signIn({ email, password });
+      const appUser = sbAuth.toAppUser(data.user);
+      applySession(appUser, data.session?.access_token);
       await refreshWorkspace();
-      return res;
+      return { user: appUser };
     }
 
-    setRole(targetRole || 'customer');
-    const newUser = {
-      id: `usr-${Date.now()}`,
-      name: name || (targetRole === 'customer' ? 'Wedding Host' : targetRole === 'provider' ? 'Partner Vendor' : 'Platform Admin'),
-      email: email || 'user@myday.co.tz',
-      role: targetRole || 'customer',
-      token: `token-custom-${Date.now()}`
-    };
-    setUser(newUser);
-    setIsLoggedIn(true);
-    try {
-      localStorage.setItem('myday_token', newUser.token);
-      localStorage.setItem('myday_user', JSON.stringify(newUser));
-      localStorage.removeItem('myday_wedding');
-    } catch {}
-    api.setToken(newUser.token);
-    setWedding(null);
-    setWorkspaceMembers([]);
-    setTasks([]);
-    setDecisions([]);
-    setNotes([]);
-    setBudgetData(null);
-    setNotifications([]);
-    return { user: newUser };
+    const res = await api.login(email, password);
+    applySession(res.user, res.token);
+    await refreshWorkspace();
+    return res;
   };
 
   const registerUser = async (userObj) => {
-    if (userObj.password) {
-      const res = await api.register({
-        name: userObj.name,
-        email: userObj.email,
-        password: userObj.password,
-        phone: userObj.phone,
-        role: userObj.role || 'customer'
-      });
-      setUser(res.user);
-      setRole(res.user.globalRole || 'customer');
-      setIsLoggedIn(true);
-      try {
-        localStorage.setItem('myday_token', res.token);
-        localStorage.setItem('myday_user', JSON.stringify(res.user));
-        localStorage.removeItem('myday_wedding');
-      } catch {}
-      api.setToken(res.token);
-      setWedding(null);
-      setWorkspaceMembers([]);
-      setTasks([]);
-      setDecisions([]);
-      setNotes([]);
-      setBudgetData(null);
-      setNotifications([]);
-      await refreshWorkspace();
-      return res;
+    if (!userObj.password) {
+      throw new Error(language === 'sw' ? 'Nenosiri linahitajika.' : 'A password is required.');
     }
 
-    setRole(userObj.role || 'customer');
-    const newUser = {
-      id: `usr-${Date.now()}`,
-      name: userObj.name || 'New Member',
+    if (isSupabaseConfigured) {
+      const { user: supaUser, needsEmailConfirmation } = await sbAuth.signUp({
+        email: userObj.email,
+        password: userObj.password,
+        name: userObj.name,
+        role: userObj.role || 'customer',
+        phone: userObj.phone,
+        vendorCategory: userObj.vendorCategory,
+        vendorLocation: userObj.vendorLocation,
+      });
+      // Confirmation required: no session yet, the user verifies by email.
+      if (needsEmailConfirmation) {
+        return { needsEmailConfirmation: true, user: sbAuth.toAppUser(supaUser) };
+      }
+      const appUser = sbAuth.toAppUser(supaUser);
+      const { data } = await sbAuth.getSession();
+      applySession(appUser, data?.session?.access_token);
+      await refreshWorkspace();
+      return { user: appUser, needsEmailConfirmation: false };
+    }
+
+    const res = await api.register({
+      name: userObj.name,
       email: userObj.email,
-      phone: userObj.phone || '',
+      password: userObj.password,
+      phone: userObj.phone,
       role: userObj.role || 'customer',
-      token: `token-custom-${Date.now()}`
-    };
-    setUser(newUser);
-    setIsLoggedIn(true);
-    try {
-      localStorage.setItem('myday_token', newUser.token);
-      localStorage.setItem('myday_user', JSON.stringify(newUser));
-      localStorage.removeItem('myday_wedding');
-    } catch {}
-    api.setToken(newUser.token);
-    setWedding(null);
-    setWorkspaceMembers([]);
-    setTasks([]);
-    setDecisions([]);
-    setNotes([]);
-    setBudgetData(null);
-    setNotifications([]);
-    return { user: newUser };
+      vendorCategory: userObj.vendorCategory,
+      vendorLocation: userObj.vendorLocation,
+    });
+    applySession(res.user, res.token);
+    await refreshWorkspace();
+    return res;
   };
 
-  const logoutUser = () => {
+  const logoutUser = async () => {
+    if (isSupabaseConfigured) await sbAuth.signOut();
     setIsLoggedIn(false);
     setUser(null);
     setRole('customer');
@@ -462,6 +395,70 @@ export const AppProvider = ({ children }) => {
     } catch {}
     api.setToken(null);
   };
+
+  const verifyEmail = async (email, code) => {
+    if (isSupabaseConfigured) {
+      await sbAuth.resendConfirmation(email);
+      return { success: true, resent: true };
+    }
+    const res = await api.verifyEmail(email, code);
+    if (res.success) {
+      setUser(prev => prev ? { ...prev, emailVerified: true } : prev);
+      try {
+        const stored = JSON.parse(localStorage.getItem('myday_user') || '{}');
+        if (stored && typeof stored === 'object') {
+          localStorage.setItem('myday_user', JSON.stringify({ ...stored, emailVerified: true }));
+        }
+      } catch {}
+    }
+    return res;
+  };
+
+  const sendVerificationEmail = async (email) => {
+    if (isSupabaseConfigured) {
+      await sbAuth.resendConfirmation(email);
+      return { success: true };
+    }
+    return api.sendVerificationEmail(email);
+  };
+
+  const requestPasswordReset = async (email) => {
+    if (isSupabaseConfigured) {
+      await sbAuth.sendPasswordReset(email);
+      return { success: true };
+    }
+    return api.requestPasswordReset(email);
+  };
+
+  const completePasswordReset = async (newPassword) => {
+    if (isSupabaseConfigured) {
+      await sbAuth.updatePassword(newPassword);
+      return { success: true };
+    }
+    return null;
+  };
+
+  // On first load, adopt any Supabase session that survived a refresh.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return undefined;
+    let cancelled = false;
+    (async () => {
+      const { data } = await sbAuth.getSession();
+      if (cancelled || !data?.session) return;
+      const appUser = sbAuth.toAppUser(data.session.user);
+      applySession(appUser, data.session.access_token);
+      await refreshWorkspace();
+    })();
+    const unsubscribe = sbAuth.onAuthChange((event, session) => {
+      if (cancelled) return;
+      if (event === 'SIGNED_OUT') logoutUser();
+      else if (session?.user) {
+        const appUser = sbAuth.toAppUser(session.user);
+        applySession(appUser, session.access_token);
+      }
+    });
+    return () => { cancelled = true; unsubscribe?.(); };
+  }, []);
 
   // Collaboration actions
   const inviteMember = async ({ email, role: memberRole, expiresInHours = 48 }) => {
@@ -526,6 +523,12 @@ export const AppProvider = ({ children }) => {
   };
 
   const createBooking = (category, vendorId, packageId, price, date, deposit) => {
+    // Immediate pre-creation date validation
+    const validation = validateBookingDate(date, language);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
     const bookingId = `bk-${Date.now()}`;
     const newBooking = {
       id: bookingId,
@@ -551,7 +554,7 @@ export const AppProvider = ({ children }) => {
     );
     // Background sync to authoritative database if wedding exists
     if (wedding?.id) {
-      api.createBooking({ category, providerId: vendorId, packageId, price, date, weddingId: wedding.id }).catch(err => {
+      api.createBooking({ category, providerId: vendorId, packageId, price, date, weddingId: wedding.id, language }).catch(err => {
         console.warn('Booking offline or sync pending:', err.message);
       });
     }
@@ -559,6 +562,13 @@ export const AppProvider = ({ children }) => {
   };
 
   const recordPayment = (bookingId, amount, full = false) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking?.date) {
+      const validation = validateBookingDate(booking.date, language);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+    }
     const paymentId = `pay-${Date.now()}`;
     setPayments(prev => [...prev, { id: paymentId, bookingId, amount, date: new Date().toISOString() }]);
     setBookings(prev =>
@@ -678,11 +688,11 @@ export const AppProvider = ({ children }) => {
     language,
     setLanguage,
     t,
+    theme,
+    setTheme,
+    toggleTheme,
     role,
     user,
-    activeAccountKey,
-    switchAccount,
-    PRESET_ACCOUNTS,
     isLoggedIn,
     wedding,
     setWedding,
@@ -733,10 +743,13 @@ export const AppProvider = ({ children }) => {
     commissionRate,
     setCommissionRate,
     calculateCart,
-    switchRole,
     loginUser,
     registerUser,
+    requestPasswordReset,
+    completePasswordReset,
     logoutUser,
+    verifyEmail,
+    sendVerificationEmail,
     createBooking,
     recordPayment,
   };
@@ -749,20 +762,24 @@ export const AppProvider = ({ children }) => {
         title={authPromptState.title}
         message={authPromptState.message}
         onClose={closeAuthPrompt}
-        onCreateAccount={() => {
+        onCreateAccount={(noteFromPrompt) => {
           const cb = authPromptState.onAuthenticated;
+          const note = noteFromPrompt || authPromptState.title;
           closeAuthPrompt();
-          openAuthModal({ initialTab: 'register', onSuccess: cb });
+          openAuthModal({ initialTab: 'register', onSuccess: cb, contextNote: note });
         }}
-        onLogin={() => {
+        onLogin={(noteFromPrompt) => {
           const cb = authPromptState.onAuthenticated;
+          const note = noteFromPrompt || authPromptState.title;
           closeAuthPrompt();
-          openAuthModal({ initialTab: 'login', onSuccess: cb });
+          openAuthModal({ initialTab: 'login', onSuccess: cb, contextNote: note });
         }}
       />
       {authModalState.isOpen && (
         <AuthModal
           initialTab={authModalState.initialTab}
+          initialEmail={authModalState.initialEmail || ''}
+          contextNote={authModalState.contextNote || ''}
           onClose={closeAuthModal}
           onSuccess={() => {
             const cb = authModalState.onSuccess;
@@ -775,4 +792,4 @@ export const AppProvider = ({ children }) => {
   );
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => useContext(AppContext) || defaultAppContext;

@@ -1,0 +1,23 @@
+/* ============================================================================
+   TOUCH ACCENT — the system "flash" on tap and text selection is pink,
+   matching the rose sparkles, instead of a white/grey OS highlight.
+   ========================================================================== */
+
+html {
+  -webkit-tap-highlight-color: rgba(255, 106, 176, 0.24);
+}
+
+::selection {
+  background: rgba(255, 106, 176, 0.32);
+  color: inherit;
+}
+
+::-moz-selection {
+  background: rgba(255, 106, 176, 0.32);
+  color: inherit;
+}
+
+html[data-theme="dark"] ::selection {
+  background: rgba(255, 122, 186, 0.4);
+  color: #ffffff;
+}

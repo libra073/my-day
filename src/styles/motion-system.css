@@ -1,0 +1,1040 @@
+/* ═════════════════════════════════════════════════════════════════════
+   MY DAY — COMPONENT-BY-COMPONENT PHYSICAL MOTION SYSTEM
+   Accurately implements the 15 specification requirements:
+   1. Navigation bar liquid spring & highlight
+   2. Primary action buttons with physical press, release & sparkles
+   3. AI Planner button ambient glow, hover sweep & center pulse
+   4. Search controls with traveling border illumination & icon transform
+   5. Category buttons with hover lift & selection spark
+   6. Vendor cards with staggered entrance, 4px lift & image sweep
+   7. Save/Favourite heart with elastic pop & micro particle burst
+   8. Language switch with sliding elastic indicator & trail glow
+   9. Toggle switches with spring physics & outline spark
+   10. Booking modal with spring scale & subtle border highlight
+   11. Payment modal with option stagger, luminous border & celebratory pulse
+   12. AI Planner interface with smooth message entrance & 3-dot typing
+   13. Wedding profile & countdown smooth transition & save pulse
+   14. Page transitions with subtle fade & vertical motion
+   15. Global spring physics & prefers-reduced-motion compliance
+   ═════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Navigation Bar (Liquid Navigation Animation) ───────────── */
+.motion-nav-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  isolation: isolate;
+}
+
+@media (max-width: 1220px) {
+  .motion-nav-container {
+    display: none !important;
+  }
+}
+
+/* Fluid liquid bulge indicator that stretches, deforms and flows */
+.motion-liquid-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  background: linear-gradient(135deg, #0071E3 0%, #004085 50%, #0A84FF 100%);
+  border-radius: 999px;
+  z-index: 0;
+  pointer-events: none;
+  box-shadow: 0 6px 20px -4px rgba(0, 102, 238, 0.45);
+  transition:
+    left 0.62s cubic-bezier(0.34, 1.56, 0.64, 1),
+    width 0.62s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.62s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-radius 0.62s ease;
+  will-change: left, width, transform;
+}
+
+/* Leading edge travels & middle develops a liquid bulge */
+.motion-liquid-indicator.is-stretching-right {
+  border-radius: 999px 36px 36px 999px;
+  transform: scaleX(1.22) scaleY(0.86) skewX(-5deg);
+}
+
+.motion-liquid-indicator.is-stretching-left {
+  border-radius: 36px 999px 999px 36px;
+  transform: scaleX(1.22) scaleY(0.86) skewX(5deg);
+}
+
+.motion-nav-link {
+  position: relative;
+  z-index: 1;
+  transition:
+    color 0.28s ease,
+    transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1),
+    text-shadow 0.28s ease;
+}
+
+.motion-nav-link:hover {
+  transform: translateY(-1.5px);
+}
+
+.motion-nav-link:active {
+  transform: scale(0.96);
+}
+
+/* Active tab receives a subtle luminous indicator and highlight */
+.motion-nav-link.is-active {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.65);
+  animation: tabLuminousHighlight 0.65s ease-out;
+}
+
+@keyframes tabLuminousHighlight {
+  0% {
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 16px rgba(255, 255, 255, 0.95), 0 0 24px #0071E3;
+  }
+  100% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.65);
+  }
+}
+
+/* ── 2. Primary Action Buttons ─────────────────────────────────── */
+.btn-sweep,
+.motion-sweep,
+button.btn-primary,
+.btn-primary,
+button.btn-cerulean,
+.btn-cerulean,
+button.btn-neon-rose,
+.btn-neon-rose,
+button.btn-jet-black,
+.btn-jet-black,
+button.btn-emerald,
+.btn-emerald,
+.wprof-submit {
+  position: relative;
+  overflow: hidden !important;
+  isolation: isolate;
+  cursor: pointer;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.2s ease !important;
+  will-change: transform, box-shadow;
+}
+
+/* Idle: occasional subtle diagonal light sweep (every 11s) */
+.btn-sweep::before,
+.motion-sweep::before,
+button.btn-primary::before,
+.btn-primary::before,
+button.btn-cerulean::before,
+.btn-cerulean::before,
+button.btn-neon-rose::before,
+.btn-neon-rose::before,
+button.btn-jet-black::before,
+.btn-jet-black::before,
+button.btn-emerald::before,
+.btn-emerald::before,
+.wprof-submit::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -80%;
+  width: 50%;
+  height: 220%;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 190, 225, 0.16) 25%,
+    rgba(255, 150, 205, 0.7) 48%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.65) 52%,
+    rgba(255, 255, 255, 0.08) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg) translateX(-140%);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  animation: idleDiagonalSweep 11s ease-in-out infinite;
+}
+
+@keyframes idleDiagonalSweep {
+  0%, 85% {
+    transform: rotate(25deg) translateX(-140%);
+    opacity: 0;
+  }
+  88% {
+    opacity: 0.45;
+  }
+  94% {
+    opacity: 0.85;
+    transform: rotate(25deg) translateX(340%);
+  }
+  95%, 100% {
+    transform: rotate(25deg) translateX(340%);
+    opacity: 0;
+  }
+}
+
+/* Hover: button rises approx 2px with soft edge highlight */
+.btn-sweep:hover,
+.motion-sweep:hover,
+button.btn-primary:hover,
+.btn-primary:hover,
+button.btn-cerulean:hover,
+.btn-cerulean:hover,
+button.btn-neon-rose:hover,
+.btn-neon-rose:hover,
+button.btn-jet-black:hover,
+.btn-jet-black:hover,
+button.btn-emerald:hover,
+.btn-emerald:hover,
+.wprof-submit:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 10px 24px -6px rgba(0, 102, 238, 0.38),
+    inset 0 1px 1px rgba(255, 255, 255, 0.75) !important;
+}
+
+.btn-sweep:hover::before,
+.motion-sweep:hover::before,
+button.btn-primary:hover::before,
+.btn-primary:hover::before,
+button.btn-cerulean:hover::before,
+.btn-cerulean:hover::before,
+button.btn-neon-rose:hover::before,
+.btn-neon-rose:hover::before,
+button.btn-jet-black:hover::before,
+.btn-jet-black:hover::before,
+button.btn-emerald:hover::before,
+.btn-emerald:hover::before,
+.wprof-submit:hover::before {
+  opacity: 1;
+  animation: diagonalLightSweep 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Press: button compresses slightly with bright diagonal reflection */
+.btn-sweep:active,
+.motion-sweep:active,
+button.btn-primary:active,
+.btn-primary:active,
+button.btn-cerulean:active,
+.btn-cerulean:active,
+button.btn-neon-rose:active,
+.btn-neon-rose:active,
+button.btn-jet-black:active,
+.btn-jet-black:active,
+button.btn-emerald:active,
+.btn-emerald:active,
+.wprof-submit:active {
+  transform: scale(0.97) translateY(0) !important;
+  transition: transform 0.08s ease !important;
+}
+
+/* Release: button springs back with micro-sparkle twinkle */
+.btn-sweep::after,
+.motion-sweep::after,
+button.btn-primary::after,
+.btn-primary::after,
+button.btn-neon-rose::after,
+.btn-neon-rose::after {
+  content: '✦';
+  position: absolute;
+  top: 25%;
+  right: 18%;
+  font-size: 11px;
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.95), 0 0 12px #0071E3;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0) rotate(0deg);
+  z-index: 2;
+}
+
+.btn-sweep:hover::after,
+.motion-sweep:hover::after,
+button.btn-primary:hover::after,
+.btn-primary:hover::after,
+button.btn-neon-rose:hover::after,
+.btn-neon-rose:hover::after {
+  animation: sparkleTwinkle 0.75s ease-in-out forwards;
+}
+
+@keyframes diagonalLightSweep {
+  0% {
+    transform: rotate(25deg) translateX(-140%);
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(25deg) translateX(340%);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkleTwinkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.25) rotate(45deg);
+  }
+  75% {
+    opacity: 0.85;
+    transform: scale(1) rotate(90deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.2) rotate(140deg);
+  }
+}
+
+/* ── 3. AI Planner Floating Glass Pill ────────────────────────────── */
+.lg-floating-ai-assistant,
+.btn-ai-planner {
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  display: flex !important;
+  width: auto !important;
+  max-width: max-content !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  padding: 0.65rem 1.15rem 0.65rem 0.75rem !important;
+  border-radius: 999px !important;
+  z-index: 900 !important;
+  cursor: pointer !important;
+  background: rgba(255, 255, 255, 0.24) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(104%) !important;
+  backdrop-filter: blur(28px) saturate(200%) brightness(104%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow:
+    inset 0 1.25px 0 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px 0 rgba(0, 50, 120, 0.04),
+    0 14px 32px -4px rgba(0, 102, 238, 0.32),
+    0 0 16px 2px rgba(56, 189, 248, 0.20) !important;
+  animation: aiAmbientGlow 4.5s ease-in-out infinite;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+html[data-theme="dark"] .lg-floating-ai-assistant {
+  background: rgba(14, 22, 38, 0.42) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(104%) !important;
+  backdrop-filter: blur(28px) saturate(200%) brightness(104%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow:
+    inset 0 1.25px 0 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.65),
+    0 14px 34px -4px rgba(0, 0, 0, 0.80),
+    0 0 20px 2px rgba(0, 102, 238, 0.35) !important;
+}
+
+/* Mobile: Compact 48px Optical Puck with Safe-Area insets (Zero overlap) */
+@media (max-width: 640px) {
+  .lg-floating-ai-assistant,
+  .btn-ai-planner {
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+    right: calc(1rem + env(safe-area-inset-right, 0px)) !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+    box-shadow:
+      inset 0 1px 1px #fff,
+      0 8px 24px -2px rgba(0, 102, 238, 0.45) !important;
+  }
+  .lg-floating-ai-assistant .lg-ai-text-block {
+    display: none !important;
+  }
+  .lg-floating-ai-assistant .lg-ai-lens-orb {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Idle gentle ambient glow */
+@keyframes aiAmbientGlow {
+  0%, 100% {
+    box-shadow:
+      0 8px 24px -4px rgba(0, 102, 238, 0.28),
+      0 0 12px 1px rgba(0, 199, 190, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 12px 30px -4px rgba(0, 102, 238, 0.45),
+      0 0 20px 4px rgba(0, 102, 238, 0.25);
+  }
+}
+
+/* Hover: glow intensifies & diagonal light sweep */
+.lg-floating-ai-assistant:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 14px 34px -4px rgba(0, 102, 238, 0.55),
+    0 0 26px 6px rgba(0, 102, 238, 0.35);
+  border-color: #0071E3;
+}
+
+/* Press: button compresses with luminous pulse expanding from center */
+.lg-floating-ai-assistant:active {
+  transform: scale(0.94);
+  transition: transform 0.08s ease;
+}
+
+.lg-floating-ai-assistant::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(0, 102, 238, 0.6) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0.4);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lg-floating-ai-assistant:active::after {
+  opacity: 1;
+  transform: scale(1.4);
+}
+
+/* ── 4. Search Bar and Search Controls ─────────────────────────── */
+.hero-search-capsule,
+.mkt-search-wrap,
+.mkt-search-bar {
+  position: relative;
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.3, 0.64, 1),
+    box-shadow 0.32s ease,
+    border-color 0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+/* Focus: border illumination travels around container */
+.hero-search-capsule:focus-within,
+.mkt-search-wrap:focus-within,
+.mkt-search-bar:focus-within {
+  transform: translateY(-2px) scale(1.012);
+  border-color: #0071E3 !important;
+  box-shadow:
+    0 16px 36px -12px rgba(107, 56, 220, 0.35),
+    0 0 16px rgba(0, 102, 238, 0.18) !important;
+}
+
+/* Search icon gently scales up on focus */
+.hero-search-capsule:focus-within .hero-search-icon,
+.mkt-search-wrap:focus-within .mkt-search-icon {
+  transform: scale(1.18);
+  color: #0071E3 !important;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+}
+
+/* Search submission: search icon briefly rotates */
+.is-searching .hero-search-icon,
+.is-searching .mkt-search-icon {
+  animation: searchIconSpin 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes searchIconSpin {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.3) rotate(180deg); }
+  100% { transform: scale(1) rotate(360deg); }
+}
+
+/* ── 5. Category Buttons and Selectors ─────────────────────────── */
+.mkt-cat-btn,
+.cl-category-card,
+.category-pill {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1),
+    box-shadow 0.3s ease,
+    border-color 0.25s ease,
+    background 0.22s ease !important;
+  will-change: transform, box-shadow;
+}
+
+/* Hover: slight upward movement & subtle reflection */
+.mkt-cat-btn:hover,
+.cl-category-card:hover,
+.category-pill:hover {
+  transform: translateY(-2.5px) !important;
+  box-shadow:
+    0 12px 24px -8px rgba(0, 60, 160, 0.14),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Selection: category expands slightly with traveling luminous outline */
+.mkt-cat-btn.is-active,
+.cl-category-card.is-active,
+.category-pill.is-active {
+  transform: scale(1.035) !important;
+  border-color: #0071E3 !important;
+  box-shadow:
+    0 12px 28px -6px rgba(0, 102, 238, 0.35),
+    0 0 14px rgba(0, 102, 238, 0.25) !important;
+  animation: categorySelectSpark 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes categorySelectSpark {
+  0% {
+    transform: scale(0.96);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow:
+      0 14px 34px -4px rgba(0, 102, 238, 0.55),
+      0 0 22px rgba(0, 102, 238, 0.45);
+  }
+  100% {
+    transform: scale(1.035);
+  }
+}
+
+/* ── 6. Vendor Cards ───────────────────────────────────────────── */
+.dash-stat-card,
+.dash-vendor-card,
+.utask-card,
+.mkt-vendor-card,
+.provider-card-wrapper {
+  animation: cardStaggerReveal 0.42s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--stagger, 0) * 60ms);
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1),
+    box-shadow 0.35s ease,
+    border-color 0.25s ease !important;
+  will-change: transform, box-shadow;
+}
+
+@keyframes cardStaggerReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Hover: card lifts approx 4px, shadow deepens, highlight travels across surface */
+.dash-stat-card:hover,
+.dash-vendor-card:hover,
+.mkt-vendor-card:hover,
+.provider-card-wrapper:hover {
+  transform: translateY(-4px) scale(1.008) !important;
+  box-shadow:
+    0 22px 42px -16px rgba(0, 50, 140, 0.20),
+    0 0 16px rgba(0, 102, 238, 0.12) !important;
+}
+
+/* Click: card compresses slightly */
+.dash-stat-card:active,
+.dash-vendor-card:active,
+.mkt-vendor-card:active,
+.provider-card-wrapper:active {
+  transform: scale(0.98) translateY(-1px) !important;
+  transition: transform 0.08s ease !important;
+}
+
+/* Loading skeleton subtle shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.6) 0%,
+    rgba(241, 245, 249, 0.9) 50%,
+    rgba(226, 232, 240, 0.6) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerFlow 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmerFlow {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── 7. Save / Favourite Button ────────────────────────────────── */
+.btn-favorite-heart {
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease,
+    background 0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+.btn-favorite-heart:hover {
+  transform: scale(1.12);
+}
+
+.btn-favorite-heart:active {
+  transform: scale(0.9);
+}
+
+/* On selection: heart scales up quickly, then settles with elastic spring */
+.btn-favorite-heart.is-liked {
+  animation: heartElasticPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  box-shadow:
+    0 4px 16px rgba(0, 102, 238, 0.45),
+    0 0 8px rgba(0, 102, 238, 0.3);
+}
+
+@keyframes heartElasticPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.34);
+  }
+  75% {
+    transform: scale(0.94);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+/* ── 8. Language Switch (English / Kiswahili) ──────────────────── */
+.motion-lang-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--clay-cream-2, #ffffff);
+  border: 1.5px solid var(--clay-line);
+  padding: 2px;
+  user-select: none;
+}
+
+.motion-lang-slider {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: calc(50% - 2px);
+  background: linear-gradient(135deg, #0071E3 0%, #0071E3 100%);
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 102, 238, 0.38);
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.motion-lang-btn {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: color 0.25s ease;
+}
+
+.motion-lang-btn.is-active {
+  color: #ffffff !important;
+}
+
+/* ── 9. Glowing Toggle Switches ────────────────────────────────── */
+.motion-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1.5px solid var(--clay-line);
+  background: var(--clay-cream-2, #ffffff);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  user-select: none;
+}
+
+.motion-toggle-thumb {
+  position: relative;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s ease,
+    background 0.35s ease;
+  will-change: transform, box-shadow;
+}
+
+.motion-toggle:active .motion-toggle-thumb {
+  transform: scale(0.9) !important;
+}
+
+.motion-toggle.is-active .motion-toggle-thumb {
+  box-shadow:
+    0 0 16px 4px rgba(0, 102, 238, 0.55),
+    0 0 28px 8px rgba(0, 102, 238, 0.25);
+  animation: toggleGlowPulse 0.55s ease-out;
+}
+
+@keyframes toggleGlowPulse {
+  0% {
+    box-shadow:
+      0 0 4px 1px rgba(0, 102, 238, 0.3),
+      0 0 8px 2px rgba(0, 102, 238, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 22px 7px rgba(0, 102, 238, 0.75),
+      0 0 36px 12px rgba(0, 102, 238, 0.35);
+  }
+  100% {
+    box-shadow:
+      0 0 16px 4px rgba(0, 102, 238, 0.55),
+      0 0 28px 8px rgba(0, 102, 238, 0.25);
+  }
+}
+
+/* ── 10. Booking Modal ─────────────────────────────────────────── */
+.motion-modal-backdrop {
+  animation: backdropFadeIn 0.26s ease-out forwards;
+}
+
+@keyframes backdropFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.motion-modal-card {
+  animation: modalSpringUp 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes modalSpringUp {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Soft highlight line along modal top border */
+.motion-modal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.95) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── 11. Payment Modal ─────────────────────────────────────────── */
+.motion-payment-option {
+  animation: paymentOptionStagger 0.32s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--idx, 0) * 55ms);
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+@keyframes paymentOptionStagger {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.motion-payment-option:hover {
+  transform: translateY(-2px);
+}
+
+.motion-payment-option.is-selected {
+  transform: scale(1.02);
+  border-color: #0071E3 !important;
+  box-shadow:
+    0 8px 24px -4px rgba(0, 102, 238, 0.35),
+    0 0 12px rgba(0, 102, 238, 0.25) !important;
+}
+
+/* Controlled processing progress bar */
+.motion-payment-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.8);
+  overflow: hidden;
+  position: relative;
+}
+
+.motion-payment-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0071E3 0%, #0071E3 100%);
+  border-radius: 999px;
+  animation: progressPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes progressPulse {
+  0% { width: 15%; transform: translateX(-20%); }
+  50% { width: 75%; transform: translateX(25%); }
+  100% { width: 100%; transform: translateX(0); }
+}
+
+/* Payment Success: expanding luminous circular pulse */
+.motion-success-pulse {
+  animation: successExpandPulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes successExpandPulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+    box-shadow: 0 0 32px 10px rgba(16, 185, 129, 0.45);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 18px 4px rgba(16, 185, 129, 0.25);
+  }
+}
+
+/* Payment Warning/Failure: restrained warning animation */
+.motion-warning-pulse {
+  animation: warningGentlePulse 0.4s ease-out;
+}
+
+@keyframes warningGentlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); box-shadow: 0 0 20px rgba(239, 68, 68, 0.35); }
+}
+
+/* ── 12. AI Planner Interface ──────────────────────────────────── */
+.ai-bubble-animated {
+  animation: messageSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes messageSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 3 Gently Animated Typing Dots */
+.ai-typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+}
+
+.ai-typing-dots .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0071E3;
+  animation: dotBlink 1.4s infinite both;
+}
+
+.ai-typing-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+  background: #004085;
+}
+
+.ai-typing-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+  background: #0A84FF;
+}
+
+@keyframes dotBlink {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.35;
+  }
+  40% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* ── 13. Wedding Profile and Countdown ─────────────────────────── */
+.wprof-field input:focus,
+.wprof-field select:focus {
+  border-color: #0071E3 !important;
+  box-shadow:
+    0 6px 18px -4px rgba(0, 102, 238, 0.28),
+    0 0 0 3px rgba(0, 102, 238, 0.12) !important;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.motion-save-pulse {
+  animation: saveLuminousPulse 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes saveLuminousPulse {
+  0% { transform: scale(0.98); }
+  50% { transform: scale(1.03); box-shadow: 0 0 24px rgba(16, 185, 129, 0.45); }
+  100% { transform: scale(1); }
+}
+
+/* ── 14. Page Transitions ──────────────────────────────────────── */
+.motion-page-container {
+  position: relative;
+  width: 100%;
+}
+
+.motion-page-transition {
+  animation: pageFadeSlide 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes pageFadeSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── 15. Sparkles & Particles ──────────────────────────────────── */
+.motion-sparkles-host {
+  position: relative;
+  display: inline-block;
+}
+
+.motion-sparkle-particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 30;
+  display: block;
+  animation: sparkleFly 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sparkleFly {
+  0% {
+    transform: translate(0, 0) scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+    transform: translate(var(--tx, 12px), var(--ty, -14px)) scale(1.15) rotate(90deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--tx, 12px) * 1.5), calc(var(--ty, -14px) * 1.5)) scale(0.2) rotate(180deg);
+  }
+}
+
+/* ── Accessibility: prefers-reduced-motion ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .motion-liquid-indicator {
+    transition: none !important;
+    transform: none !important;
+  }
+  .motion-page-transition {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ── Dark Mode Anti-Flash Overrides for Motion Sweep & Highlights ── */
+html[data-theme="dark"] .btn-sweep::before,
+html[data-theme="dark"] .motion-sweep::before,
+html[data-theme="dark"] button.btn-primary::before,
+html[data-theme="dark"] .btn-primary::before,
+html[data-theme="dark"] button.btn-cerulean::before,
+html[data-theme="dark"] .btn-cerulean::before,
+html[data-theme="dark"] button.btn-neon-rose::before,
+html[data-theme="dark"] .btn-neon-rose::before,
+html[data-theme="dark"] button.btn-jet-black::before,
+html[data-theme="dark"] .btn-jet-black::before,
+html[data-theme="dark"] button.btn-emerald::before,
+html[data-theme="dark"] .btn-emerald::before,
+html[data-theme="dark"] .wprof-submit::before {
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.1) 48%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.1) 52%,
+    rgba(255, 255, 255, 0.03) 75%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+}
+
+html[data-theme="dark"] .btn-sweep:hover,
+html[data-theme="dark"] .motion-sweep:hover,
+html[data-theme="dark"] button.btn-primary:hover,
+html[data-theme="dark"] .btn-primary:hover,
+html[data-theme="dark"] button.btn-cerulean:hover,
+html[data-theme="dark"] .btn-cerulean:hover,
+html[data-theme="dark"] button.btn-neon-rose:hover,
+html[data-theme="dark"] .btn-neon-rose:hover,
+html[data-theme="dark"] button.btn-jet-black:hover,
+html[data-theme="dark"] .btn-jet-black:hover,
+html[data-theme="dark"] button.btn-emerald:hover,
+html[data-theme="dark"] .btn-emerald:hover,
+html[data-theme="dark"] .wprof-submit:hover {
+  box-shadow:
+    0 10px 24px -6px rgba(0, 102, 238, 0.32),
+    inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
+}
+
+html[data-theme="dark"] .mkt-cat-btn:hover,
+html[data-theme="dark"] .cl-category-card:hover,
+html[data-theme="dark"] .category-pill:hover {
+  box-shadow:
+    0 14px 28px -8px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-theme="dark"] .motion-modal-card::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.22) 50%, transparent 100%) !important;
+}
+

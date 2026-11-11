@@ -1,0 +1,113 @@
+/* ============================================================================
+   UX POLISH — keyboard entry, touch target sizing
+   ========================================================================== */
+
+/* ── skip link: first tab stop, invisible until focused ──────────────────── */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  z-index: 400;
+  transform: translate(-50%, -200%);
+  padding: 0.62rem 1.1rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2a7cff, #0058cc);
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  box-shadow: 0 16px 34px -14px rgba(0, 40, 100, 0.8);
+  transition: transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+#main-content:focus {
+  outline: none;
+}
+
+/* ── touch targets: 44px minimum on coarse pointers ─────────────────────── */
+@media (pointer: coarse) {
+  html[data-theme] #root .cl-icon-btn,
+  html[data-theme] #root .cl-burger,
+  html[data-theme] #root .nav-bell {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  html[data-theme] #root .motion-lang-btn {
+    min-width: 44px !important;
+    min-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  html[data-theme] #root .cl-login {
+    min-height: 44px !important;
+    padding-inline: 1rem !important;
+  }
+
+  html[data-theme] #root .cl-brand {
+    min-height: 44px !important;
+  }
+
+  /* filter pills and category chips are tap targets too */
+  html[data-theme] #root .vreg-pill-btn,
+  html[data-theme] #root .mkt-cat-btn,
+  html[data-theme] #root .pf-filter,
+  html[data-theme] #root .mkt-region-btn,
+  html[data-theme] #root .mkt-budget-btn {
+    min-height: 40px !important;
+    padding-block: 0.5rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* the heart sits on a photo — keep the hit area generous */
+  html[data-theme] #root .btn-favorite-heart {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* footer links are tap targets too */
+  html[data-theme] #root .ft a {
+    min-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  html[data-theme] #root .ft__logo {
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  html[data-theme] #root .hero-photo-pill {
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 560px) {
+  html[data-theme] #root .cl-links {
+    row-gap: 0.4rem !important;
+  }
+
+  html[data-theme] #root .cl-links .cl-link {
+    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+}

@@ -147,6 +147,89 @@ export function darEsSalaamToUTC(dateStr, timeStr) {
 }
 
 /**
+ * Returns today's calendar date in Africa/Dar_es_Salaam as 'YYYY-MM-DD'.
+ */
+export function getTodayDarEsSalaam(referenceDate = new Date()) {
+  return getDarEsSalaamParts(referenceDate).dateStr;
+}
+
+/**
+ * Returns current year, 0-indexed month, day, and dateStr in Africa/Dar_es_Salaam.
+ */
+export function getDarEsSalaamCalendarNow(referenceDate = new Date()) {
+  const parts = getDarEsSalaamParts(referenceDate);
+  return {
+    year: parts.year,
+    month: parts.month - 1, // 0-indexed (0=Jan, ..., 11=Dec)
+    day: parts.day,
+    todayStr: parts.dateStr,
+  };
+}
+
+/**
+ * Checks if a given date string 'YYYY-MM-DD' is strictly in the past relative to
+ * today's date in Africa/Dar_es_Salaam. Today's date is NOT past.
+ */
+export function isPastDateInDarEsSalaam(dateStr, referenceDate = new Date()) {
+  if (!dateStr || typeof dateStr !== 'string') return false;
+  const todayStr = getTodayDarEsSalaam(referenceDate);
+  return dateStr < todayStr;
+}
+
+/**
+ * Determines whether previous-month navigation is allowed on a calendar view.
+ * Navigation to earlier months is only allowed if the displayed month is in the future
+ * relative to the current month in Africa/Dar_es_Salaam.
+ */
+export function canNavigatePrevMonth(calYear, calMonthIndex, referenceDate = new Date()) {
+  const { year: curYear, month: curMonth } = getDarEsSalaamCalendarNow(referenceDate);
+  if (calYear < curYear) return false;
+  if (calYear === curYear && calMonthIndex <= curMonth) return false;
+  return true;
+}
+
+/**
+ * Validates whether an event date string ('YYYY-MM-DD') is valid and eligible for booking.
+ * Returns { valid: boolean, error?: string, code?: string }.
+ */
+export function validateBookingDate(dateStr, language = 'en', referenceDate = new Date()) {
+  const isSwahili = String(language).toLowerCase().startsWith('sw');
+  if (!dateStr || typeof dateStr !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return {
+      valid: false,
+      error: isSwahili ? 'Tafadhali chagua tarehe sahihi ya tukio.' : 'Please select a valid event date.',
+      code: 'INVALID_DATE',
+    };
+  }
+
+  // Validate real calendar date (e.g. reject Feb 31)
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const parsed = new Date(y, m - 1, d);
+  if (
+    parsed.getFullYear() !== y ||
+    parsed.getMonth() !== m - 1 ||
+    parsed.getDate() !== d
+  ) {
+    return {
+      valid: false,
+      error: isSwahili ? 'Tarehe batili ya tukio imetolewa.' : 'Invalid event date provided.',
+      code: 'INVALID_DATE',
+    };
+  }
+
+  const todayStr = getTodayDarEsSalaam(referenceDate);
+  if (dateStr < todayStr) {
+    return {
+      valid: false,
+      error: isSwahili ? 'Huwezi kuweka nafasi ya tarehe iliyopita.' : 'Cannot book an event date in the past.',
+      code: 'PAST_DATE',
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
  * Checks if a given timestamp falls within an operating schedule.
  */
 export function isWithinSchedule(isoStringOrDate, schedule = DEFAULT_OPERATING_SCHEDULE) {

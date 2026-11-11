@@ -10,32 +10,34 @@ export default function AITimelineCard() {
 
   if (!eventDate) {
     return (
-      <div className="card" style={{
-        padding: '1.5rem',
+      <div className="glass-card" style={{
+        padding: '1.75rem',
         marginTop: '1.25rem',
-        background: '#FFFFFF',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--color-border)',
-        boxShadow: 'var(--shadow-sm)',
+        background: 'var(--app-card-bg, rgba(255, 255, 255, 0.72))',
+        borderRadius: 'var(--radius-xl)',
+        border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+        boxShadow: '0 12px 30px rgba(15, 23, 42, 0.05)',
         textAlign: 'center'
       }}>
         <div style={{
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
-          background: 'var(--color-primary-light)',
-          color: 'var(--color-accent)',
+          background: 'var(--p3d-grad-champagne-btn, linear-gradient(135deg, #FDF7F0 0%, #EBDDCB 100%))',
+          border: '1.5px solid var(--app-border, rgba(168, 101, 62, 0.2))',
+          color: 'var(--color-primary, #0071E3)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto 0.75rem'
+          margin: '0 auto 0.75rem',
+          boxShadow: 'inset 0 1.5px 2px rgba(255,255,255,0.9), 0 4px 12px rgba(0, 102, 238, 0.15)'
         }}>
           <Calendar size={22} />
         </div>
-        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.35rem' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 850, color: 'var(--app-text-primary, #0F172A)', marginBottom: '0.35rem' }}>
           {t('ai_timeline_empty_title', 'Event Timeline Pending')}
         </h3>
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', maxWidth: '480px', margin: '0 auto' }}>
+        <p style={{ fontSize: '0.88rem', color: 'var(--app-text-secondary, #475569)', maxWidth: '480px', margin: '0 auto', fontWeight: 500 }}>
           {isSwahili
             ? 'Tafadhali taja tarehe ya harusi/sherehe yako kwenye mazungumzo (mfano: 2026-12-25) ili nikuandalie ratiba ya maandalizi ya miezi 6 hadi siku ya tukio.'
             : 'Please mention your event date in the chat (e.g. December 25, 2026) so I can build your countdown preparation timeline.'}
@@ -92,13 +94,13 @@ export default function AITimelineCard() {
   ];
 
   return (
-    <div className="card" style={{
-      padding: 'clamp(0.9rem, 3vw, 1.5rem)',
+    <div className="glass-card" style={{
+      padding: 'clamp(1rem, 3vw, 1.75rem)',
       marginTop: '1.25rem',
-      background: '#FFFFFF',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)',
+      background: 'var(--app-card-bg, rgba(255, 255, 255, 0.72))',
+      borderRadius: 'var(--radius-xl)',
+      border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+      boxShadow: '0 12px 30px rgba(15, 23, 42, 0.05)',
       minWidth: 0,
       width: '100%'
     }}>
@@ -107,23 +109,24 @@ export default function AITimelineCard() {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.35rem',
-          background: 'var(--color-primary-light)',
-          color: 'var(--color-accent)',
-          padding: '0.25rem 0.75rem',
+          background: 'rgba(0, 102, 238, 0.12)',
+          color: 'var(--color-primary, #0071E3)',
+          padding: '0.3rem 0.85rem',
           borderRadius: 'var(--radius-pill)',
           fontSize: '0.75rem',
           fontWeight: 800,
           textTransform: 'uppercase',
           letterSpacing: '0.04em',
-          marginBottom: '0.35rem'
+          border: '1px solid rgba(0, 102, 238, 0.22)',
+          marginBottom: '0.45rem'
         }}>
-          <Clock size={14} color="#F5A623" />
+          <Clock size={14} color="var(--color-primary, #0071E3)" />
           <span>{t('ai_timeline_badge', 'Preparation Milestones')}</span>
         </div>
-        <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-text)', overflowWrap: 'anywhere' }}>
+        <h3 style={{ fontSize: '1.4rem', fontWeight: 850, color: 'var(--app-text-primary, #0F172A)', overflowWrap: 'anywhere' }}>
           {t('ai_timeline_title', 'Countdown Preparation Timeline')}
         </h3>
-        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', overflowWrap: 'anywhere' }}>
+        <p style={{ fontSize: '0.88rem', color: 'var(--app-text-secondary, #475569)', overflowWrap: 'anywhere', fontWeight: 500 }}>
           {t('ai_target_date_label', 'Event Date')}: <strong style={{ color: 'var(--color-text)' }}>{eventDate}</strong> ({eventType})
         </p>
       </div>
@@ -172,10 +175,10 @@ export default function AITimelineCard() {
             {/* Content Box */}
             <div style={{
               flex: 1,
-              background: 'var(--color-surface-soft)',
+              background: 'var(--app-surface-elevated, var(--color-surface-soft))',
               padding: '0.75rem 1rem',
               borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--color-border)',
+              border: '1px solid var(--app-border, var(--color-border))',
               minWidth: 0,
               overflowWrap: 'anywhere',
               wordBreak: 'break-word'

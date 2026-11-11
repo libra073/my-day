@@ -1,237 +1,219 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Heart, ShieldCheck, MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { Heart, ShieldCheck, MapPin, Phone, Mail, Clock, MessageCircle, ArrowUpRight } from 'lucide-react';
 import { getCurrentOfficeStatus } from '../services/businessSchedule';
+import '../styles/site-footer.css';
+
+const QUICK_LINKS = [
+  { to: '/', key: 'nav_home', fallback: 'Home' },
+  { to: '/marketplace', key: 'nav_browse', fallback: 'Browse Services' },
+  { to: '/wedding', key: 'nav_profile', fallback: 'Wedding Profile' },
+  { to: '/dashboard', key: 'nav_dashboard', fallback: 'Event Dashboard' },
+  { to: '/bookings', key: 'nav_bookings', fallback: 'My Bookings' },
+  { to: '/become-vendor', key: 'nav_become_vendor', fallback: 'Become a Vendor' },
+  { to: '/contact', key: 'nav_contact', fallback: 'Contact Us' },
+];
+
+const CATEGORY_LINKS = [
+  { to: '/marketplace?category=kumbi', icon: '🏰', key: 'cat_venues_title', fallback: 'Wedding Venues' },
+  { to: '/marketplace?category=wapambaji', icon: '🎨', key: 'cat_decorators_title', fallback: 'Wedding Decorators' },
+  { to: '/marketplace?category=entertainment', icon: '🎤', key: 'cat_entertainment_title', fallback: 'MCs & Entertainment' },
+  { to: '/marketplace?category=catering', icon: '🍽️', key: 'cat_catering_title', fallback: 'Catering' },
+  { to: '/marketplace?category=saloon', icon: '💇', key: 'cat_saloon_title', fallback: 'Saloon & Barbershop' },
+  { to: '/marketplace?category=transport', icon: '🚗', key: 'cat_transport_title', fallback: 'Transport' },
+];
+
+const SUPPORT_LINKS = [
+  { key: 'footer_help_center', fallback: 'Help Center & FAQ' },
+  { key: 'footer_privacy', fallback: 'Privacy Policy' },
+  { key: 'footer_terms', fallback: 'Terms & Conditions' },
+  { key: 'footer_refund', fallback: 'Refund & Cancellation Policy' },
+];
 
 function Footer({ variant }) {
-  const { t } = useAppContext();
+  const { t, language } = useAppContext();
   const location = useLocation();
   const officeStatus = getCurrentOfficeStatus();
+  const isSw = language === 'sw';
 
   const currentVariant = variant || (
-    ['/', '/marketplace', '/become-vendor', '/contact'].includes(location.pathname) || 
+    ['/', '/marketplace', '/become-vendor', '/contact'].includes(location.pathname) ||
     location.pathname.startsWith('/vendor/')
       ? 'full'
       : 'minimal'
   );
 
   const isMinimal = currentVariant === 'minimal';
-
-  const linkStyle = {
-    color: 'rgba(255,255,255,0.75)',
-    transition: 'color 0.2s',
-    fontSize: '0.85rem',
+  const tr = (key, fallback) => {
+    const value = t(key);
+    return !value || value === key ? fallback : value;
   };
 
   if (isMinimal) {
     return (
-      <footer style={{
-        background: 'rgba(74, 59, 47, 0.95)',
-        backdropFilter: 'var(--glass-blur)',
-        WebkitBackdropFilter: 'var(--glass-blur)',
-        color: 'rgba(255,255,255,0.7)',
-        paddingTop: '1.5rem',
-        paddingBottom: '1.5rem',
-        marginTop: '4rem',
-        borderTop: '1px solid rgba(255, 157, 59, 0.2)',
-      }}>
-        <div className="container minimal-footer-container">
-          <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
-            © 2026 MY DAY. {t('footer_rights')}
-          </div>
-          <div className="minimal-footer-links" style={{ fontSize: '0.85rem' }}>
-            <Link to="/contact" style={linkStyle}>{t('footer_privacy')}</Link>
-            <Link to="/contact" style={linkStyle}>{t('footer_terms')}</Link>
-            <Link to="/contact" style={linkStyle}>{t('footer_help_center')}</Link>
-            <Link to="/contact" style={linkStyle}>{t('nav_contact')}</Link>
-          </div>
+      <footer className="ft ft--minimal">
+        <div className="container ft__minimal">
+          <p className="ft__copyright">© 2026 MY DAY. {tr('footer_rights', 'All Rights Reserved.')}</p>
+          <nav className="ft__minimal-links" aria-label={isSw ? 'Viungo vya chini' : 'Footer links'}>
+            <Link to="/contact">{tr('footer_privacy', 'Privacy Policy')}</Link>
+            <Link to="/contact">{tr('footer_terms', 'Terms & Conditions')}</Link>
+            <Link to="/contact">{tr('footer_help_center', 'Help Center & FAQ')}</Link>
+            <Link to="/contact">{tr('nav_contact', 'Contact Us')}</Link>
+          </nav>
         </div>
       </footer>
     );
   }
 
   return (
-    <footer className="footer-wrapper">
-      {/* Decorative top glow */}
-      <div className="footer-top-glow" />
+    <footer className="ft">
+      <div className="ft__aura" aria-hidden="true" />
 
-      <div className="container footer-columns-grid">
-        {/* Brand Column */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem' }}>
-            <div style={{
-              width: 38,
-              height: 38,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #F5A623 0%, #D98218 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFFFFF',
-              boxShadow: '0 4px 14px rgba(245, 166, 35, 0.4)',
-            }}>
-              <Heart size={18} fill="#FFFFFF" />
-            </div>
-            <span style={{ fontSize: '1.45rem', fontWeight: 900, fontFamily: 'var(--font-header)', color: '#ffffff', letterSpacing: '0.03em' }}>
-              MY DAY
+      <div className="container ft__inner">
+        {/* Brand + link columns */}
+        <div className="ft__top">
+          <div className="ft__brand">
+            <Link to="/" className="ft__logo" aria-label="MY DAY home">
+              <span className="ft__mark" aria-hidden="true">
+                <Heart size={17} fill="currentColor" stroke="none" />
+              </span>
+              <span className="ft__wordmark">
+                <strong>MY DAY</strong>
+                <small>{isSw ? 'SOKO LA HARUSI' : 'WEDDING MARKETPLACE'}</small>
+              </span>
+            </Link>
+
+            <p className="ft__tagline">{tr('footer_tagline', 'Making wedding planning simple, beautiful, and stress-free for couples across Tanzania.')}</p>
+
+            <span className="ft__badge">
+              <ShieldCheck size={14} /> {tr('footer_badge', '100% Verified Vendors & Secure Mobile Money')}
             </span>
           </div>
-          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.68)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-            {t('footer_tagline')}
-          </p>
-          <div style={{
-            fontSize: '0.8rem',
-            color: '#F5A623',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontWeight: 750,
-            background: 'rgba(245, 166, 35, 0.12)',
-            padding: '0.35rem 0.75rem',
-            borderRadius: '999px',
-            border: '1px solid rgba(245, 166, 35, 0.25)'
-          }}>
-            <ShieldCheck size={15} /> {t('footer_badge')}
-          </div>
+
+          <nav className="ft__col" aria-labelledby="ft-quick">
+            <h3 id="ft-quick" className="ft__col-title">{tr('footer_quick_links', 'Quick Links')}</h3>
+            <ul>
+              {QUICK_LINKS.map((l) => (
+                <li key={l.key}>
+                  <Link to={l.to}>{tr(l.key, l.fallback)}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav className="ft__col" aria-labelledby="ft-cats">
+            <h3 id="ft-cats" className="ft__col-title">{tr('footer_categories', 'Categories')}</h3>
+            <ul>
+              {CATEGORY_LINKS.map((l) => (
+                <li key={l.key}>
+                  <Link to={l.to}>
+                    <span className="ft__emoji" aria-hidden="true">{l.icon}</span>
+                    {tr(l.key, l.fallback)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav className="ft__col" aria-labelledby="ft-support">
+            <h3 id="ft-support" className="ft__col-title">{tr('footer_support', 'Support & Legal')}</h3>
+            <ul>
+              {SUPPORT_LINKS.map((l) => (
+                <li key={l.key}>
+                  <Link to="/contact">{tr(l.key, l.fallback)}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
-        {/* Quick Links */}
-        <div>
-          <h4 className="footer-col-title">{t('footer_quick_links')}</h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-            <li><Link to="/" style={linkStyle}>{t('nav_home')}</Link></li>
-            <li><Link to="/marketplace" style={linkStyle}>{t('nav_browse')}</Link></li>
-            <li><Link to="/wedding" style={linkStyle}>{t('nav_profile')}</Link></li>
-            <li><Link to="/dashboard" style={linkStyle}>{t('nav_dashboard')}</Link></li>
-            <li><Link to="/bookings" style={linkStyle}>{t('nav_bookings')}</Link></li>
-            <li><Link to="/become-vendor" style={linkStyle}>{t('nav_become_vendor')}</Link></li>
-            <li><Link to="/contact" style={linkStyle}>{t('nav_contact')}</Link></li>
-          </ul>
-        </div>
-
-        {/* Categories */}
-        <div>
-          <h4 className="footer-col-title">{t('footer_categories')}</h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-            <li><Link to="/marketplace?category=kumbi" style={linkStyle}>🏰 {t('cat_venues_title')}</Link></li>
-            <li><Link to="/marketplace?category=wapambaji" style={linkStyle}>🎨 {t('cat_decorators_title')}</Link></li>
-            <li><Link to="/marketplace?category=entertainment" style={linkStyle}>🎤 {t('cat_entertainment_title')}</Link></li>
-            <li><Link to="/marketplace?category=catering" style={linkStyle}>🍽️ {t('cat_catering_title')}</Link></li>
-            <li><Link to="/marketplace?category=saloon" style={linkStyle}>💇 {t('cat_saloon_title')}</Link></li>
-            <li><Link to="/marketplace?category=transport" style={linkStyle}>🚗 {t('cat_transport_title')}</Link></li>
-          </ul>
-        </div>
-
-        {/* Official Contact & Physical HQ */}
-        <div>
-          <h4 className="footer-col-title">
-            <MapPin size={17} color="#F5A623" />
-            <span>{t('contact_office_label', 'Physical Office')}</span>
-          </h4>
-
-          {/* Address Capsule */}
-          <div className="footer-info-capsule">
-            <div className="footer-capsule-label">
-              <MapPin size={12} />
-              <span>Dar es Salaam HQ</span>
-            </div>
-            <div className="footer-capsule-text">
-              <strong style={{ color: '#FFFFFF', display: 'block', marginBottom: '2px', fontWeight: 800 }}>
-                Mbezi beach, makonde.
-              </strong>
-              <div style={{ color: 'rgba(255,255,255,0.85)' }}>Bagamoyo Road,</div>
-              <div style={{ color: 'rgba(255,255,255,0.75)' }}>Dar es Salaam, Tanzania.</div>
-            </div>
+        {/* Contact strip */}
+        <div className="ft__contact">
+          <div className="ft__card ft__card--office">
+            <span className="ft__card-label">
+              <MapPin size={12} /> {isSw ? 'Makao Makuu Dar es Salaam' : 'Dar es Salaam HQ'}
+            </span>
+            <address className="ft__address">
+              <strong>Mbezi beach, makonde.</strong>
+              <span>Bagamoyo Road,</span>
+              <span>Dar es Salaam, Tanzania.</span>
+            </address>
           </div>
 
-          {/* Interactive Phone Buttons */}
-          <div style={{ marginBottom: '0.85rem' }}>
-            <a href="tel:+255766466187" className="footer-phone-btn">
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <Phone size={13} color="#F5A623" />
-                <span>+255 766 466 187</span>
+          <div className="ft__card">
+            <span className="ft__card-label">
+              <Phone size={12} /> {isSw ? 'Simu' : 'Call us'}
+            </span>
+            <ul className="ft__phones">
+              <li>
+                <a href="tel:+255766466187">+255 766 466 187</a>
+                <span>{isSw ? 'Simu & WhatsApp' : 'Calls & WhatsApp'}</span>
+              </li>
+              <li>
+                <a href="tel:+255619180779">+255 619 180 779</a>
+                <span>{isSw ? 'Nambari ya Moja kwa Moja' : 'Direct Line'}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="ft__card">
+            <span className="ft__card-label">
+              <Mail size={12} /> {tr('contact_email_label_title', 'Email Us')}
+            </span>
+            <a className="ft__email" href="mailto:support@myday.co.tz">
+              support@myday.co.tz <ArrowUpRight size={13} />
+            </a>
+            <a className="ft__wa" href="https://wa.me/255766466187" target="_blank" rel="noreferrer">
+              <MessageCircle size={13} /> {isSw ? 'Anzisha mazungumzo' : 'Start a WhatsApp chat'}
+            </a>
+          </div>
+
+          <div className="ft__card ft__card--hours">
+            <div className="ft__status-row">
+              <div
+                className={`ft__status ${officeStatus.isOpen ? 'is-open' : 'is-closed'}`}
+                title={officeStatus.isOpen ? tr('office_open_now', 'Office open now') : tr('office_closed_now', 'Office closed')}
+              >
+                <span className="ft__dot" aria-hidden="true" />
+                {officeStatus.isOpen
+                  ? (isSw ? 'Ofisi Iko Wazi' : 'Office open')
+                  : (isSw ? 'Ofisi Imefungwa' : 'Office closed')}
+              </div>
+              <span className="ft__status-detail">
+                {officeStatus.isOpen
+                  ? (isSw ? 'Hadi 5:00 PM EAT' : 'Until 5:00 PM EAT')
+                  : `${isSw ? 'Inafunguliwa' : 'Opens'} ${officeStatus.nextOpeningDar || ''}`}
               </span>
-              <span className="footer-phone-tag">Calls & WhatsApp</span>
-            </a>
-            <a href="tel:+255619180779" className="footer-phone-btn">
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <Phone size={13} color="#F5A623" />
-                <span>+255 619 180 779</span>
-              </span>
-              <span className="footer-phone-tag">Direct Line</span>
-            </a>
-          </div>
-
-          {/* Email Capsule */}
-          <div className="footer-info-capsule" style={{ marginBottom: 0 }}>
-            <div className="footer-capsule-label">
-              <Mail size={12} />
-              <span>{t('contact_email_label_title', 'Email Us')}</span>
-            </div>
-            <a href="mailto:support@myday.co.tz" style={{ color: '#FFFFFF', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 700, display: 'block' }}>
-              support@myday.co.tz
-            </a>
-          </div>
-        </div>
-
-        {/* Support & Office Schedule Card */}
-        <div>
-          <h4 className="footer-col-title">
-            <Clock size={17} color="#F5A623" />
-            <span>{t('footer_support')}</span>
-          </h4>
-
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.15rem 0', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-            <li><Link to="/contact" style={linkStyle}>{t('footer_help_center')}</Link></li>
-            <li><Link to="/contact" style={linkStyle}>{t('footer_privacy')}</Link></li>
-            <li><Link to="/contact" style={linkStyle}>{t('footer_terms')}</Link></li>
-            <li><Link to="/contact" style={linkStyle}>{t('footer_refund')}</Link></li>
-          </ul>
-
-          {/* Luxury Schedule Widget */}
-          <div className="footer-schedule-card">
-            <div className={`footer-status-pill ${officeStatus.isOpen ? 'footer-status-open' : 'footer-status-closed'}`}>
-              <span className={officeStatus.isOpen ? 'pulse-dot-green' : 'pulse-dot-purple'} />
-              <span>{officeStatus.isOpen ? t('office_open_now', 'Office Open Now') : t('office_closed_now', 'Office Closed')}</span>
             </div>
 
-            <div style={{ fontSize: '0.74rem', color: '#F5A623', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.45rem' }}>
-              HQ Operating Hours (EAT)
-            </div>
+            <span className="ft__hours-title">
+              <Clock size={12} /> {isSw ? 'Saa za kazi (EAT)' : 'HQ Operating Hours (EAT)'}
+            </span>
 
-            <div className="footer-schedule-row">
-              <span className="footer-schedule-day">Mon – Fri</span>
-              <span className="footer-schedule-time">8:00 AM – 5:00 PM</span>
-            </div>
-            <div className="footer-schedule-row">
-              <span className="footer-schedule-day">Sat & Sun</span>
-              <span className="footer-schedule-time" style={{ color: '#E8DCCF' }}>Closed by default</span>
-            </div>
+            <dl className="ft__hours">
+              <div>
+                <dt>{isSw ? 'Jumatatu – Ijumaa' : 'Mon – Fri'}</dt>
+                <dd>8:00 AM – 5:00 PM</dd>
+              </div>
+              <div>
+                <dt>{isSw ? 'Jumamosi & Jumapili' : 'Sat & Sun'}</dt>
+                <dd className="is-muted">{isSw ? 'Imefungwa' : 'Closed by default'}</dd>
+              </div>
+            </dl>
 
-            <div style={{ marginTop: '0.65rem', paddingTop: '0.55rem', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.74rem', color: '#F5A623', fontWeight: 650, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span>✨</span>
-              <span>Couples & vendors 24/7 online</span>
-            </div>
+            <p className="ft__always">
+              <span aria-hidden="true">✨</span>
+              {isSw ? 'Maharusi na watoa huduma mtandaoni 24/7' : 'Couples & vendors 24/7 online'}
+            </p>
           </div>
         </div>
-      </div>
 
-      <div className="container" style={{
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        paddingTop: '1.25rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        fontSize: '0.8rem',
-        color: 'rgba(255,255,255,0.5)',
-        position: 'relative',
-        zIndex: 1,
-      }}>
-        <div>© 2026 MY DAY. {t('footer_rights')}</div>
-        <div>{t('footer_designed_for')}</div>
+        {/* Legal bar */}
+        <div className="ft__bottom">
+          <p className="ft__copyright">© 2026 MY DAY. {tr('footer_rights', 'All Rights Reserved.')}</p>
+          <p className="ft__designed">{tr('footer_designed_for', 'Designed for couples & service providers in Tanzania')}</p>
+        </div>
       </div>
     </footer>
   );

@@ -39,6 +39,7 @@ function getInitialDatabase() {
         phone: '+255 777 123 456',
         passwordHash: defaultPasswordHash,
         globalRole: 'customer',
+        emailVerified: true,
         createdAt: new Date().toISOString()
       },
       {
@@ -48,6 +49,7 @@ function getInitialDatabase() {
         phone: '+255 777 654 321',
         passwordHash: defaultPasswordHash,
         globalRole: 'customer',
+        emailVerified: true,
         createdAt: new Date().toISOString()
       },
       {
@@ -57,6 +59,7 @@ function getInitialDatabase() {
         phone: '+255 714 888 777',
         passwordHash: defaultPasswordHash,
         globalRole: 'customer',
+        emailVerified: true,
         createdAt: new Date().toISOString()
       },
       {
@@ -66,6 +69,7 @@ function getInitialDatabase() {
         phone: '+255 777 999 888',
         passwordHash: defaultPasswordHash,
         globalRole: 'provider',
+        emailVerified: true,
         createdAt: new Date().toISOString()
       },
       {
@@ -75,6 +79,7 @@ function getInitialDatabase() {
         phone: '+255 22 210 0900',
         passwordHash: defaultPasswordHash,
         globalRole: 'admin',
+        emailVerified: true,
         createdAt: new Date().toISOString()
       }
     ],
@@ -377,7 +382,8 @@ function getInitialDatabase() {
         createdAt: new Date().toISOString()
       }
     ],
-    password_resets: []
+    password_resets: [],
+    email_verifications: []
   };
 }
 
@@ -406,13 +412,23 @@ export function loadDatabase() {
         'vendor_schedules',
         'bookings',
         'payments',
-        'password_resets'
+        'password_resets',
+        'email_verifications'
       ];
 
       for (const col of collections) {
         if (!dbData[col]) {
           dbData[col] = initial[col] || [];
           modified = true;
+        }
+      }
+
+      if (Array.isArray(dbData.users)) {
+        for (const u of dbData.users) {
+          if (u.emailVerified === undefined) {
+            u.emailVerified = true;
+            modified = true;
+          }
         }
       }
 

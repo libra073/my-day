@@ -3,10 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import ProviderCard from '../components/ProviderCard';
 import {
-  Search, X, Sparkles, MapPin, SlidersHorizontal, ArrowUpDown,
+  Search, X, Sparkles, MapPin, SlidersHorizontal,
   Building2, Palette, Music, UtensilsCrossed, Scissors, Car,
   ShieldCheck, Check, RotateCcw, Wallet, Star
 } from 'lucide-react';
+import GlassSelect from '../components/ui/GlassSelect';
 
 export default function MarketplacePage() {
   const { providers, t, language } = useAppContext();
@@ -18,6 +19,16 @@ export default function MarketplacePage() {
   const [selectedLocation, setSelectedLocation] = useState(searchParams.get('region') || 'All Locations');
   const [priceTier, setPriceTier] = useState('all'); // 'all' | 'under-15m' | '15m-3m' | 'above-3m'
   const [sortBy, setSortBy] = useState('recommended');
+  const [isSearching, setIsSearching] = useState(false);
+
+  React.useEffect(() => {
+    const cat = searchParams.get('category') || searchParams.get('cat') || '';
+    const q = searchParams.get('q') || searchParams.get('query') || '';
+    const reg = searchParams.get('region') || 'All Locations';
+    setActiveCategory(cat);
+    setSearchTerm(q);
+    setSelectedLocation(reg);
+  }, [searchParams]);
 
   const CATEGORIES = [
     { id: '', name: isSw ? 'Makundi Yote' : 'All Categories', icon: '✨', short: 'All' },
@@ -72,6 +83,8 @@ export default function MarketplacePage() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    setIsSearching(true);
+    setTimeout(() => setIsSearching(false), 450);
     const params = {};
     if (activeCategory) params.category = activeCategory;
     if (searchTerm) params.q = searchTerm;
@@ -98,8 +111,8 @@ export default function MarketplacePage() {
         : true;
       const matchesSearch = searchTerm
         ? (p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           p.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           p.description?.toLowerCase().includes(searchTerm.toLowerCase()))
+          p.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.description?.toLowerCase().includes(searchTerm.toLowerCase()))
         : true;
 
       // Price tier matching
@@ -132,7 +145,7 @@ export default function MarketplacePage() {
       {/* Top Hero Section with ample clearance */}
       <div className="mkt-hero">
         <div className="mkt-badge">
-          <Sparkles size={14} color="#D97706" />
+          <Sparkles size={14} color="var(--color-primary, #0071E3)" />
           {t('verified_directory', "Verified Tanzania Wedding Directory")}
         </div>
 
@@ -153,7 +166,7 @@ export default function MarketplacePage() {
           </span>
           <span style={{ color: '#E5D7C7' }}>•</span>
           <span className="mkt-trust-item">
-            <Wallet size={16} color="#D97706" /> {isSw ? 'Amana ya 30% Imelindwa' : 'Protected 30% Escrow'}
+            <Wallet size={16} color="var(--color-primary, #0071E3)" /> {isSw ? 'Amana ya 30% Imelindwa' : 'Protected 30% Escrow'}
           </span>
           <span style={{ color: '#E5D7C7' }}>•</span>
           <span className="mkt-trust-item">
@@ -163,7 +176,7 @@ export default function MarketplacePage() {
       </div>
 
       {/* Category Pills Bar */}
-      <div className="mkt-categories-bar" role="tablist" aria-label="Wedding service categories">
+      <div className="mkt-categories-bar" role="tablist" aria-label={isSw ? 'Aina za huduma za harusi' : 'Wedding service categories'}>
         {CATEGORIES.map(cat => {
           const isActive = activeCategory === cat.id;
           const count = categoryCounts[cat.id] || 0;
@@ -189,7 +202,7 @@ export default function MarketplacePage() {
         <form onSubmit={handleSearchSubmit}>
           <div className="mkt-filter-grid">
             {/* Search Input */}
-            <div className="mkt-search-wrap">
+            <div className={`mkt-search-wrap ${isSearching ? 'is-searching' : ''}`}>
               <Search size={18} className="mkt-search-icon" />
               <input
                 type="text"
@@ -210,7 +223,8 @@ export default function MarketplacePage() {
                     cursor: 'pointer',
                     padding: 0
                   }}
-                  title="Clear search"
+                  title={isSw ? 'Futa utafutaji' : 'Clear search'}
+                  aria-label={isSw ? 'Futa utafutaji' : 'Clear search'}
                 >
                   <X size={16} />
                 </button>
@@ -219,31 +233,34 @@ export default function MarketplacePage() {
 
             {/* Region Dropdown */}
             <div>
-              <select
+              <GlassSelect
                 value={selectedLocation}
-                onChange={e => {
-                  setSelectedLocation(e.target.value);
+                onChange={(value) => {
+                  setSelectedLocation(value);
                   const params = {};
                   if (activeCategory) params.category = activeCategory;
                   if (searchTerm) params.q = searchTerm;
-                  if (e.target.value !== 'All Locations') params.region = e.target.value;
+                  if (value !== 'All Locations') params.region = value;
                   setSearchParams(params);
                 }}
-              >
-                {LOCATIONS.map(loc => (
-                  <option key={loc.id} value={loc.id}>{loc.label}</option>
-                ))}
-              </select>
+                ariaLabel={t('filter_region', 'Region')}
+                options={LOCATIONS.map((loc) => ({ value: loc.id, label: loc.label }))}
+              />
             </div>
 
             {/* Sort Dropdown */}
             <div>
-              <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                <option value="recommended">{t('sort_recommended', "Sort by: Recommended")}</option>
-                <option value="rating">{t('sort_rating', "Sort by: Highest Rated ★")}</option>
-                <option value="price-asc">{t('sort_price_asc', "Sort by: Price Low to High")}</option>
-                <option value="price-desc">{t('sort_price_desc', "Sort by: Price High to Low")}</option>
-              </select>
+              <GlassSelect
+                value={sortBy}
+                onChange={setSortBy}
+                ariaLabel={t('sort_label', 'Sort vendors')}
+                options={[
+                  { value: 'recommended', label: t('sort_recommended', 'Sort by: Recommended') },
+                  { value: 'rating', label: t('sort_rating', 'Sort by: Highest Rated') },
+                  { value: 'price-asc', label: t('sort_price_asc', 'Sort by: Price Low to High') },
+                  { value: 'price-desc', label: t('sort_price_desc', 'Sort by: Price High to Low') },
+                ]}
+              />
             </div>
 
             {/* Filter Submit Button */}
@@ -306,7 +323,7 @@ export default function MarketplacePage() {
         <div>
           <h2 style={{
             fontSize: '1.4rem',
-            color: '#1E130B',
+            color: 'var(--app-text-primary, #0f172a)',
             fontWeight: 850,
             margin: 0,
             display: 'flex',
@@ -317,18 +334,18 @@ export default function MarketplacePage() {
             <span style={{
               fontSize: '0.86rem',
               fontWeight: 800,
-              color: '#92400E',
-              background: '#FEF3C7',
+              color: 'var(--color-primary, #0071E3)',
+              background: 'rgba(0, 102, 238, 0.12)',
               padding: '0.2rem 0.65rem',
               borderRadius: '999px',
-              border: '1px solid rgba(245, 166, 35, 0.35)'
+              border: '1px solid rgba(0, 102, 238, 0.22)'
             }}>
               {filteredProviders.length} {t('listings_found', "listings found")}
             </span>
           </h2>
 
           {hasActiveFilters && (
-            <div style={{ fontSize: '0.84rem', color: '#7A6657', marginTop: '0.35rem' }}>
+            <div style={{ fontSize: '0.84rem', color: 'var(--app-text-secondary, #475569)', marginTop: '0.35rem' }}>
               {isSw ? 'Chujio lililowekwa:' : 'Filtered by:'}{' '}
               {activeCategory && <strong>{CATEGORIES.find(c => c.id === activeCategory)?.name} </strong>}
               {selectedLocation !== 'All Locations' && <span>• {selectedLocation} </span>}
@@ -342,15 +359,14 @@ export default function MarketplacePage() {
           <button
             type="button"
             onClick={handleResetFilters}
+            className="glass-crystal"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
               fontSize: '0.84rem',
               fontWeight: 750,
-              color: '#D97706',
-              background: '#FFF8EE',
-              border: '1px solid rgba(245, 166, 35, 0.4)',
+              color: 'var(--liquid-sapphire-500, #0066EE)',
               padding: '0.45rem 0.95rem',
               borderRadius: '999px',
               cursor: 'pointer',
@@ -365,21 +381,17 @@ export default function MarketplacePage() {
 
       {/* Vendor Cards Grid */}
       {filteredProviders.length === 0 ? (
-        <div style={{
-          background: '#FFFFFF',
-          borderRadius: '24px',
+        <div className="glass-card glass-frosted-optical" style={{
+          borderRadius: '28px',
           padding: '4.5rem 2rem',
           textAlign: 'center',
-          border: '1.5px dashed #E8DCCF',
-          boxShadow: '0 10px 30px rgba(61, 44, 31, 0.05)',
           maxWidth: '600px',
           margin: '0 auto'
         }}>
-          <div style={{
+          <div className="glass-lens" style={{
             width: 72,
             height: 72,
             borderRadius: '50%',
-            background: '#FEF3C7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -388,16 +400,16 @@ export default function MarketplacePage() {
           }}>
             🔍
           </div>
-          <h3 style={{ fontSize: '1.45rem', color: '#1E130B', marginBottom: '0.6rem', fontWeight: 850 }}>
+          <h3 style={{ fontSize: '1.45rem', color: 'var(--app-text-primary, #0f172a)', marginBottom: '0.6rem', fontWeight: 850 }}>
             {t('no_vendors_match', "No vendors matched your search")}
           </h3>
-          <p style={{ color: '#7A6657', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--app-text-secondary, #475569)', marginBottom: '1.75rem', lineHeight: 1.6 }}>
             {t('try_clearing', "Try clearing keyword filters or selecting a different service category.")}
           </p>
           <button
             onClick={handleResetFilters}
-            className="mkt-filter-btn"
-            style={{ margin: '0 auto' }}
+            className="btn-primary"
+            style={{ margin: '0 auto', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.75rem' }}
           >
             <RotateCcw size={16} />
             {t('reset_filters', "Reset All Filters")}
@@ -405,8 +417,10 @@ export default function MarketplacePage() {
         </div>
       ) : (
         <div className="mkt-grid">
-          {filteredProviders.map(provider => (
-            <ProviderCard key={provider.id} provider={provider} />
+          {filteredProviders.map((provider, idx) => (
+            <div key={provider.id} style={{ '--stagger': idx }}>
+              <ProviderCard provider={provider} />
+            </div>
           ))}
         </div>
       )}

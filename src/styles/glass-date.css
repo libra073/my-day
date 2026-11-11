@@ -1,0 +1,293 @@
+/* ============================================================================
+   GLASS DATE PICKER — calendar in the MY DAY material
+   ========================================================================== */
+
+.gdp {
+  position: relative;
+  width: 100%;
+}
+
+.gdp__button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 650;
+  text-align: left;
+  color: #0d1d31;
+  background-color: rgba(255, 255, 255, 0.62);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.45) 100%);
+  box-shadow:
+    inset 0 1px 0 0 #ffffff,
+    inset 0 0 0 1px rgba(12, 34, 68, 0.1);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  backdrop-filter: blur(16px) saturate(170%);
+  transition: box-shadow 180ms ease;
+}
+
+.gdp__button:hover {
+  box-shadow:
+    inset 0 1px 0 0 #ffffff,
+    inset 0 0 0 1px rgba(12, 34, 68, 0.16),
+    0 10px 22px -18px rgba(8, 24, 48, 0.6);
+}
+
+.gdp__button:focus-visible,
+.gdp.is-open .gdp__button {
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 0 #ffffff,
+    inset 0 0 0 1.5px #0066ee,
+    0 0 0 4px rgba(0, 102, 238, 0.16);
+}
+
+html[data-theme="dark"] .gdp__button {
+  color: #eaf2ff;
+  background-color: rgba(14, 24, 42, 0.7);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+}
+
+.gdp__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gdp__value.is-placeholder {
+  color: #6d7f96;
+}
+
+.gdp__chevron {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* chromeless inside existing icon wrappers */
+.ax-input--date .gdp,
+.wprof-input-wrap .gdp {
+  width: 100%;
+}
+
+.ax-input--date .gdp__button,
+.wprof-input-wrap .gdp__button {
+  min-height: 46px;
+  padding-left: 2.5rem;
+  padding-right: 0.35rem;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ── panel ──────────────────────────────────────────────────────────────── */
+.gdp__panel {
+  position: absolute;
+  z-index: 90;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 320px;
+  max-width: min(320px, 92vw);
+  padding: 0.9rem;
+  border-radius: 22px;
+  background-color: #fbfdff;
+  background-image: linear-gradient(180deg, #ffffff 0%, #f2f8ff 100%);
+  box-shadow:
+    inset 0 1px 0 0 #ffffff,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 0 0 0.5px rgba(12, 34, 68, 0.12),
+    0 34px 70px -30px rgba(6, 18, 38, 0.6);
+  animation: gdp-in 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform-origin: top left;
+}
+
+html[data-theme="dark"] .gdp__panel {
+  background-color: #101a2c;
+  background-image: linear-gradient(180deg, #1a2740 0%, #0e1826 100%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 34px 70px -26px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes gdp-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gdp__panel { animation: none; }
+}
+
+.gdp__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.gdp__month {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #0d1d31;
+}
+
+html[data-theme="dark"] .gdp__month {
+  color: #eaf2ff;
+}
+
+.gdp__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #12233d;
+  background: rgba(12, 34, 68, 0.06);
+  transition: background-color 140ms ease;
+}
+
+.gdp__nav:hover {
+  background: rgba(0, 102, 238, 0.14);
+}
+
+.gdp__nav svg {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  flex: none;
+}
+
+html[data-theme="dark"] .gdp__nav {
+  color: #dbe6f7;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.gdp__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 0.2rem;
+}
+
+.gdp__weekdays span {
+  text-align: center;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7b8ba1;
+}
+
+html[data-theme="dark"] .gdp__weekdays span {
+  color: #8fa2bd;
+}
+
+.gdp__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  outline: none;
+}
+
+.gdp__day {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  padding: 0;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: #14283f;
+  background: transparent;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+html[data-theme="dark"] .gdp__day {
+  color: #dbe6f7;
+}
+
+.gdp__day.is-outside {
+  color: #a6b4c6;
+}
+
+html[data-theme="dark"] .gdp__day.is-outside {
+  color: #5f7291;
+}
+
+.gdp__day:hover:not(:disabled) {
+  background: rgba(0, 102, 238, 0.1);
+}
+
+.gdp__day.is-active {
+  box-shadow: inset 0 0 0 1.5px rgba(0, 102, 238, 0.55);
+}
+
+.gdp__day.is-today:not(.is-selected) {
+  color: #0066ee;
+  font-weight: 850;
+}
+
+.gdp__day.is-selected {
+  background: linear-gradient(180deg, #2a7cff, #0058cc);
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 8px 18px -10px rgba(0, 70, 160, 0.8);
+}
+
+.gdp__day:disabled {
+  cursor: not-allowed;
+  color: #c3ccd8;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+html[data-theme="dark"] .gdp__day:disabled {
+  color: #4a5a72;
+}
+
+.gdp__day:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #0066ee;
+}
+
+@media (pointer: coarse) {
+  .gdp__day { height: 42px; }
+  .gdp__nav { width: 40px; height: 40px; }
+}
+
+/* escape the form stacking order so the calendar sits above later fields */
+.wprof-input-wrap:has(.gdp.is-open),
+.wprof-input-wrap:has(.gsel.is-open),
+.ax-input--date:has(.gdp.is-open),
+.ax-input--select:has(.gsel.is-open) {
+  position: relative;
+  z-index: 60;
+}

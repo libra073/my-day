@@ -14,7 +14,10 @@ export default function SharedDecisionsCard() {
     voteDecision,
     updateDecision,
     createNote,
+    language,
   } = useAppContext();
+
+  const isSwahili = language === 'sw';
 
   const permissions = wedding?.permissions || {};
   const canManage = permissions.canManageDecisions;
@@ -112,24 +115,26 @@ export default function SharedDecisionsCard() {
 
   return (
     <div style={{
-      background: '#FFFFFF',
+      background: 'var(--app-card-bg, rgba(255, 255, 255, 0.72))',
       borderRadius: 'var(--radius-xl)',
-      padding: '1.75rem',
-      border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)',
+      padding: '1.75rem 2rem',
+      border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+      boxShadow: 'var(--clay-shadow)',
       marginBottom: '2rem'
     }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.35rem' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary-hover)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.25rem' }}>
-            <Vote size={16} /> Shared Decisions & Shared Notes
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary, #0071E3)', fontWeight: 800, fontSize: '0.82rem', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <Vote size={16} /> {isSwahili ? 'Maamuzi ya Pamoja & Madokezo' : 'Shared Decisions & Shared Notes'}
           </div>
-          <h2 style={{ fontSize: '1.4rem', color: 'var(--color-text)', fontWeight: 800, margin: 0 }}>
-            Collaborative Choices & Knowledge Base
+          <h2 style={{ fontSize: '1.45rem', color: 'var(--app-text-primary, #0F172A)', fontWeight: 850, margin: 0, letterSpacing: '-0.02em' }}>
+            {isSwahili ? 'Chaguzi za Ushirikiano & Taarifa Muhimu' : 'Collaborative Choices & Knowledge Base'}
           </h2>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>
-            Vote on key options together (Bride, Groom, Planner, Family) and keep emergency notes synchronized.
+          <p style={{ color: 'var(--app-text-muted, #64748B)', fontSize: '0.88rem', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
+            {isSwahili
+              ? 'Piga kura kwenye chaguzi muhimu pamoja (Bibi Harusi, Bwana Harusi, Mpangaji, Familia) na weka kumbukumbu zikisasishwa.'
+              : 'Vote on key options together (Bride, Groom, Planner, Family) and keep emergency notes synchronized.'}
           </p>
         </div>
 
@@ -137,78 +142,81 @@ export default function SharedDecisionsCard() {
           {activeTab === 'decisions' && canManage && (
             <button
               onClick={() => setShowNewDecisionModal(!showNewDecisionModal)}
+              className="btn-primary"
               style={{
-                background: 'var(--color-primary)',
-                color: '#FFFFFF',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '0.8rem',
-                fontWeight: 700,
+                padding: '0.55rem 1.15rem',
+                fontSize: '0.82rem',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                cursor: 'pointer'
               }}
             >
-              <PlusCircle size={14} /> New Decision
+              <PlusCircle size={14} /> {isSwahili ? 'Uamuzi Mpya' : 'New Decision'}
             </button>
           )}
 
           {activeTab === 'notes' && (
             <button
               onClick={() => setShowNewNoteModal(!showNewNoteModal)}
+              className="btn-primary"
               style={{
-                background: 'var(--color-primary)',
-                color: '#FFFFFF',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '0.8rem',
-                fontWeight: 700,
+                padding: '0.55rem 1.15rem',
+                fontSize: '0.82rem',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                cursor: 'pointer'
               }}
             >
-              <PlusCircle size={14} /> Add Note
+              <PlusCircle size={14} /> {isSwahili ? 'Ongeza Dokezo' : 'Add Note'}
             </button>
           )}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+      {/* VisionOS Capsule Segmented Tabs */}
+      <div style={{
+        display: 'inline-flex',
+        background: 'var(--app-surface-secondary, rgba(255, 255, 255, 0.65))',
+        border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+        padding: '0.3rem',
+        borderRadius: 'var(--radius-pill)',
+        gap: '0.35rem',
+        marginBottom: '1.5rem',
+        boxShadow: '0 4px 12px rgba(15, 23, 42, 0.03)'
+      }}>
         <button
           onClick={() => setActiveTab('decisions')}
           style={{
-            background: 'none',
-            border: 'none',
-            padding: '0.4rem 0.8rem',
-            fontWeight: activeTab === 'decisions' ? 800 : 600,
-            color: activeTab === 'decisions' ? 'var(--color-primary-hover)' : 'var(--color-text-muted)',
-            borderBottom: activeTab === 'decisions' ? '2px solid var(--color-primary)' : 'none',
+            background: activeTab === 'decisions' ? 'var(--p3d-grad-primary)' : 'transparent',
+            color: activeTab === 'decisions' ? '#FFFFFF' : 'var(--color-text-muted)',
+            border: activeTab === 'decisions' ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid transparent',
+            padding: '0.5rem 1.25rem',
+            borderRadius: 'var(--radius-pill)',
+            fontWeight: 800,
             cursor: 'pointer',
-            fontSize: '0.85rem'
+            fontSize: '0.84rem',
+            boxShadow: activeTab === 'decisions' ? '0 4px 14px rgba(110, 56, 28, 0.40)' : 'none',
+            transition: 'var(--transition-fast)'
           }}
         >
-          Voting Polls ({decisions.length})
+          {isSwahili ? 'Kura za Maamuzi' : 'Voting Polls'} ({decisions.length})
         </button>
         <button
           onClick={() => setActiveTab('notes')}
           style={{
-            background: 'none',
-            border: 'none',
-            padding: '0.4rem 0.8rem',
-            fontWeight: activeTab === 'notes' ? 800 : 600,
-            color: activeTab === 'notes' ? 'var(--color-primary-hover)' : 'var(--color-text-muted)',
-            borderBottom: activeTab === 'notes' ? '2px solid var(--color-primary)' : 'none',
+            background: activeTab === 'notes' ? 'var(--p3d-grad-primary)' : 'transparent',
+            color: activeTab === 'notes' ? '#FFFFFF' : 'var(--color-text-muted)',
+            border: activeTab === 'notes' ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid transparent',
+            padding: '0.5rem 1.25rem',
+            borderRadius: 'var(--radius-pill)',
+            fontWeight: 800,
             cursor: 'pointer',
-            fontSize: '0.85rem'
+            fontSize: '0.84rem',
+            boxShadow: activeTab === 'notes' ? '0 4px 14px rgba(110, 56, 28, 0.40)' : 'none',
+            transition: 'var(--transition-fast)'
           }}
         >
-          Shared Notes & Briefs ({notes.length})
+          {isSwahili ? 'Madokezo ya Pamoja' : 'Shared Notes & Briefs'} ({notes.length})
         </button>
       </div>
 
@@ -222,14 +230,16 @@ export default function SharedDecisionsCard() {
           border: '1px solid var(--color-border)'
         }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.75rem', color: 'var(--color-text)' }}>
-            Start a Collaborative Decision Poll
+            {isSwahili ? 'Anzisha Kura ya Uamuzi wa Pamoja' : 'Start a Collaborative Decision Poll'}
           </h3>
           <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>Decision Title</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>
+                {isSwahili ? 'Kichwa cha Uamuzi' : 'Decision Title'}
+              </label>
               <input
                 type="text"
-                placeholder="E.g. Cake Flavor & Bakery Selection"
+                placeholder={isSwahili ? 'Mfano: Ladha ya Keki & Chaguo la Bakery' : 'E.g. Cake Flavor & Bakery Selection'}
                 value={decTitle}
                 onChange={e => setDecTitle(e.target.value)}
                 required
@@ -237,22 +247,26 @@ export default function SharedDecisionsCard() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>Description & Context</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>
+                {isSwahili ? 'Maelezo & Muktadha' : 'Description & Context'}
+              </label>
               <input
                 type="text"
-                placeholder="Give details or budget ranges to consider"
+                placeholder={isSwahili ? 'Weka maelezo au makadirio ya bajeti ya kuzingatia' : 'Give details or budget ranges to consider'}
                 value={decDesc}
                 onChange={e => setDecDesc(e.target.value)}
                 style={{ width: '100%', padding: '0.45rem 0.75rem', fontSize: '0.85rem', borderRadius: 'var(--radius)', border: '1px solid var(--color-border)' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>Options to Vote On</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>
+                {isSwahili ? 'Chaguzi za Kupigiwa Kura' : 'Options to Vote On'}
+              </label>
               {decOptions.map((opt, idx) => (
                 <div key={idx} style={{ marginBottom: '0.4rem' }}>
                   <input
                     type="text"
-                    placeholder={`Option ${idx + 1}`}
+                    placeholder={isSwahili ? `Chaguo ${idx + 1}` : `Option ${idx + 1}`}
                     value={opt}
                     onChange={e => handleOptionChange(idx, e.target.value)}
                     style={{ width: '100%', padding: '0.4rem 0.75rem', fontSize: '0.85rem', borderRadius: 'var(--radius)', border: '1px solid var(--color-border)' }}
@@ -264,7 +278,7 @@ export default function SharedDecisionsCard() {
                 onClick={handleAddOptionField}
                 style={{ background: 'none', border: 'none', color: 'var(--color-primary-hover)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}
               >
-                + Add Another Option
+                + {isSwahili ? 'Ongeza Chaguo Lingine' : 'Add Another Option'}
               </button>
             </div>
           </div>
@@ -274,13 +288,13 @@ export default function SharedDecisionsCard() {
               onClick={() => setShowNewDecisionModal(false)}
               style={{ background: 'transparent', border: '1px solid var(--color-border)', padding: '0.4rem 0.85rem', borderRadius: 'var(--radius)', fontSize: '0.8rem', cursor: 'pointer' }}
             >
-              Cancel
+              {isSwahili ? 'Ghairi' : 'Cancel'}
             </button>
             <button
               type="submit"
               style={{ background: 'var(--color-primary)', color: '#FFFFFF', border: 'none', padding: '0.4rem 1.25rem', borderRadius: 'var(--radius)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
             >
-              Launch Decision Poll
+              {isSwahili ? 'Zindua Kura ya Uamuzi' : 'Launch Decision Poll'}
             </button>
           </div>
         </form>
@@ -296,14 +310,16 @@ export default function SharedDecisionsCard() {
           border: '1px solid var(--color-border)'
         }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.75rem', color: 'var(--color-text)' }}>
-            Add Shared Wedding Note
+            {isSwahili ? 'Ongeza Dokezo la Harusi la Pamoja' : 'Add Shared Wedding Note'}
           </h3>
           <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>Note Title</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>
+                {isSwahili ? 'Kichwa cha Dokezo' : 'Note Title'}
+              </label>
               <input
                 type="text"
-                placeholder="E.g. Photography Shot List & Family Groupings"
+                placeholder={isSwahili ? 'Mfano: Orodha ya Picha za Kupiga na Vikundi vya Familia' : 'E.g. Photography Shot List & Family Groupings'}
                 value={noteTitle}
                 onChange={e => setNoteTitle(e.target.value)}
                 required
@@ -311,10 +327,12 @@ export default function SharedDecisionsCard() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>Content</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.2rem' }}>
+                {isSwahili ? 'Yaliyomo' : 'Content'}
+              </label>
               <textarea
                 rows={3}
-                placeholder="Enter detailed notes, schedules, contacts, or instructions..."
+                placeholder={isSwahili ? 'Andika madokezo ya kina, ratiba, mawasiliano, au maagizo...' : 'Enter detailed notes, schedules, contacts, or instructions...'}
                 value={noteContent}
                 onChange={e => setNoteContent(e.target.value)}
                 required
@@ -329,7 +347,7 @@ export default function SharedDecisionsCard() {
                 onChange={e => setNotePinned(e.target.checked)}
               />
               <label htmlFor="pinnedNoteCheck" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text)', cursor: 'pointer' }}>
-                Pin this note to the top of the workspace
+                {isSwahili ? 'Bandika dokezo hili juu ya nafasi ya kazi' : 'Pin this note to the top of the workspace'}
               </label>
             </div>
           </div>
@@ -339,13 +357,13 @@ export default function SharedDecisionsCard() {
               onClick={() => setShowNewNoteModal(false)}
               style={{ background: 'transparent', border: '1px solid var(--color-border)', padding: '0.4rem 0.85rem', borderRadius: 'var(--radius)', fontSize: '0.8rem', cursor: 'pointer' }}
             >
-              Cancel
+              {isSwahili ? 'Ghairi' : 'Cancel'}
             </button>
             <button
               type="submit"
               style={{ background: 'var(--color-primary)', color: '#FFFFFF', border: 'none', padding: '0.4rem 1.25rem', borderRadius: 'var(--radius)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
             >
-              Save Note
+              {isSwahili ? 'Hifadhi Dokezo' : 'Save Note'}
             </button>
           </div>
         </form>
@@ -356,20 +374,26 @@ export default function SharedDecisionsCard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {decisions.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
-              No decisions polled yet. Start one above!
+              {isSwahili ? 'Hakuna maamuzi yaliyopigiwa kura bado. Anzisha hapo juu!' : 'No decisions polled yet. Start one above!'}
             </div>
           ) : (
             decisions.map(dec => {
               const isAgreed = dec.status === 'agreed';
               const isRejected = dec.status === 'rejected';
 
+              const statusBadgeLabel = isAgreed
+                ? (isSwahili ? 'IMEKUBALIWA' : 'AGREED')
+                : isRejected
+                  ? (isSwahili ? 'IMEKATALIWA' : 'REJECTED')
+                  : (isSwahili ? 'INAENDELEA' : 'OPEN');
+
               return (
                 <div
                   key={dec.id}
                   style={{
-                    background: isAgreed ? '#F0FDF4' : '#FFFFFF',
+                    background: isAgreed ? 'var(--color-success-bg, rgba(16, 185, 129, 0.1))' : 'var(--app-surface-elevated, #FFFFFF)',
                     borderRadius: 'var(--radius-lg)',
-                    border: isAgreed ? '1px solid #BBF7D0' : '1px solid var(--color-border)',
+                    border: isAgreed ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid var(--color-border)',
                     padding: '1.25rem',
                     boxShadow: 'var(--shadow-xs)'
                   }}
@@ -383,10 +407,10 @@ export default function SharedDecisionsCard() {
                           fontWeight: 800,
                           padding: '0.2rem 0.55rem',
                           borderRadius: 'var(--radius-pill)',
-                          background: isAgreed ? '#DCFCE7' : isRejected ? '#FEE2E2' : '#FEF3C7',
-                          color: isAgreed ? '#166534' : isRejected ? '#991B1B' : '#92400E'
+                          background: isAgreed ? 'var(--color-success-bg, #DCFCE7)' : isRejected ? 'var(--color-error-bg, #FEE2E2)' : 'var(--color-warning-bg, #FEF3C7)',
+                          color: isAgreed ? 'var(--color-success, #166534)' : isRejected ? 'var(--color-error, #991B1B)' : 'var(--color-warning, #92400E)'
                         }}>
-                          {dec.status.toUpperCase()}
+                          {statusBadgeLabel}
                         </span>
                       </div>
                       {dec.description && (
@@ -409,14 +433,14 @@ export default function SharedDecisionsCard() {
                             cursor: 'pointer'
                           }}
                         >
-                          Agree / Finalize
+                          {isSwahili ? 'Kubaliana / Kamilisha' : 'Agree / Finalize'}
                         </button>
                         <button
                           onClick={() => handleFinalizeDecision(dec.id, 'rejected')}
                           style={{
-                            background: '#FEE2E2',
-                            color: '#DC2626',
-                            border: 'none',
+                            background: 'var(--color-error-bg, rgba(239, 68, 68, 0.14))',
+                            color: 'var(--color-error, #DC2626)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
                             padding: '0.25rem 0.65rem',
                             borderRadius: 'var(--radius-pill)',
                             fontSize: '0.75rem',
@@ -424,7 +448,7 @@ export default function SharedDecisionsCard() {
                             cursor: 'pointer'
                           }}
                         >
-                          Reject
+                          {isSwahili ? 'Kataa' : 'Reject'}
                         </button>
                       </div>
                     )}
@@ -435,6 +459,9 @@ export default function SharedDecisionsCard() {
                     {dec.options.map(opt => {
                       const hasVoted = (opt.votes || []).includes(user.id);
                       const voteCount = (opt.votes || []).length;
+                      const voteLabel = isSwahili
+                        ? `${voteCount} ${voteCount === 1 ? 'kura' : 'kura'}`
+                        : `${voteCount} ${voteCount === 1 ? 'vote' : 'votes'}`;
 
                       return (
                         <div
@@ -457,10 +484,10 @@ export default function SharedDecisionsCard() {
                         >
                           <div>
                             <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text)' }}>
-                              {opt.text}
+                              {opt.text || opt.label}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                              {voteCount} {voteCount === 1 ? 'vote' : 'votes'}
+                              {voteLabel}
                             </div>
                           </div>
 
@@ -468,7 +495,7 @@ export default function SharedDecisionsCard() {
                             <button
                               type="button"
                               style={{
-                                background: hasVoted ? 'var(--color-primary)' : '#FFFFFF',
+                                background: hasVoted ? 'var(--color-primary)' : 'var(--app-card-bg, #FFFFFF)',
                                 color: hasVoted ? '#FFFFFF' : 'var(--color-text)',
                                 border: '1px solid var(--color-border)',
                                 padding: '0.3rem 0.6rem',
@@ -481,7 +508,7 @@ export default function SharedDecisionsCard() {
                                 cursor: 'pointer'
                               }}
                             >
-                              <ThumbsUp size={12} /> {hasVoted ? 'Voted' : 'Vote'}
+                              <ThumbsUp size={12} /> {hasVoted ? (isSwahili ? 'Umepiga' : 'Voted') : (isSwahili ? 'Piga Kura' : 'Vote')}
                             </button>
                           )}
                         </div>
@@ -490,8 +517,17 @@ export default function SharedDecisionsCard() {
                   </div>
 
                   {dec.decisionNotes && (
-                    <div style={{ marginTop: '0.75rem', padding: '0.6rem 0.85rem', background: '#FFFFFF', borderRadius: 'var(--radius)', border: '1px solid var(--color-border)', fontSize: '0.8rem', color: 'var(--color-text)' }}>
-                      <strong>Decision Note ({dec.decidedBy}):</strong> {dec.decisionNotes}
+                    <div style={{
+                      marginTop: '0.75rem',
+                      padding: '0.65rem 0.95rem',
+                      background: 'var(--app-surface-secondary, rgba(255, 255, 255, 0.75))',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+                      boxShadow: 'var(--clay-shadow-tile)',
+                      fontSize: '0.8rem',
+                      color: 'var(--app-text-primary, #1e293b)'
+                    }}>
+                      <strong style={{ color: 'var(--color-primary, #0071E3)' }}>{isSwahili ? `Dokezo la Uamuzi (${dec.decidedBy})` : `Decision Note (${dec.decidedBy})`}:</strong> {dec.decisionNotes}
                     </div>
                   )}
                 </div>
@@ -506,16 +542,16 @@ export default function SharedDecisionsCard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
           {notes.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
-              No notes added yet. Add critical contacts or instructions above.
+              {isSwahili ? 'Hakuna madokezo yaliyoongezwa bado. Ongeza mawasiliano au maagizo hapo juu.' : 'No notes added yet. Add critical contacts or instructions above.'}
             </div>
           ) : (
             notes.map(n => (
               <div
                 key={n.id}
                 style={{
-                  background: n.pinned ? '#FFFBEB' : '#FFFFFF',
+                  background: n.pinned ? 'var(--color-warning-bg, #FFFBEB)' : 'var(--app-surface-elevated, #FFFFFF)',
                   borderRadius: 'var(--radius-lg)',
-                  border: n.pinned ? '1px solid #FCD34D' : '1px solid var(--color-border)',
+                  border: n.pinned ? '1px solid rgba(245, 158, 11, 0.45)' : '1px solid var(--color-border)',
                   padding: '1.25rem',
                   boxShadow: 'var(--shadow-xs)'
                 }}
@@ -525,7 +561,7 @@ export default function SharedDecisionsCard() {
                     {n.title}
                   </div>
                   {n.pinned && (
-                    <span title="Pinned Note" style={{ color: '#D97706' }}>
+                    <span title={isSwahili ? 'Dokezo Lililobandikwa' : 'Pinned Note'} style={{ color: '#D97706' }}>
                       <Pin size={15} fill="#D97706" />
                     </span>
                   )}
@@ -534,7 +570,7 @@ export default function SharedDecisionsCard() {
                   {n.content}
                 </p>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-dim)', borderTop: '1px dashed var(--color-border)', paddingTop: '0.4rem' }}>
-                  Added by <strong>{n.authorName}</strong> on {new Date(n.createdAt).toLocaleDateString()}
+                  {isSwahili ? 'Imeongezwa na ' : 'Added by '}<strong>{n.authorName}</strong> {isSwahili ? 'mnamo ' : 'on '}{new Date(n.createdAt).toLocaleDateString(isSwahili ? 'sw-TZ' : 'en-TZ')}
                 </div>
               </div>
             ))

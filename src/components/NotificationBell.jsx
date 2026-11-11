@@ -3,11 +3,11 @@ import { useAppContext } from '../context/AppContext';
 import { Bell, Check, CheckCheck, Clock, AlertTriangle, CheckCircle2, DollarSign } from 'lucide-react';
 
 const NOTIF_ICONS = {
-  task_assigned: <Clock size={14} color="#2563EB" />,
+  task_assigned: <Clock size={14} color="var(--color-primary, #0071E3)" />,
   task_completed: <CheckCircle2 size={14} color="#059669" />,
   deadline_approaching: <AlertTriangle size={14} color="#D97706" />,
   budget_alert: <DollarSign size={14} color="#DC2626" />,
-  member_joined: <Check size={14} color="#7C3AED" />,
+  member_joined: <Check size={14} color="var(--color-primary, #0071E3)" />,
 };
 
 export default function NotificationBell() {
@@ -15,7 +15,8 @@ export default function NotificationBell() {
     notifications,
     unreadNotifCount,
     markNotificationRead,
-    markAllNotificationsRead
+    markAllNotificationsRead,
+    language = 'en',
   } = useAppContext();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -46,19 +47,10 @@ export default function NotificationBell() {
     <div ref={containerRef} style={{ position: 'relative' }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          color: 'var(--color-text-inverse)',
-          padding: '0.4rem',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          position: 'relative'
-        }}
-        title="Wedding Notifications"
+        className="nav-bell"
+        style={{ position: 'relative' }}
+        title={language === 'sw' ? 'Taarifa za Harusi' : 'Wedding Notifications'}
+        aria-label={language === 'sw' ? 'Taarifa za Harusi' : 'Wedding Notifications'}
       >
         <Bell size={18} />
         {unreadNotifCount > 0 && (
@@ -66,7 +58,7 @@ export default function NotificationBell() {
             position: 'absolute',
             top: -3,
             right: -3,
-            background: 'var(--color-primary)',
+            background: 'var(--p3d-grad-primary, linear-gradient(135deg, #0A84FF 0%, #0071E3 55%, #004085 100%))',
             color: '#FFFFFF',
             fontSize: '0.65rem',
             fontWeight: 800,
@@ -85,30 +77,30 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div style={{
+        <div className="cl-notif-panel" style={{
           position: 'absolute',
           top: '120%',
           right: 0,
-          width: 'min(320px, calc(100vw - 1.5rem))',
+          width: 'min(330px, calc(100vw - 1.5rem))',
           maxWidth: 'calc(100vw - 1.5rem)',
-          background: '#FFFFFF',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: 'var(--shadow-lg)',
-          border: '1px solid var(--color-border)',
+          background: 'var(--app-card-bg, #ffffff)',
+          borderRadius: '24px',
+          boxShadow: 'var(--clay-shadow-soft)',
+          border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
           zIndex: 1000,
           overflow: 'hidden'
         }}>
           {/* Header */}
           <div style={{
-            padding: '0.75rem 1rem',
+            padding: '0.85rem 1.15rem',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            borderBottom: '1px solid var(--color-border)',
-            background: 'var(--color-surface-soft)'
+            borderBottom: '1px solid var(--app-border, rgba(255, 255, 255, 0.6))',
+            background: 'var(--app-surface-secondary, rgba(255, 255, 255, 0.45))'
           }}>
-            <strong style={{ fontSize: '0.85rem', color: 'var(--color-text)' }}>
-              Team Notifications ({unreadNotifCount})
+            <strong style={{ fontSize: '0.85rem', color: 'var(--app-text-primary, #0F172A)' }}>
+              {language === 'sw' ? `Taarifa za Timu (${unreadNotifCount})` : `Team Notifications (${unreadNotifCount})`}
             </strong>
             {unreadNotifCount > 0 && (
               <button
@@ -116,7 +108,7 @@ export default function NotificationBell() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--color-primary-hover)',
+                  color: 'var(--color-primary, #0071E3)',
                   fontSize: '0.75rem',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -125,7 +117,7 @@ export default function NotificationBell() {
                   gap: '0.2rem'
                 }}
               >
-                <CheckCheck size={13} /> Mark all read
+                <CheckCheck size={13} /> {language === 'sw' ? 'Weka zote zimesomwa' : 'Mark all read'}
               </button>
             )}
           </div>
@@ -133,8 +125,8 @@ export default function NotificationBell() {
           {/* List */}
           <div style={{ maxHeight: '320px', overflowY: 'auto' }}>
             {notifications.length === 0 ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
-                No notifications yet.
+              <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--app-text-muted, #64748b)', fontSize: '0.8rem' }}>
+                {language === 'sw' ? 'Hakuna taarifa bado.' : 'No notifications yet.'}
               </div>
             ) : (
               notifications.map(n => (
@@ -142,8 +134,8 @@ export default function NotificationBell() {
                   key={n.id}
                   style={{
                     padding: '0.75rem 1rem',
-                    borderBottom: '1px solid var(--color-border)',
-                    background: n.read ? '#FFFFFF' : '#FFFBEB',
+                    borderBottom: '1px solid var(--app-border, rgba(255, 255, 255, 0.4))',
+                    background: n.read ? 'transparent' : 'rgba(255, 45, 149, 0.12)',
                     display: 'flex',
                     gap: '0.6rem',
                     alignItems: 'flex-start'
@@ -166,7 +158,8 @@ export default function NotificationBell() {
                   {!n.read && (
                     <button
                       onClick={(e) => handleMarkRead(e, n.id)}
-                      title="Mark as read"
+                      title={language === 'sw' ? 'Weka imesomwa' : 'Mark as read'}
+                      aria-label={language === 'sw' ? 'Weka imesomwa' : 'Mark as read'}
                       style={{
                         background: 'transparent',
                         border: 'none',

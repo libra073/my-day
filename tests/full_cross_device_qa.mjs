@@ -209,39 +209,41 @@ async function runComprehensiveQA() {
     console.log('❌ [FAILED] Booking modal test:', err.message);
   }
 
-  // Test 2.4: Interactive Budget Slider & Calculator (390x844)
+  // Test 2.4: Interactive Hero Timeline Quick Chips & Filter Controls (390x844)
   results.interactionsTested++;
   try {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
 
-    // Click Adjust Budget
-    const adjustBtn = page.locator('.budget-adjust-btn');
-    await adjustBtn.waitFor({ state: 'visible', timeout: 4000 });
-    await adjustBtn.click();
-
-    // Slider should appear
-    const slider = page.locator('input[type="range"]');
-    await slider.waitFor({ state: 'visible', timeout: 3000 });
-
-    // Change value
-    await slider.fill('22000000');
+    // Click Date trigger on ModernHero to open popover
+    const dateTrigger = page.locator('#hero-date-trigger');
+    await dateTrigger.waitFor({ state: 'visible', timeout: 5000 });
+    await dateTrigger.click();
     await page.waitForTimeout(300);
 
-    const hasUpdatedBudget = await page.evaluate(() => {
-      return document.body.innerText.includes('22,000,000');
-    });
+    // Click interactive timeline chip inside popover
+    const quickChip = page.locator('button:has-text("+6 Mos"), button:has-text("+12 Mos"), button:has-text("+6 Mie")').first();
+    await quickChip.waitFor({ state: 'visible', timeout: 5000 });
+    await quickChip.click();
+    await page.waitForTimeout(300);
 
-    if (hasUpdatedBudget) {
+    // Submit hero search form to navigate to marketplace
+    const searchBtn = page.locator('button:has-text("Search"), button:has-text("Tafuta")').first();
+    await searchBtn.click();
+    await page.waitForTimeout(600);
+
+    const hasNavigatedMarketplace = page.url().includes('/marketplace');
+
+    if (hasNavigatedMarketplace) {
       results.interactionsPassed++;
-      console.log('✅ [PASSED] Live interactive budget calculator & slider adjusts smoothly on mobile');
+      console.log('✅ [PASSED] Hero quick timeline chips and search navigation work seamlessly on mobile');
     } else {
-      throw new Error('Budget did not update to 22,000,000');
+      throw new Error(`Failed to navigate to marketplace: ${page.url()}`);
     }
   } catch (err) {
-    results.failures.push({ interaction: 'Budget Slider', error: err.message });
-    console.log('❌ [FAILED] Budget slider interaction:', err.message);
+    results.failures.push({ interaction: 'Hero Quick Filters', error: err.message });
+    console.log('❌ [FAILED] Hero quick filters interaction:', err.message);
   }
 
   // Test 2.5: MY DAY AI Planner Responsive Interface (Tablet: 768x1024)
@@ -279,41 +281,62 @@ async function runComprehensiveQA() {
     console.log('❌ [FAILED] AI Planner interaction:', err.message);
   }
 
-  // Test 2.6: Role Switcher & Protected Navigation on Desktop (1440x900)
+  // Test 2.6: Role-Based Protected Workspace Navigation on Desktop (1440x900)
   results.interactionsTested++;
   try {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(600);
 
-    // Click Provider role pill
-    const providerBtn = page.locator('.site-strip .role-pill-btn:has-text("Grand Imperial")').first();
-    await providerBtn.waitFor({ state: 'visible', timeout: 4000 });
-    await providerBtn.click();
-    await page.waitForTimeout(600);
-    const isProviderUrl = page.url().includes('/provider');
-
-    // Switch to Admin
-    const adminBtn = page.locator('.site-strip .role-pill-btn:has-text("MY DAY Admin")').first();
-    await adminBtn.click();
-    await page.waitForTimeout(600);
-    const isAdminUrl = page.url().includes('/admin');
-
-    // Switch back to Groom
-    const groomBtn = page.locator('.site-strip .role-pill-btn:has-text("Groom")').first();
-    await groomBtn.click();
-    await page.waitForTimeout(600);
+    // Test Groom session navigation
+    await page.evaluate(() => {
+      localStorage.setItem('myday_token', 'token-groom-session');
+      localStorage.setItem('myday_user', JSON.stringify({
+        id: 'usr-groom',
+        name: 'John Msuya (Groom)',
+        email: 'john@myday.co.tz',
+        role: 'customer'
+      }));
+    });
+    await page.goto('http://localhost:5173/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(500);
     const isGroomUrl = page.url().includes('/dashboard');
 
-    if (isProviderUrl && isAdminUrl && isGroomUrl) {
+    // Test Provider session navigation
+    await page.evaluate(() => {
+      localStorage.setItem('myday_token', 'token-provider-session');
+      localStorage.setItem('myday_user', JSON.stringify({
+        id: 'usr-provider',
+        name: 'Grand Imperial Events',
+        email: 'info@grandimperial.co.tz',
+        role: 'provider'
+      }));
+    });
+    await page.goto('http://localhost:5173/provider', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(500);
+    const isProviderUrl = page.url().includes('/provider');
+
+    // Test Admin session navigation
+    await page.evaluate(() => {
+      localStorage.setItem('myday_token', 'token-admin-session');
+      localStorage.setItem('myday_user', JSON.stringify({
+        id: 'admin-1',
+        name: 'MY DAY Admin',
+        email: 'admin@myday.co.tz',
+        role: 'admin'
+      }));
+    });
+    await page.goto('http://localhost:5173/admin', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(500);
+    const isAdminUrl = page.url().includes('/admin');
+
+    if (isGroomUrl && isProviderUrl && isAdminUrl) {
       results.interactionsPassed++;
-      console.log('✅ [PASSED] Role switcher smoothly routes to Provider, Admin, and Groom dashboards');
+      console.log('✅ [PASSED] Role-based workspaces (Couple Dashboard, Provider Portal, Admin Console) render cleanly');
     } else {
-      throw new Error(`Role routing failed: provider=${isProviderUrl}, admin=${isAdminUrl}, groom=${isGroomUrl}`);
+      throw new Error(`Role routing failed: groom=${isGroomUrl}, provider=${isProviderUrl}, admin=${isAdminUrl}`);
     }
   } catch (err) {
-    results.failures.push({ interaction: 'Role Switcher', error: err.message });
-    console.log('❌ [FAILED] Role Switcher interaction:', err.message);
+    results.failures.push({ interaction: 'Role Workspaces', error: err.message });
+    console.log('❌ [FAILED] Role Workspaces interaction:', err.message);
   }
 
   await browser.close();

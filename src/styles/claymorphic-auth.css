@@ -1,0 +1,761 @@
+/* ═════════════════════════════════════════════════════════════════════
+   MY DAY — 3D AUTHENTICATION UI/UX (PURE APPLE LIQUID GLASS)
+   Features the Dedicated 3D Ebony Character on a Floating Liquid Glass Stage
+   Appears EXCLUSIVELY on:
+   - Creating Account (Register / Sign Up)
+   - Log In (Sign In)
+   - Forget Password
+   ═════════════════════════════════════════════════════════════════ */
+
+/* 1. Backdrop & Ambient Liquid Glass Room */
+.clay-auth-backdrop {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(65% 55% at 14% 10%, rgba(200, 228, 255, 0.65) 0%, transparent 60%),
+    radial-gradient(55% 45% at 86% 12%, rgba(200, 245, 240, 0.50) 0%, transparent 58%),
+    radial-gradient(65% 55% at 82% 90%, rgba(215, 235, 255, 0.55) 0%, transparent 62%),
+    radial-gradient(55% 48% at 14% 90%, rgba(210, 248, 244, 0.42) 0%, transparent 60%),
+    linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #E2E8F0 100%) !important;
+  font-family: var(--clay-font, 'Plus Jakarta Sans', system-ui, sans-serif);
+  padding: 2.5rem 1rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Modal Mode Backdrop Overlay */
+.modal-backdrop .clay-auth-backdrop {
+  min-height: auto;
+  padding: 0;
+  background: transparent !important;
+}
+
+/* 2. 3D Scene Container */
+.clay-auth-scene {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3. 3D Background Decorative Props (Crystal Pendant Lamp, Refractive Mist) */
+.clay-scene-lamp {
+  position: absolute;
+  top: -40px;
+  right: 6%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.clay-lamp-cord {
+  width: 2px;
+  height: 90px;
+  background: #94A3B8;
+}
+
+.clay-lamp-shade {
+  width: 58px;
+  height: 44px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(10, 132, 255, 0.35) 60%, rgba(0, 113, 227, 0.8) 100%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-radius: 28px 28px 8px 8px;
+  box-shadow: 0 10px 24px rgba(10, 132, 255, 0.25), inset 0 2px 2px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.clay-lamp-glow {
+  width: 32px;
+  height: 12px;
+  background: rgba(100, 210, 255, 0.85);
+  border-radius: 50%;
+  filter: blur(5px);
+  margin-top: -6px;
+}
+
+/* Refractive Background Glass Clouds */
+.clay-scene-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04), inset 0 1.5px 2px #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.clay-scene-cloud.cloud-1 {
+  width: 130px;
+  height: 48px;
+  top: 40px;
+  left: 5%;
+}
+
+.clay-scene-cloud.cloud-2 {
+  width: 110px;
+  height: 42px;
+  top: 70px;
+  right: 18%;
+}
+
+/* Standalone Back Link */
+.clay-auth-back-link {
+  position: absolute;
+  top: -15px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05), inset 0 1px 1px #ffffff;
+  color: var(--color-primary, #0071E3);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 30;
+  transition: all 0.2s ease;
+}
+
+.clay-auth-back-link:hover {
+  transform: translateY(-2px);
+  background: rgba(10, 132, 255, 0.12);
+  color: #0071E3;
+}
+
+/* Close Button (Modal Mode) */
+.clay-auth-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05), inset 0 1px 1px #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.2s ease;
+}
+
+.clay-auth-close-btn:hover {
+  transform: scale(1.08);
+  background: rgba(10, 132, 255, 0.15);
+}
+
+.clay-close-glyph {
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--color-primary, #0071E3);
+  transform: translateY(-1px);
+}
+
+/* 4. 3D Stage Composition (Ebony Character + Liquid Glass Phone Card) */
+.clay-auth-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  width: 100%;
+}
+
+/* 5. THE 3D EBONY CHARACTER (STRICTLY PRESERVED)
+   Pixar/Disney 3D styled friendly young Black woman with
+   rich dark skin, afro-puff bun, lilac hoodie, white joggers
+   and purple sneakers, leaning against the card! */
+.clay-ebony-character-wrap {
+  position: relative;
+  z-index: 25;
+  margin-right: -48px; /* Hands wrap over the edge of the card */
+  pointer-events: none;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.clay-ebony-character-img {
+  height: 560px;
+  width: auto;
+  max-width: 380px;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 32px rgba(10, 132, 255, 0.16));
+  user-select: none;
+}
+
+/* 6. PURE APPLE LIQUID GLASS PHONE CARD */
+.clay-phone-card {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.22) !important;
+  -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(103%) !important;
+  backdrop-filter: blur(36px) saturate(210%) brightness(103%) !important;
+  border-radius: 40px !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  box-shadow:
+    inset 0 1.75px 0 0 rgba(255, 255, 255, 0.92),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.04),
+    0 32px 80px -18px rgba(0, 30, 80, 0.12),
+    0 8px 24px -4px rgba(0, 30, 80, 0.04) !important;
+  padding: 2.25rem 2rem 2.25rem !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (min-width: 900px) and (min-height: 760px) {
+  .clay-phone-card {
+    min-height: 620px;
+    justify-content: center;
+  }
+}
+
+/* 7. Top 3D App Icon Badge */
+.clay-app-badge-box {
+  margin-bottom: 1rem;
+}
+
+.clay-app-badge {
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #409CFF 0%, #0A84FF 50%, #0056B3 100%);
+  box-shadow:
+    0 14px 28px -6px rgba(10, 132, 255, 0.45),
+    inset 0 2px 2px rgba(255, 255, 255, 0.85),
+    inset 0 -2.5px 3px rgba(0, 50, 120, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+.clay-badge-emblem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clay-badge-sparkle {
+  position: absolute;
+  font-size: 13px;
+  user-select: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.clay-badge-sparkle.sparkle-top {
+  top: -12px;
+  right: -12px;
+}
+
+/* Header Typography */
+.clay-phone-header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.clay-phone-title {
+  font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+  font-size: 1.65rem;
+  font-weight: 850;
+  color: var(--app-text-primary, #0F172A) !important;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.3rem;
+  line-height: 1.2;
+}
+
+.clay-phone-subtitle {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.88rem;
+  color: var(--app-text-secondary, #475569) !important;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Role Segmented Pill Bar */
+.clay-role-pill-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  background: rgba(241, 245, 249, 0.85);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  padding: 0.28rem;
+  border-radius: 9999px;
+  margin-bottom: 1.2rem;
+  gap: 0.3rem;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.clay-role-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.5rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: #64748B;
+  font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clay-role-pill.is-active {
+  background: linear-gradient(135deg, #0A84FF 0%, #0071E3 52%, #0056B3 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(10, 132, 255, 0.38) !important;
+}
+
+/* Feedback Alert */
+.clay-feedback-alert {
+  width: 100%;
+  padding: 0.65rem 0.95rem;
+  border-radius: 14px;
+  font-size: 0.84rem;
+  font-weight: 650;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  box-sizing: border-box;
+}
+
+.clay-feedback-alert.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.30);
+}
+
+.clay-feedback-alert.success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.30);
+}
+
+.clay-feedback-alert.info {
+  background: rgba(10, 132, 255, 0.08);
+  color: #0071E3;
+  border: 1px solid rgba(10, 132, 255, 0.22);
+}
+
+/* 8. Form & Inputs */
+.clay-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.clay-input-pill-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+.clay-input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.clay-input-icon {
+  position: absolute;
+  left: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: #94A3B8;
+  z-index: 5;
+}
+
+.clay-input-pill {
+  width: 100%;
+  height: 48px;
+  padding: 0 1rem 0 3.1rem !important;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.04), inset 0 -1px 1px rgba(255, 255, 255, 0.70);
+  font-size: 0.92rem;
+  color: #0F172A;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.clay-input-pill:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.38);
+  border-color: var(--color-primary, #0066EE);
+  box-shadow: 0 0 0 3px rgba(0, 102, 238, 0.20), inset 0 1px 1px rgba(255, 255, 255, 0.85);
+}
+
+.clay-input-pill::placeholder {
+  color: #94A3B8;
+}
+
+.clay-input-toggle-pw {
+  position: absolute;
+  right: 1.1rem;
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 5;
+}
+
+.clay-input-toggle-pw:hover {
+  color: #0F172A;
+}
+
+/* Forgot Password Link */
+.clay-forgot-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.3rem;
+  margin-bottom: 0.9rem;
+}
+
+.clay-forgot-link {
+  font-size: 0.82rem;
+  color: var(--color-primary, #0071E3);
+  font-weight: 700;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.clay-forgot-link:hover {
+  color: #0056B3;
+  text-decoration: underline;
+}
+
+/* Terms Checkbox */
+.clay-terms-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.15rem;
+  font-size: 0.8rem;
+  color: #64748B;
+}
+
+.clay-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary, #0071E3);
+  cursor: pointer;
+}
+
+.clay-terms-label {
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+/* 9. Apple Liquid Glass Primary Action Button */
+.clay-btn-primary {
+  width: 100% !important;
+  height: 52px !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  background: linear-gradient(135deg, #0A84FF 0%, #0071E3 52%, #0056B3 100%) !important;
+  color: #FFFFFF !important;
+  font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif) !important;
+  font-size: 1.02rem !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  box-shadow:
+    0 12px 28px -4px rgba(10, 132, 255, 0.45),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+}
+
+.clay-btn-primary:hover {
+  transform: translateY(-2px) scale(1.01) !important;
+  box-shadow:
+    0 16px 34px -4px rgba(10, 132, 255, 0.55),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.65) !important;
+}
+
+.clay-btn-primary:active {
+  transform: translateY(1px) scale(0.99) !important;
+}
+
+/* 10. Footer Switcher */
+.clay-footer-switcher {
+  font-size: 0.88rem;
+  color: #64748B;
+  text-align: center;
+  margin-top: 1.25rem !important;
+}
+
+.clay-footer-link {
+  color: var(--color-primary, #0071E3) !important;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 0.3rem;
+}
+
+.clay-footer-link:hover {
+  text-decoration: underline;
+}
+
+/* 11. Security Pill Badges */
+.clay-security-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1.25rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.clay-security-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(10, 132, 255, 0.08);
+  border: 1px solid rgba(10, 132, 255, 0.20);
+  font-size: 0.75rem;
+  font-weight: 750;
+  color: var(--color-primary, #0071E3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .clay-auth-stage {
+    flex-direction: column;
+  }
+  .clay-ebony-character-wrap {
+    margin-right: 0;
+    margin-bottom: -32px;
+    z-index: 25;
+  }
+  .clay-ebony-character-img {
+    height: 380px;
+    max-width: 280px;
+  }
+  .clay-phone-card {
+    max-width: 100%;
+    padding: 2rem 1.25rem !important;
+    border-radius: 32px !important;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   DARK THEME LIQUID GLASS AUTH (EBONY CHARACTER STRICTLY UNTOUCHED)
+   ═════════════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] .clay-auth-backdrop {
+  background:
+    radial-gradient(65% 55% at 14% 10%, rgba(10, 132, 255, 0.22) 0%, transparent 60%),
+    radial-gradient(55% 45% at 86% 12%, rgba(0, 199, 190, 0.16) 0%, transparent 58%),
+    radial-gradient(65% 55% at 82% 90%, rgba(10, 132, 255, 0.18) 0%, transparent 62%),
+    linear-gradient(135deg, #05080E 0%, #0A0F18 50%, #0F172A 100%) !important;
+}
+
+html[data-theme="dark"] .clay-phone-card {
+  background: rgba(14, 20, 34, 0.42) !important;
+  -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(102%) !important;
+  backdrop-filter: blur(36px) saturate(210%) brightness(102%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow:
+    inset 0 1.25px 0 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.80),
+    0 32px 75px -18px rgba(0, 0, 0, 0.90) !important;
+}
+
+html[data-theme="dark"] .clay-phone-title {
+  color: #F8FAFC !important;
+}
+
+html[data-theme="dark"] .clay-phone-subtitle {
+  color: #94A3B8 !important;
+}
+
+html[data-theme="dark"] .clay-role-pill-bar {
+  background: rgba(14, 20, 34, 0.50) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-theme="dark"] .clay-role-pill {
+  color: #94A3B8 !important;
+}
+
+html[data-theme="dark"] .clay-role-pill.is-active {
+  background: linear-gradient(135deg, #2997FF 0%, #0A84FF 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(10, 132, 255, 0.4) !important;
+}
+
+html[data-theme="dark"] .clay-input-pill {
+  background: rgba(14, 20, 34, 0.32) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55), inset 0 -1px 1px rgba(255, 255, 255, 0.10) !important;
+}
+
+html[data-theme="dark"] .clay-input-pill::placeholder {
+  color: #64748B !important;
+}
+
+html[data-theme="dark"] .clay-input-pill:hover {
+  background: rgba(20, 32, 56, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+html[data-theme="dark"] .clay-input-pill:focus {
+  background: rgba(20, 32, 56, 0.55) !important;
+  border-color: #2997FF !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.28) !important;
+}
+
+html[data-theme="dark"] .clay-auth-back-link {
+  background: rgba(20, 32, 56, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="dark"] .clay-auth-back-link:hover {
+  background: rgba(41, 151, 255, 0.22) !important;
+  border-color: #2997FF !important;
+  color: #F8FAFC !important;
+}
+
+html[data-theme="dark"] .clay-auth-close-btn {
+  background: rgba(20, 32, 56, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #F8FAFC !important;
+}
+
+html[data-theme="dark"] .clay-auth-close-btn:hover {
+  background: rgba(41, 151, 255, 0.25) !important;
+  border-color: #2997FF !important;
+}
+
+html[data-theme="dark"] .clay-close-glyph {
+  color: #2997FF !important;
+}
+
+html[data-theme="dark"] .clay-forgot-link {
+  color: #2997FF !important;
+}
+
+html[data-theme="dark"] .clay-security-item {
+  background: rgba(41, 151, 255, 0.15) !important;
+  border-color: rgba(41, 151, 255, 0.3) !important;
+  color: #2997FF !important;
+}
+
+html[data-theme="dark"] .clay-footer-link {
+  color: #2997FF !important;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   AUTH TRUST BAR (LIQUID GLASS CAPSULE & WCAG CONTRAST)
+   ═════════════════════════════════════════════════════════════════════ */
+.aura-auth-trust-bar {
+  margin-top: 1.5rem;
+  text-align: center;
+  position: relative;
+  z-index: 20;
+}
+
+.aura-trust-subtext {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  padding: 0.45rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.aura-divider-pipe {
+  opacity: 0.4;
+}
+
+.aura-contact-link {
+  color: #0071E3;
+  font-weight: 750;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.aura-contact-link:hover {
+  color: #0077ED;
+  text-decoration: underline;
+}
+
+html[data-theme="dark"] .aura-trust-subtext {
+  background: rgba(16, 26, 44, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #94A3B8 !important;
+}
+
+html[data-theme="dark"] .aura-contact-link {
+  color: #38BDF8 !important;
+}

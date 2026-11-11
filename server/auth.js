@@ -98,6 +98,46 @@ export const ROLE_PERMISSIONS = {
   },
 };
 
+/**
+ * Maps a verified Supabase user onto the local user table.
+ * Creates the row on first contact, links it by email if it already exists,
+ * and keeps MY DAY roles/vendor fields in sync with Supabase metadata.
+ */
+export function upsertUserFromSupabase(supaUser) {
+  const db = loadDatabase();
+  const email = (supaUser.email || '').toLowerCase();
+  const meta = supaUser.user_metadata || {};
+
+  let user = db.users.find((u) => u.supabaseId === supaUser.id)
+    || db.users.find((u) => (u.email || '').toLowerCase() === email);
+
+  if (!user) {
+    user = {
+      id: 'usr-' + crypto.randomBytes(6).toString('hex'),
+      supabaseId: supaUser.id,
+      name: meta.full_name || email.split('@')[0] || 'MY DAY user',
+      email,
+      phone: meta.phone || '',
+      globalRole: meta.global_role || 'customer',
+      emailVerified: Boolean(supaUser.email_confirmed_at),
+      createdAt: new Date().toISOString(),
+      ...(meta.vendor_category
+        ? { vendorCategory: meta.vendor_category, vendorLocation: meta.vendor_location || '' }
+        : {}),
+    };
+    db.users.push(user);
+    saveDatabase();
+    return user;
+  }
+
+  let dirty = false;
+  if (user.supabaseId !== supaUser.id) { user.supabaseId = supaUser.id; dirty = true; }
+  if (supaUser.email_confirmed_at && !user.emailVerified) { user.emailVerified = true; dirty = true; }
+  if (meta.full_name && !user.name) { user.name = meta.full_name; dirty = true; }
+  if (dirty) saveDatabase();
+  return user;
+}
+
 export function createSessionToken(userId) {
   const token = 'myday_sess_' + crypto.randomBytes(24).toString('hex');
   const db = loadDatabase();

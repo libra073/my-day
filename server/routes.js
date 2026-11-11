@@ -1,8 +1,10 @@
 import crypto from 'node:crypto';
 import { loadDatabase, saveDatabase, hashPassword } from './db.js';
+import { isSupabaseConfigured, getUserFromToken } from './supabaseAdmin.js';
 import {
   createSessionToken,
   getUserByToken,
+  upsertUserFromSupabase,
   revokeSessionToken,
   checkWorkspaceAccess,
   ROLE_PERMISSIONS,
@@ -17,6 +19,7 @@ import {
   validateAppointmentSlot,
   getEffectiveVendorSchedule,
   canDeliverNotification,
+  validateBookingDate,
 } from './businessSchedule.js';
 
 // In-memory sliding window rate limiter
@@ -111,10 +114,33 @@ export function handleApiRequest(req, res, urlObj) {
 
   return (async () => {
     // Rate limit check on sensitive endpoints (prevent brute-force and spam)
-    if (['/api/auth/register', '/api/auth/login', '/api/auth/forgot-password', '/api/auth/reset-password', '/api/payments'].includes(pathname)) {
+    if (['/api/auth/register', '/api/auth/login', '/api/auth/forgot-password', '/api/auth/reset-password', '/api/auth/send-verification', '/api/auth/verify-email', '/api/payments'].includes(pathname)) {
       if (!checkRateLimit(req, res, 20, 60000)) {
         return;
       }
+    }
+
+    // A Supabase session token identifies the caller; resolve it once.
+    const bearer = parseBearerToken(req);
+    if (bearer && isSupabaseConfigured) {
+      const supaUser = await getUserFromToken(bearer);
+      if (supaUser) supabaseUser = upsertUserFromSupabase(supaUser);
+    }
+
+    // When Supabase owns identity, the legacy password endpoints are a bypass:
+    // they would still accept the seeded local accounts. Refuse them instead.
+    if (isSupabaseConfigured && [
+      '/api/auth/register',
+      '/api/auth/login',
+      '/api/auth/forgot-password',
+      '/api/auth/reset-password',
+      '/api/auth/send-verification',
+      '/api/auth/verify-email',
+    ].includes(pathname)) {
+      return json({
+        error: 'Authentication is managed by Supabase. Use the sign-in or sign-up flow.',
+        code: 'supabase_managed',
+      }, 410);
     }
 
     // -------------------------------------------------------------
@@ -122,7 +148,7 @@ export function handleApiRequest(req, res, urlObj) {
     // -------------------------------------------------------------
     if (pathname === '/api/auth/register' && method === 'POST') {
       const body = await readBody();
-      const { name, email, password, phone, role = 'customer' } = body;
+      const { name, email, password, phone, role = 'customer', vendorCategory, vendorLocation } = body;
 
       if (!name || !email || !password) {
         return err('Name, email, and password are required', 400);
@@ -134,6 +160,9 @@ export function handleApiRequest(req, res, urlObj) {
       }
 
       const userId = `usr-${crypto.randomBytes(6).toString('hex')}`;
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const verificationExpiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 mins
+
       const newUser = {
         id: userId,
         name,
@@ -141,15 +170,34 @@ export function handleApiRequest(req, res, urlObj) {
         phone: phone || '',
         passwordHash: hashPassword(password),
         globalRole: role,
-        createdAt: new Date().toISOString()
+        emailVerified: false,
+        createdAt: new Date().toISOString(),
+        ...(role === 'provider' && vendorCategory
+          ? { vendorCategory, vendorLocation: vendorLocation || '' }
+          : {})
       };
+
+      if (!db.email_verifications) db.email_verifications = [];
+      db.email_verifications.push({
+        id: `ev-${crypto.randomBytes(6).toString('hex')}`,
+        email: email.toLowerCase(),
+        code: verificationCode,
+        expiresAt: verificationExpiresAt,
+        used: false,
+        createdAt: new Date().toISOString()
+      });
 
       db.users.push(newUser);
       const token = createSessionToken(userId);
       await saveDatabase();
 
       const { passwordHash: _, ...safeUser } = newUser;
-      return json({ user: safeUser, token }, 201);
+      return json({
+        user: safeUser,
+        token,
+        verificationCode,
+        message: 'Registration successful. Please verify your email with the 6-digit code.'
+      }, 201);
     }
 
     if (pathname === '/api/auth/login' && method === 'POST') {
@@ -203,6 +251,166 @@ export function handleApiRequest(req, res, urlObj) {
         revokeSessionToken(token);
       }
       return json({ success: true });
+    }
+
+    // -------------------------------------------------------------
+    // EMAIL VERIFICATION ROUTES
+    // -------------------------------------------------------------
+    if ((pathname === '/api/auth/send-verification' || pathname === '/api/auth/resend-verification') && method === 'POST') {
+      const body = await readBody();
+      let email = body.email;
+      if (!email) {
+        const { user } = authenticate();
+        if (user) email = user.email;
+      }
+
+      if (!email || typeof email !== 'string' || !email.includes('@')) {
+        return err('A valid email address is required', 400);
+      }
+
+      email = email.toLowerCase().trim();
+      const user = db.users.find(u => u.email.toLowerCase() === email);
+
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
+
+      if (!db.email_verifications) db.email_verifications = [];
+      db.email_verifications.push({
+        id: `ev-${crypto.randomBytes(6).toString('hex')}`,
+        email,
+        code: verificationCode,
+        expiresAt,
+        used: false,
+        createdAt: new Date().toISOString()
+      });
+
+      await saveDatabase();
+
+      return json({
+        success: true,
+        message: `A 6-digit verification code has been sent to ${email}`,
+        email,
+        verificationCode,
+        expiresAt
+      });
+    }
+
+    if (pathname === '/api/auth/verify-email' && method === 'POST') {
+      const body = await readBody();
+      let { email, code } = body;
+
+      if (!code || (typeof code !== 'string' && typeof code !== 'number')) {
+        return err('Verification code is required', 400);
+      }
+      code = String(code).trim();
+
+      if (!email) {
+        const { user } = authenticate();
+        if (user) email = user.email;
+      }
+
+      if (!email || typeof email !== 'string') {
+        return err('Email address is required', 400);
+      }
+
+      email = email.toLowerCase().trim();
+
+      if (!db.email_verifications) db.email_verifications = [];
+
+      // Find matching record (search latest first)
+      const matchingRecords = db.email_verifications.filter(r => r.email === email && r.code === code);
+      if (matchingRecords.length === 0) {
+        return err('Invalid verification code. Please check the 6-digit code and try again.', 400);
+      }
+
+      // Check the latest matching record
+      const match = matchingRecords[matchingRecords.length - 1];
+
+      if (match.used) {
+        return err('This verification code has already been used.', 400);
+      }
+
+      if (new Date(match.expiresAt) < new Date()) {
+        return err('This verification code has expired. Please request a new code.', 400);
+      }
+
+      // Mark code as used
+      match.used = true;
+
+      // Update user in DB
+      const user = db.users.find(u => u.email.toLowerCase() === email);
+      if (user) {
+        user.emailVerified = true;
+      }
+
+      await saveDatabase();
+
+      const safeUser = user ? (({ passwordHash, ...rest }) => rest)(user) : null;
+
+      return json({
+        success: true,
+        message: 'Email address verified successfully!',
+        emailVerified: true,
+        user: safeUser
+      });
+    }
+
+    // -------------------------------------------------------------
+    // VENDOR PARTNER REGISTRATION (public)
+    // -------------------------------------------------------------
+    if (pathname === '/api/vendors' && method === 'GET') {
+      const vendors = (db.vendors || []).map(v => ({
+        id: v.id,
+        name: v.name,
+        category: v.category,
+        location: v.location,
+        priceRate: v.priceRate,
+        status: v.status,
+        createdAt: v.createdAt,
+      }));
+      return json({ vendors });
+    }
+
+    if (pathname === '/api/vendors' && method === 'POST') {
+      if (!checkRateLimit(req, res, 10, 60000)) return;
+
+      let body;
+      try {
+        body = await readBody();
+      } catch {
+        return err('Invalid JSON body.', 400);
+      }
+
+      const name = String(body.name || '').trim();
+      const category = String(body.category || '').trim();
+      const location = String(body.location || '').trim();
+      const contact = String(body.contact || '').trim();
+      const description = String(body.description || '').trim().slice(0, 500);
+      const priceRate = Number(body.priceRate);
+
+      const ALLOWED_CATEGORIES = ['wapambaji', 'kumbi', 'entertainment', 'catering', 'saloon', 'transport'];
+      if (!name) return err('Business name is required.', 422);
+      if (!ALLOWED_CATEGORIES.includes(category)) return err('Unknown service category.', 422);
+      if (!location) return err('Location is required.', 422);
+      if (contact.replace(/\D/g, '').length < 9) return err('A valid phone / WhatsApp number is required.', 422);
+      if (!Number.isFinite(priceRate) || priceRate <= 0) return err('A valid starting price is required.', 422);
+
+      const vendor = {
+        id: `vendor-${Date.now()}`,
+        name,
+        category,
+        location,
+        contact,
+        priceRate,
+        description,
+        status: 'pending_review',
+        verified: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      db.vendors = [...(db.vendors || []), vendor];
+      await saveDatabase();
+      return json({ vendor }, 201);
     }
 
     // -------------------------------------------------------------
@@ -1495,6 +1703,19 @@ export function handleApiRequest(req, res, urlObj) {
         return err('vendorId, title, startIso, and endIso are required', 400);
       }
 
+      // Reject appointments in the past
+      const rawAppLang = body.language || urlObj.searchParams.get('lang') || req.headers['x-language'] || req.headers['accept-language'] || user.language || 'en';
+      const isAppSwahili = String(rawAppLang).toLowerCase().startsWith('sw');
+      try {
+        const appParts = getDarEsSalaamParts(startIso);
+        const darNow = getDarEsSalaamParts(new Date());
+        if (appParts.dateStr < darNow.dateStr) {
+          return err(isAppSwahili ? 'Huwezi kuweka miadi ya tarehe iliyopita.' : 'Cannot schedule an appointment for a past date.', 422);
+        }
+      } catch {
+        return err(isAppSwahili ? 'Muda batili wa kuanza umetolewa.' : 'Invalid start timestamp provided', 422);
+      }
+
       // Retrieve vendor schedule
       const customSched = db.vendor_schedules?.find(s => s.vendorId === vendorId);
       const vendorSchedule = getEffectiveVendorSchedule(customSched ? { schedule: customSched } : null);
@@ -1741,14 +1962,23 @@ export function handleApiRequest(req, res, urlObj) {
       const body = await readBody();
       const { category, providerId, packageId = 'standard', weddingId = 'wed-1', date, price } = body;
 
+      // Detect requested language
+      const rawLang = body.language || urlObj.searchParams.get('lang') || req.headers['x-language'] || req.headers['accept-language'] || user.language || 'en';
+      const lang = String(rawLang).toLowerCase().startsWith('sw') ? 'sw' : 'en';
+
       if (!category || !providerId || !date || !price) {
-        return err('Category, providerId, date, and price are required', 400);
+        return err(
+          lang === 'sw'
+            ? 'Kundi, kitambulisho cha mtoa huduma, tarehe, na bei vinahitajika'
+            : 'Category, providerId, date, and price are required',
+          400
+        );
       }
 
-      // Past event date rejection (Africa/Dar_es_Salaam)
-      const darNow = getDarEsSalaamParts(new Date());
-      if (date < darNow.dateStr) {
-        return err('Cannot book an event date in the past.', 422);
+      // Authoritative validation of event date in Africa/Dar_es_Salaam
+      const dateVal = validateBookingDate(date, lang);
+      if (!dateVal.valid) {
+        return err(dateVal.error, 422);
       }
 
       // Double-booking conflict rejection
@@ -1877,6 +2107,21 @@ export function handleApiRequest(req, res, urlObj) {
       const booking = (db.bookings || []).find(b => b.id === bookingId);
       if (!booking) {
         return err('Booking not found', 404);
+      }
+
+      // Block payment if target booking has a past date
+      if (booking.date) {
+        const rawPayLang = body.language || urlObj.searchParams.get('lang') || req.headers['x-language'] || req.headers['accept-language'] || user.language || 'en';
+        const payLang = String(rawPayLang).toLowerCase().startsWith('sw') ? 'sw' : 'en';
+        const dateVal = validateBookingDate(booking.date, payLang);
+        if (!dateVal.valid) {
+          return err(
+            payLang === 'sw'
+              ? 'Huwezi kulipia nafasi ya tarehe iliyopita.'
+              : 'Cannot process payment for a booking with a past date.',
+            422
+          );
+        }
       }
 
       // Duplicate payment protection / Idempotency guard (5-second window)

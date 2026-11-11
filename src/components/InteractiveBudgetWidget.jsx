@@ -84,15 +84,14 @@ export default function InteractiveBudgetWidget() {
       <section style={{ marginTop: '2.25rem', marginBottom: '3.75rem', position: 'relative', zIndex: 10 }}>
         <div className="container">
           <div className="celebration-budget-card" style={{ padding: '2.25rem', minHeight: '260px' }}>
-            <div className="celebration-card-top-accent" />
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#F2EBE2', animation: 'pulse 1.5s infinite' }} />
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(226, 232, 240, 0.7)', animation: 'pulse 1.5s infinite' }} />
               <div>
-                <div style={{ width: 220, height: 22, background: '#F2EBE2', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
-                <div style={{ width: 140, height: 14, background: '#F2EBE2', borderRadius: 4, animation: 'pulse 1.5s infinite' }} />
+                <div style={{ width: 220, height: 22, background: 'rgba(226, 232, 240, 0.7)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
+                <div style={{ width: 140, height: 14, background: 'rgba(226, 232, 240, 0.7)', borderRadius: 4, animation: 'pulse 1.5s infinite' }} />
               </div>
             </div>
-            <div style={{ height: 120, background: '#FAF8F5', borderRadius: 16, animation: 'pulse 1.5s infinite' }} />
+            <div style={{ height: 120, background: 'rgba(241, 245, 249, 0.8)', borderRadius: 16, animation: 'pulse 1.5s infinite' }} />
           </div>
         </div>
       </section>
@@ -105,21 +104,20 @@ export default function InteractiveBudgetWidget() {
       <section style={{ marginTop: '2.25rem', marginBottom: '3.75rem', position: 'relative', zIndex: 10 }}>
         <div className="container">
           <div className="celebration-budget-card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <div className="celebration-card-top-accent" />
-            <div style={{ display: 'inline-flex', padding: '0.75rem', background: '#FEF2F2', borderRadius: '50%', color: '#DC2626', marginBottom: '1rem' }}>
+            <div style={{ display: 'inline-flex', padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '50%', color: '#ef4444', marginBottom: '1rem', border: '1.5px solid rgba(239, 68, 68, 0.2)' }}>
               <AlertCircle size={28} />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#2C1E14', marginBottom: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--app-text-primary, #0f172a)', marginBottom: '0.5rem' }}>
               {t('celebration_error_msg')}
             </h3>
-            <p style={{ color: '#7A6657', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+            <p style={{ color: 'var(--app-text-secondary, #475569)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
               {workspaceError}
             </p>
             <button
               type="button"
               onClick={() => refreshWorkspace && refreshWorkspace()}
-              className="budget-cta-btn"
-              style={{ display: 'inline-flex', width: 'auto', margin: '0 auto', padding: '0.75rem 1.5rem' }}
+              className="btn-primary"
+              style={{ display: 'inline-flex', width: 'auto', margin: '0 auto', padding: '0.75rem 1.75rem', gap: '0.5rem' }}
             >
               <RefreshCw size={16} /> {t('celebration_retry')}
             </button>
@@ -132,94 +130,99 @@ export default function InteractiveBudgetWidget() {
   // 3. Logged-out Visitor: Public Interactive Feature Showcase
   if (!isLoggedIn) {
     return (
-      <section style={{ marginTop: '2.25rem', marginBottom: '3.75rem', position: 'relative', zIndex: 10 }}>
+      <section style={{ marginTop: '1.25rem', marginBottom: '2.5rem', position: 'relative', zIndex: 10 }}>
         <div className="container">
           <div className="celebration-budget-card">
-            <div className="celebration-card-top-accent" />
-
             <div className="celebration-budget-grid">
               {/* Left Column: Public Intro */}
               <div>
                 <div className="celebration-couple-row">
-                  <div className="celebration-heart-circle">
-                    <Heart size={26} fill="#F5A623" color="#F5A623" />
+                  <div style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    background: 'rgba(0, 102, 238, 0.10)',
+                    border: '1px solid rgba(0, 102, 238, 0.20)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 14px rgba(0, 102, 238, 0.15)',
+                    flexShrink: 0
+                  }}>
+                    <Heart size={22} fill="var(--liquid-sapphire-500)" color="var(--liquid-sapphire-500)" />
                   </div>
                   <div>
                     <div className="celebration-title-row">
-                      <span className="celebration-couple-name">
+                      <span className="celebration-couple-name" style={{ color: 'var(--app-text-primary)', fontSize: '1.3rem' }}>
                         {t('celebration_public_title')}
                       </span>
                     </div>
-                    <div className="celebration-meta">
+                    <div className="celebration-meta" style={{ color: 'var(--app-text-secondary)', fontSize: '0.82rem' }}>
                       <span>📍 Dar es Salaam • Arusha • Zanzibar • Dodoma • Mwanza</span>
                     </div>
                   </div>
                 </div>
 
-                <p style={{ color: '#665345', fontSize: '0.98rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.92rem', lineHeight: 1.55, marginBottom: '1rem' }}>
                   {t('celebration_public_subtitle')}
                 </p>
 
                 {/* Feature Badges */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.45rem 0.85rem', background: '#FAF7F2', borderRadius: '10px', border: '1px solid #EFE6DC', fontSize: '0.85rem', fontWeight: 700, color: '#3D2D21' }}>
-                    <Clock size={16} color="#F5A623" />
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div className="glass-lens" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 750, color: 'var(--app-text-primary)' }}>
+                    <Clock size={14} color="var(--liquid-sapphire-500)" />
                     <span>{t('celebration_feat_countdown')}</span>
                   </div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.45rem 0.85rem', background: '#FAF7F2', borderRadius: '10px', border: '1px solid #EFE6DC', fontSize: '0.85rem', fontWeight: 700, color: '#3D2D21' }}>
-                    <Coins size={16} color="#F5A623" />
+                  <div className="glass-lens" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 750, color: 'var(--app-text-primary)' }}>
+                    <Coins size={14} color="var(--liquid-sapphire-500)" />
                     <span>{t('celebration_feat_budget')}</span>
                   </div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.45rem 0.85rem', background: '#FAF7F2', borderRadius: '10px', border: '1px solid #EFE6DC', fontSize: '0.85rem', fontWeight: 700, color: '#15803d' }}>
-                    <ShieldCheck size={16} color="#15803d" />
+                  <div className="glass-lens" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 750, color: '#059669' }}>
+                    <ShieldCheck size={14} color="#10b981" />
                     <span>{t('celebration_feat_escrow')}</span>
                   </div>
                 </div>
               </div>
 
               {/* Right Column: Public Call-To-Action */}
-              <div className="budget-panel-premium" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', padding: '2rem 1.75rem' }}>
+              <div className="glass-dock budget-panel-premium" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', padding: '1.5rem', borderRadius: '20px' }}>
                 <div style={{
-                  width: 56,
-                  height: 56,
+                  width: 44,
+                  height: 44,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(245, 166, 35, 0.2) 0%, rgba(245, 166, 35, 0.05) 100%)',
-                  border: '1px solid rgba(245, 166, 35, 0.3)',
+                  background: 'rgba(0, 102, 238, 0.10)',
+                  border: '1px solid rgba(0, 102, 238, 0.20)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 1rem',
-                  color: '#F5A623'
+                  margin: '0 auto 0.75rem',
+                  color: 'var(--liquid-sapphire-500)',
+                  boxShadow: '0 4px 14px rgba(0, 102, 238, 0.15)'
                 }}>
-                  <Calendar size={28} />
+                  <Calendar size={22} color="var(--liquid-sapphire-500)" />
                 </div>
 
-                <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#2C1E14', marginBottom: '0.5rem' }}>
+                <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--app-text-primary)', marginBottom: '0.35rem' }}>
                   {language === 'sw' ? 'Anza Safari Yako ya Ndoa' : 'Ready to Plan Your Big Day?'}
                 </h4>
-                <p style={{ color: '#7A6657', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+                <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
                   {language === 'sw'
                     ? 'Fungua wasifu wako wa harusi leo ili upate kihesabu siku, usimamizi wa bajeti, na upange watoa huduma wote kwa urahisi.'
                     : 'Set up your wedding date and target budget to unlock your real-time countdown, budget allocations, and verified booking tools.'}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <Link to="/wedding" className="budget-cta-btn" style={{ justifyContent: 'center' }}>
+                  <Link to="/wedding" className="btn-primary" style={{ justifyContent: 'center', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span>{t('celebration_create_cta')}</span>
                     <ArrowRight size={17} />
                   </Link>
                   <Link
                     to="/marketplace"
+                    className="btn-liquid-white"
                     style={{
                       padding: '0.75rem 1rem',
-                      borderRadius: '12px',
-                      border: '1px solid #D8C7B5',
-                      background: '#FFFFFF',
-                      color: '#4A3B32',
                       fontSize: '0.9rem',
-                      fontWeight: 700,
-                      textDecoration: 'none',
-                      transition: 'background 0.2s ease',
+                      fontWeight: 750,
                       textAlign: 'center'
                     }}
                   >
@@ -239,87 +242,92 @@ export default function InteractiveBudgetWidget() {
     return (
       <section style={{ marginTop: '2.25rem', marginBottom: '3.75rem', position: 'relative', zIndex: 10 }}>
         <div className="container">
-          <div className="celebration-budget-card">
-            <div className="celebration-card-top-accent" />
-
+          <div className="celebration-budget-card glass-slab">
             <div className="celebration-budget-grid">
               {/* Left Column: Personalized Empty State */}
               <div>
                 <div className="celebration-couple-row">
-                  <div className="celebration-heart-circle">
-                    <Heart size={26} fill="#F5A623" color="#F5A623" />
+                  <div style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    background: 'rgba(0, 102, 238, 0.10)',
+                    border: '1px solid rgba(0, 102, 238, 0.20)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 14px rgba(0, 102, 238, 0.12)',
+                    flexShrink: 0
+                  }}>
+                    <Heart size={24} fill="var(--liquid-sapphire-500)" color="var(--liquid-sapphire-500)" />
                   </div>
                   <div>
                     <div className="celebration-title-row">
-                      <span className="celebration-couple-name">
+                      <span className="celebration-couple-name" style={{ color: 'var(--app-text-primary)' }}>
                         {t('celebration_empty_title')}, {user?.name?.split(' ')[0] || 'Celebrant'}!
                       </span>
                     </div>
-                    <div className="celebration-meta">
+                    <div className="celebration-meta" style={{ color: 'var(--app-text-secondary)' }}>
                       <span>💍 {language === 'sw' ? 'Weka Wasifu wa Harusi Yako' : 'Create Your Wedding Workspace'}</span>
                     </div>
                   </div>
                 </div>
 
-                <p style={{ color: '#665345', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
                   {t('celebration_empty_subtitle')}
                 </p>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.45rem 0.85rem', background: '#FAF7F2', borderRadius: '10px', border: '1px solid #EFE6DC', fontSize: '0.85rem', fontWeight: 700, color: '#3D2D21' }}>
-                    <Clock size={16} color="#F5A623" />
+                  <div className="glass-lens" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.45rem 0.85rem', fontSize: '0.85rem', fontWeight: 750, color: 'var(--app-text-primary)' }}>
+                    <Clock size={16} color="var(--liquid-sapphire-500)" />
                     <span>{language === 'sw' ? 'Weka Tarehe Rasmi' : 'Pick Wedding Date'}</span>
                   </div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.45rem 0.85rem', background: '#FAF7F2', borderRadius: '10px', border: '1px solid #EFE6DC', fontSize: '0.85rem', fontWeight: 700, color: '#3D2D21' }}>
-                    <Coins size={16} color="#F5A623" />
+                  <div className="glass-lens" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.45rem 0.85rem', fontSize: '0.85rem', fontWeight: 750, color: 'var(--app-text-primary)' }}>
+                    <Coins size={16} color="var(--liquid-sapphire-500)" />
                     <span>{language === 'sw' ? 'Weka Bajeti Yako' : 'Establish Budget'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Right Column: Setup Wedding CTA */}
-              <div className="budget-panel-premium" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', padding: '2rem 1.75rem' }}>
+              <div className="glass-dock budget-panel-premium" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', padding: '2rem 1.75rem', borderRadius: '20px' }}>
                 <div style={{
-                  width: 56,
-                  height: 56,
+                  width: 52,
+                  height: 52,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(245, 166, 35, 0.2) 0%, rgba(245, 166, 35, 0.05) 100%)',
-                  border: '1px solid rgba(245, 166, 35, 0.3)',
+                  background: 'rgba(0, 102, 238, 0.10)',
+                  border: '1px solid rgba(0, 102, 238, 0.20)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   margin: '0 auto 1rem',
-                  color: '#F5A623'
+                  color: 'var(--liquid-sapphire-500)',
+                  boxShadow: '0 4px 14px rgba(0, 102, 238, 0.12)'
                 }}>
-                  <Calendar size={28} />
+                  <Calendar size={26} color="var(--liquid-sapphire-500)" />
                 </div>
 
-                <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#2C1E14', marginBottom: '0.5rem' }}>
+                <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--app-text-primary)', marginBottom: '0.5rem' }}>
                   {language === 'sw' ? 'Unda Sherehe Yako Sasa' : 'Launch Your Wedding Workspace'}
                 </h4>
-                <p style={{ color: '#7A6657', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+                <p style={{ color: 'var(--app-text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
                   {language === 'sw'
                     ? 'Inachukua sekunde chache tu kuweka tarehe na bajeti ili uweze kutumia zana zote za MY DAY.'
                     : 'Set your event date and financial target in 30 seconds to unlock real-time budget tracking and vendor bookings.'}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <Link to="/wedding" className="budget-cta-btn" style={{ justifyContent: 'center' }}>
+                  <Link to="/wedding" className="btn-primary" style={{ justifyContent: 'center', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span>{t('celebration_setup_cta')}</span>
                     <ArrowRight size={17} />
                   </Link>
                   <Link
                     to="/marketplace"
+                    className="btn-liquid-white"
                     style={{
                       padding: '0.75rem 1rem',
-                      borderRadius: '12px',
-                      border: '1px solid #D8C7B5',
-                      background: '#FFFFFF',
-                      color: '#4A3B32',
                       fontSize: '0.9rem',
-                      fontWeight: 700,
-                      textDecoration: 'none',
-                      transition: 'background 0.2s ease',
+                      fontWeight: 750,
                       textAlign: 'center'
                     }}
                   >
@@ -360,27 +368,36 @@ export default function InteractiveBudgetWidget() {
   return (
     <section style={{ marginTop: '2.25rem', marginBottom: '3.75rem', position: 'relative', zIndex: 10 }}>
       <div className="container">
-        <div className="celebration-budget-card">
-          <div className="celebration-card-top-accent" />
-
+        <div className="celebration-budget-card glass-slab">
           <div className="celebration-budget-grid">
             {/* Left Column: Couple & Event Info with Real Live Countdown Ticker */}
             <div>
               {/* Couple Header */}
               <div className="celebration-couple-row">
-                <div className="celebration-heart-circle">
-                  <Heart size={26} fill="#F5A623" color="#F5A623" />
+                <div style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  background: 'rgba(0, 102, 238, 0.10)',
+                  border: '1px solid rgba(0, 102, 238, 0.20)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 14px rgba(0, 102, 238, 0.12)',
+                  flexShrink: 0
+                }}>
+                  <Heart size={24} fill="var(--liquid-sapphire-500)" color="var(--liquid-sapphire-500)" />
                 </div>
                 <div>
                   <div className="celebration-title-row">
-                    <span className="celebration-couple-name">
+                    <span className="celebration-couple-name" style={{ color: 'var(--app-text-primary)' }}>
                       {wedding.coupleNames || wedding.title || (user?.name ? `${user.name}'s Celebration` : t('celebration_title'))}
                     </span>
-                    <span className="celebration-active-pill">
+                    <span className="celebration-active-pill glass-lens" style={{ color: 'var(--liquid-sapphire-500)' }}>
                       <Sparkles size={11} /> {timeLeft.isPast ? t('celebration_past_event') : 'Active Celebration'}
                     </span>
                   </div>
-                  <div className="celebration-meta">
+                  <div className="celebration-meta" style={{ color: 'var(--app-text-secondary)' }}>
                     <span>📍 {wedding.location || wedding.city || 'Tanzania'}</span>
                     {formattedWedDate && (
                       <>
@@ -393,19 +410,19 @@ export default function InteractiveBudgetWidget() {
               </div>
 
               {/* Countdown Ticker Box */}
-              <div className="countdown-box-premium">
+              <div className="countdown-box-premium glass-dock">
                 <div className="countdown-box-header">
-                  <span className="countdown-box-title">
-                    <Clock size={15} color="#F5A623" /> {t('countdown_label')}
+                  <span className="countdown-box-title" style={{ color: 'var(--app-text-primary)' }}>
+                    <Clock size={15} color="var(--liquid-sapphire-500)" /> {t('countdown_label')}
                   </span>
-                  <span className="countdown-live-badge">
+                  <span className="countdown-live-badge glass-lens">
                     <span className="live-dot-pulse" style={{ width: 6, height: 6 }} /> LIVE TICKER
                   </span>
                 </div>
 
                 <div className="countdown-tiles-row">
                   {/* Days */}
-                  <div className="countdown-tile">
+                  <div className="countdown-tile glass-lens">
                     <div className="countdown-tile-number">{timeLeft.days}</div>
                     <div className="countdown-tile-label">{t('days_label')}</div>
                   </div>
@@ -413,7 +430,7 @@ export default function InteractiveBudgetWidget() {
                   <span className="countdown-colon-sep">:</span>
 
                   {/* Hours */}
-                  <div className="countdown-tile">
+                  <div className="countdown-tile glass-lens">
                     <div className="countdown-tile-number">{String(timeLeft.hours).padStart(2, '0')}</div>
                     <div className="countdown-tile-label">{t('hours_label')}</div>
                   </div>
@@ -421,7 +438,7 @@ export default function InteractiveBudgetWidget() {
                   <span className="countdown-colon-sep">:</span>
 
                   {/* Mins */}
-                  <div className="countdown-tile">
+                  <div className="countdown-tile glass-lens">
                     <div className="countdown-tile-number">{String(timeLeft.mins).padStart(2, '0')}</div>
                     <div className="countdown-tile-label">{t('mins_label')}</div>
                   </div>
@@ -429,7 +446,7 @@ export default function InteractiveBudgetWidget() {
                   <span className="countdown-colon-sep">:</span>
 
                   {/* Secs */}
-                  <div className="countdown-tile">
+                  <div className="countdown-tile glass-lens">
                     <div className="countdown-tile-number is-secs">{String(timeLeft.secs).padStart(2, '0')}</div>
                     <div className="countdown-tile-label">{t('secs_label')}</div>
                   </div>
@@ -438,40 +455,43 @@ export default function InteractiveBudgetWidget() {
             </div>
 
             {/* Right Column: Financial Overview & Budget Ring Breakdown */}
-            <div className="budget-panel-premium">
+            <div className="budget-panel-premium glass-dock" style={{ borderRadius: '20px' }}>
               <div>
                 <div className="budget-panel-header">
-                  <span className="budget-panel-label">{t('target_budget_label')}</span>
+                  <span className="budget-panel-label" style={{ color: 'var(--app-text-secondary)' }}>{t('target_budget_label')}</span>
                   <button
                     type="button"
                     onClick={() => setShowSlider(!showSlider)}
-                    className="budget-adjust-btn"
-                    title="Adjust target wedding budget"
+                    className="budget-adjust-btn glass-lens"
+                    title={language === 'sw' ? 'Rekebisha bajeti inayolengwa ya harusi' : 'Adjust target wedding budget'}
+                    aria-label={language === 'sw' ? 'Rekebisha bajeti inayolengwa ya harusi' : 'Adjust target wedding budget'}
+                    style={{
+                      color: 'var(--liquid-sapphire-500)'
+                    }}
                   >
                     <Sliders size={13} /> {t('adjust_btn')}
                   </button>
                 </div>
-                <div className="budget-target-amount">
+                <div className="budget-target-amount" style={{ color: 'var(--app-text-primary)' }}>
                   TSh {targetBudget.toLocaleString()}
                 </div>
               </div>
 
               {/* Smooth Range Slider */}
               {showSlider && (
-                <div style={{
-                  background: '#FAF7F2',
-                  borderRadius: '14px',
-                  padding: '0.75rem 1rem',
-                  border: '1px solid #E8DCCF',
-                  animation: 'fadeIn 0.2s ease',
+                <div className="budget-slider-drawer" style={{
+                  borderRadius: '16px',
+                  padding: '0.85rem 1rem',
+                  animation: 'fadeIn 0.2s ease'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, color: '#7A6657', marginBottom: '0.35rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, color: 'var(--app-text-secondary)', marginBottom: '0.35rem' }}>
                     <span>Min: TSh 2M</span>
-                    <span style={{ color: '#b45309' }}>Target: TSh {targetBudget.toLocaleString()}</span>
+                    <span style={{ color: 'var(--liquid-sapphire-500)', fontWeight: 800 }}>Target: TSh {targetBudget.toLocaleString()}</span>
                     <span>Max: TSh 100M</span>
                   </div>
                   <input
                     type="range"
+                    className="liquid-budget-range"
                     min="2000000"
                     max="100000000"
                     step="500000"
@@ -479,7 +499,7 @@ export default function InteractiveBudgetWidget() {
                     onChange={(e) => handleBudgetChange(Number(e.target.value))}
                     onMouseUp={(e) => handleBudgetCommit(Number(e.target.value))}
                     onTouchEnd={(e) => handleBudgetCommit(Number(e.target.value))}
-                    style={{ width: '100%', cursor: 'pointer', accentColor: '#F5A623' }}
+                    style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--liquid-sapphire-500)' }}
                   />
                 </div>
               )}
@@ -489,7 +509,7 @@ export default function InteractiveBudgetWidget() {
                 {/* SVG Ring Progress Chart */}
                 <div className="budget-ring-wrapper">
                   <svg width="98" height="98" viewBox="0 0 90 90" style={{ transform: 'rotate(-90deg)' }}>
-                    <circle cx="45" cy="45" r={radius} stroke="#F2EBE2" strokeWidth="9" fill="none" />
+                    <circle cx="45" cy="45" r={radius} stroke="var(--app-border, rgba(0, 102, 238, 0.12))" strokeWidth="9" fill="none" />
                     <circle
                       cx="45"
                       cy="45"
@@ -504,35 +524,35 @@ export default function InteractiveBudgetWidget() {
                     />
                     <defs>
                       <linearGradient id="budgetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#10b981" />
-                        <stop offset="100%" stopColor="#F5A623" />
+                        <stop offset="0%" stopColor="#0071E3" />
+                        <stop offset="100%" stopColor="#004085" />
                       </linearGradient>
                     </defs>
                   </svg>
                   <div className="budget-ring-inner">
-                    <div className="budget-ring-percent">{progressPercent}%</div>
-                    <div className="budget-ring-sub">{t('allocated_label')}</div>
+                    <div className="budget-ring-percent" style={{ color: 'var(--app-text-primary)' }}>{progressPercent}%</div>
+                    <div className="budget-ring-sub" style={{ color: 'var(--app-text-muted)' }}>{t('allocated_label')}</div>
                   </div>
                 </div>
 
                 {/* Committed & Remaining Status Pills */}
                 <div className="budget-pills-col">
                   {/* Committed */}
-                  <div className="budget-stat-pill committed">
-                    <span className="budget-stat-label" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <CheckCircle2 size={14} color="#15803d" /> {t('committed_label')}
+                  <div className="budget-stat-pill committed glass-lens">
+                    <span className="budget-stat-label" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--app-text-secondary)' }}>
+                      <CheckCircle2 size={14} color="#059669" /> {t('committed_label')}
                     </span>
-                    <span className="budget-stat-value green">
+                    <span className="budget-stat-value green" style={{ color: '#059669', fontWeight: 800 }}>
                       TSh {committedAmount.toLocaleString()}
                     </span>
                   </div>
 
                   {/* Remaining */}
-                  <div className="budget-stat-pill remaining">
-                    <span className="budget-stat-label" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <Coins size={14} color="#b45309" /> {t('remaining_label')}
+                  <div className="budget-stat-pill remaining glass-lens">
+                    <span className="budget-stat-label" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--app-text-secondary)' }}>
+                      <Coins size={14} color="var(--liquid-sapphire-500)" /> {t('remaining_label')}
                     </span>
-                    <span className="budget-stat-value amber">
+                    <span className="budget-stat-value amber" style={{ color: 'var(--liquid-sapphire-500)', fontWeight: 800 }}>
                       TSh {remainingAmount.toLocaleString()}
                     </span>
                   </div>
@@ -541,13 +561,13 @@ export default function InteractiveBudgetWidget() {
 
               {/* Progress Bar Track */}
               <div>
-                <div className="budget-bar-track">
-                  <div className="budget-bar-fill" style={{ width: `${progressPercent}%` }} />
+                <div className="budget-bar-track" style={{ background: 'rgba(0, 102, 238, 0.14)', boxShadow: 'inset 0 1px 2px rgba(0, 30, 80, 0.12)', borderRadius: '999px', height: '8px', overflow: 'hidden', marginBottom: '1.25rem' }}>
+                  <div className="budget-bar-fill" style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(135deg, #38BDF8 0%, #0071E3 55%, #0051D5 100%)', borderRadius: '999px' }} />
                 </div>
               </div>
 
               {/* Link to Full Planner / Dashboard */}
-              <Link to="/dashboard" className="budget-cta-btn">
+              <Link to="/dashboard" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem', padding: '0.85rem 1.5rem', width: '100%' }}>
                 <span>{t('manage_profile_btn')}</span>
                 <ChevronRight size={17} />
               </Link>

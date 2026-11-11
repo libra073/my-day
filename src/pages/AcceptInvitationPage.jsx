@@ -65,54 +65,52 @@ export default function AcceptInvitationPage() {
   return (
     <div className="container" style={{ padding: '3rem 1.25rem', minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{
-        background: '#FFFFFF',
-        borderRadius: 'var(--radius-xl)',
-        padding: '2.5rem',
+        background: 'var(--app-card-bg, #fffdfb)',
+        borderRadius: '26px',
+        padding: '2.75rem 2.25rem',
         maxWidth: '520px',
         width: '100%',
-        boxShadow: 'var(--shadow-md)',
-        border: '1px solid var(--color-border)',
+        boxShadow: '0 16px 38px -22px rgba(96, 74, 140, 0.32), 0 2px 6px rgba(96, 74, 140, 0.05)',
+        border: '1px solid var(--app-border, #efe8f1)',
         textAlign: 'center'
       }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: 64,
-          height: 64,
+          width: 68,
+          height: 68,
           borderRadius: '50%',
-          background: 'var(--color-primary-light)',
-          color: 'var(--color-primary-hover)',
+          background: 'var(--clay-lav-soft)',
+          color: 'var(--clay-purple-deep)',
+          border: '1px solid var(--app-border, #e3dbf7)',
           marginBottom: '1.25rem'
         }}>
-          <Heart size={32} fill="var(--color-primary-hover)" />
+          <Heart size={32} fill="#8b7cf6" color="#8b7cf6" />
         </div>
 
         {loading ? (
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text)' }}>Verifying invitation link...</h2>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Connecting to MY DAY secure workspace server...</p>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--app-text-primary, #0f172a)' }}>Verifying invitation link...</h2>
+            <p style={{ color: 'var(--app-text-muted, #64748b)', fontSize: '0.9rem', marginTop: '0.35rem' }}>Connecting to MY DAY secure workspace server...</p>
           </div>
         ) : errorMsg && !accepted ? (
           <div>
-            <div style={{ display: 'inline-flex', color: 'var(--color-error)', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'inline-flex', color: '#e11d48', marginBottom: '0.5rem' }}>
               <AlertTriangle size={36} />
             </div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--app-text-primary, #0f172a)', marginBottom: '0.5rem' }}>
               Invalid or Expired Invitation
             </h2>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+            <p style={{ color: 'var(--app-text-muted, #64748b)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
               {errorMsg}
             </p>
             <Link
               to="/"
+              className="btn-primary"
               style={{
                 display: 'inline-block',
-                background: 'var(--color-primary)',
-                color: '#FFFFFF',
-                padding: '0.65rem 1.5rem',
-                borderRadius: 'var(--radius-pill)',
-                fontWeight: 700,
+                padding: '0.75rem 1.75rem',
                 fontSize: '0.9rem'
               }}
             >
@@ -121,13 +119,13 @@ export default function AcceptInvitationPage() {
           </div>
         ) : accepted ? (
           <div>
-            <div style={{ display: 'inline-flex', color: 'var(--color-success)', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'inline-flex', color: '#059669', marginBottom: '0.5rem' }}>
               <CheckCircle2 size={40} />
             </div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--app-text-primary, #0f172a)', marginBottom: '0.5rem' }}>
               Welcome to the Wedding Workspace!
             </h2>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+            <p style={{ color: 'var(--app-text-muted, #64748b)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
               Invitation accepted successfully. Redirecting you to the wedding dashboard...
             </p>
           </div>
@@ -135,66 +133,64 @@ export default function AcceptInvitationPage() {
           <div>
             <div style={{
               display: 'inline-block',
-              background: 'var(--color-surface-soft)',
-              padding: '0.3rem 0.85rem',
+              background: 'rgba(0, 102, 238, 0.12)',
+              border: '1px solid rgba(0, 102, 238, 0.22)',
+              padding: '0.35rem 0.95rem',
               borderRadius: 'var(--radius-pill)',
               fontSize: '0.8rem',
-              fontWeight: 700,
-              color: 'var(--color-primary-hover)',
+              fontWeight: 800,
+              color: 'var(--color-primary, #0071E3)',
               marginBottom: '0.75rem'
             }}>
               Official Wedding Invitation
             </div>
 
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 850, color: 'var(--app-text-primary, #0F172A)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
               {inviteData?.weddingTitle}
             </h1>
 
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
-              <strong>{inviteData?.inviterName}</strong> has invited you to collaborate on their wedding planning workspace as a{' '}
-              <strong style={{ color: 'var(--color-primary-hover)' }}>{inviteData?.role?.toUpperCase()}</strong>.
+            <p style={{ color: 'var(--app-text-secondary, #475569)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              <strong style={{ color: 'var(--app-text-primary, #0F172A)' }}>{inviteData?.inviterName}</strong> has invited you to collaborate on their wedding planning workspace as a{' '}
+              <strong style={{ color: 'var(--color-primary, #0071E3)' }}>{inviteData?.role?.toUpperCase()}</strong>.
             </p>
 
             <div style={{
-              background: 'var(--color-surface-soft)',
-              padding: '1rem',
+              background: 'var(--app-surface-secondary, rgba(255, 255, 255, 0.65))',
+              border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+              boxShadow: 'var(--clay-shadow-tile, 0 4px 12px rgba(15, 23, 42, 0.03))',
+              padding: '1.15rem',
               borderRadius: 'var(--radius-lg)',
               marginBottom: '1.5rem',
               textAlign: 'left',
               fontSize: '0.85rem'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Assigned Role:</span>
-                <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{inviteData?.role}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
+                <span style={{ color: 'var(--app-text-muted, #64748b)' }}>Assigned Role:</span>
+                <span style={{ fontWeight: 800, color: 'var(--app-text-primary, #0f172a)' }}>{inviteData?.role}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Logged in as:</span>
-                <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{user?.name} ({user?.email})</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
+                <span style={{ color: 'var(--app-text-muted, #64748b)' }}>Logged in as:</span>
+                <span style={{ fontWeight: 800, color: 'var(--app-text-primary, #0f172a)' }}>{user?.name} ({user?.email})</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Link Expiry:</span>
-                <span style={{ color: 'var(--color-text-muted)' }}>{new Date(inviteData?.expiresAt).toLocaleDateString()}</span>
+                <span style={{ color: 'var(--app-text-muted, #64748b)' }}>Link Expiry:</span>
+                <span style={{ color: 'var(--app-text-muted, #64748b)' }}>{new Date(inviteData?.expiresAt).toLocaleDateString()}</span>
               </div>
             </div>
 
             <button
               onClick={handleAccept}
               disabled={accepting}
+              className="btn-primary"
               style={{
                 width: '100%',
-                background: 'var(--color-primary)',
-                color: '#FFFFFF',
-                border: 'none',
-                padding: '0.85rem',
-                borderRadius: 'var(--radius-pill)',
-                fontWeight: 800,
-                fontSize: '1rem',
+                padding: '0.9rem',
+                fontSize: '0.95rem',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.5rem',
                 cursor: accepting ? 'not-allowed' : 'pointer',
-                boxShadow: 'var(--shadow-glow)'
               }}
             >
               {accepting ? 'Joining Workspace...' : 'Accept Invitation & Join'} <ArrowRight size={18} />

@@ -164,7 +164,8 @@ async function runTests() {
     // =============================================================
     console.log('--- 1. Shared Checklist & Task Management ---');
 
-    // 1.1 Groom creates task with future due date
+    // 1.1 Groom creates task with future due date (relative, so the suite never goes stale)
+    const futureTaskDate = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
     const t1Res = await request(`/api/workspaces/${workspaceId}/tasks`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${groomToken}` },
@@ -172,7 +173,7 @@ async function runTests() {
         title: 'Book Serena Hotel Ballroom',
         description: 'Review contract terms, capacity, and deposit requirements',
         assigneeId: brideId,
-        dueDate: '2026-11-10',
+        dueDate: futureTaskDate,
         priority: 'high'
       }
     });

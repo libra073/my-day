@@ -46,13 +46,13 @@ export default function AIBudgetPlanCard() {
   );
 
   return (
-    <div className="card" style={{
-      padding: 'clamp(0.9rem, 3vw, 1.5rem)',
+    <div className="glass-card" style={{
+      padding: 'clamp(1rem, 3vw, 1.75rem)',
       marginTop: '1.25rem',
-      background: '#FFFFFF',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)',
+      background: 'var(--app-card-bg, rgba(255, 255, 255, 0.72))',
+      borderRadius: 'var(--radius-xl)',
+      border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+      boxShadow: '0 12px 30px rgba(15, 23, 42, 0.05)',
       minWidth: 0,
       width: '100%'
     }}>
@@ -63,38 +63,40 @@ export default function AIBudgetPlanCard() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.35rem',
-            background: 'var(--color-primary-light)',
-            color: 'var(--color-accent)',
-            padding: '0.25rem 0.75rem',
+            background: 'rgba(0, 102, 238, 0.12)',
+            color: 'var(--color-primary, #0071E3)',
+            padding: '0.3rem 0.85rem',
             borderRadius: 'var(--radius-pill)',
             fontSize: '0.75rem',
             fontWeight: 800,
             textTransform: 'uppercase',
             letterSpacing: '0.04em',
-            marginBottom: '0.35rem'
+            border: '1px solid rgba(168, 101, 62, 0.28)',
+            marginBottom: '0.45rem'
           }}>
-            <Sparkles size={14} color="#F5A623" />
+            <Sparkles size={14} color="var(--color-primary, #0071E3)" />
             <span>{t('ai_budget_plan_badge', 'Calculated AI Budget Plan')}</span>
           </div>
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-text)', overflowWrap: 'anywhere' }}>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 850, color: 'var(--app-text-primary, #0f172a)', overflowWrap: 'anywhere' }}>
             {t('ai_budget_breakdown_title', 'Recommended Budget Breakdown')}
           </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', overflowWrap: 'anywhere' }}>
-            {t('ai_total_budget_label', 'Total Event Budget')}: <strong style={{ color: 'var(--color-text)', fontSize: '1rem' }}>TSh {(budget || totalAllocated).toLocaleString()}</strong>
+          <p style={{ fontSize: '0.88rem', color: 'var(--app-text-secondary, #475569)', overflowWrap: 'anywhere', fontWeight: 500 }}>
+            {t('ai_total_budget_label', 'Total Event Budget')}: <strong style={{ color: 'var(--app-text-primary, #0f172a)', fontSize: '1rem', fontWeight: 850 }}>TSh {(budget || totalAllocated).toLocaleString()}</strong>
             {guestCount ? ` • ${guestCount} ${t('ai_guests_label', 'guests')}` : ''}
             {location ? ` • ${location}` : ''}
           </p>
         </div>
 
-        {/* Plan Type Selector Toggle */}
+        {/* Plan Type Selector Toggle (Toast | Tabs Segmented Capsule) */}
         <div style={{
           display: 'inline-flex',
-          background: 'var(--color-surface-soft)',
-          padding: '0.25rem',
+          background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
+          padding: '0.3rem',
           borderRadius: 'var(--radius-pill)',
-          border: '1px solid var(--color-border)',
+          border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+          boxShadow: 'inset 0 1px 1.5px #FFFFFF, 0 2px 8px rgba(15, 23, 42, 0.04)',
           flexWrap: 'wrap',
-          gap: '0.2rem'
+          gap: '0.25rem'
         }}>
           {['budget', 'balanced', 'premium'].map((type) => (
             <button
@@ -102,12 +104,12 @@ export default function AIBudgetPlanCard() {
               type="button"
               onClick={() => setPlanType(type)}
               style={{
-                background: planType === type ? 'var(--color-accent)' : 'transparent',
+                background: planType === type ? 'var(--p3d-grad-primary)' : 'transparent',
                 color: planType === type ? '#FFFFFF' : 'var(--color-text-muted)',
-                boxShadow: planType === type ? 'var(--shadow-xs)' : 'none',
-                padding: '0.35rem clamp(0.55rem, 1.5vw, 0.85rem)',
-                fontSize: '0.75rem',
-                fontWeight: 700,
+                boxShadow: planType === type ? '0 4px 12px rgba(110, 56, 28, 0.35)' : 'none',
+                padding: '0.4rem clamp(0.7rem, 1.5vw, 1rem)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
                 borderRadius: 'var(--radius-pill)',
                 textTransform: 'capitalize',
                 border: 'none',
@@ -132,16 +134,17 @@ export default function AIBudgetPlanCard() {
       }}>
         {costPerGuest > 0 && (
           <div style={{
-            background: 'var(--color-surface-soft)',
-            padding: '0.65rem 0.95rem',
+            background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
+            padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--color-border)',
+            border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+            boxShadow: 'inset 0 1px 1.5px #FFFFFF, 0 2px 8px rgba(15, 23, 42, 0.03)',
             minWidth: 0
           }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--app-text-muted, #64748b)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
               {isSwahili ? 'Gharama / Mgeni' : 'Total / Guest'}
             </span>
-            <div style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)', fontWeight: 900, color: 'var(--color-text)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+            <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.12rem)', fontWeight: 900, color: 'var(--app-text-primary, #0f172a)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               TSh {costPerGuest.toLocaleString()}
             </div>
           </div>
@@ -149,16 +152,17 @@ export default function AIBudgetPlanCard() {
 
         {cateringPerGuest > 0 && (
           <div style={{
-            background: 'var(--color-surface-soft)',
-            padding: '0.65rem 0.95rem',
+            background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
+            padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--color-border)',
+            border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+            boxShadow: 'inset 0 1px 1.5px #FFFFFF, 0 2px 8px rgba(15, 23, 42, 0.03)',
             minWidth: 0
           }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--app-text-muted, #64748b)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
               {isSwahili ? 'Chakula / Mgeni' : 'Food / Guest'}
             </span>
-            <div style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)', fontWeight: 900, color: 'var(--color-accent)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+            <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.12rem)', fontWeight: 900, color: 'var(--color-primary, #0071E3)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               TSh {cateringPerGuest.toLocaleString()}
             </div>
           </div>
@@ -166,16 +170,17 @@ export default function AIBudgetPlanCard() {
 
         {estimatedMinimum > 0 && (
           <div style={{
-            background: 'var(--color-surface-soft)',
-            padding: '0.65rem 0.95rem',
+            background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
+            padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--color-border)',
+            border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+            boxShadow: 'inset 0 1px 1.5px #FFFFFF, 0 2px 8px rgba(15, 23, 42, 0.03)',
             minWidth: 0
           }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--app-text-muted, #64748b)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
               {isSwahili ? 'Kima cha Chini' : 'Practical Minimum'}
             </span>
-            <div style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)', fontWeight: 900, color: 'var(--color-text)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+            <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.12rem)', fontWeight: 900, color: 'var(--app-text-primary, #0f172a)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               TSh {estimatedMinimum.toLocaleString()}
             </div>
           </div>
@@ -190,9 +195,9 @@ export default function AIBudgetPlanCard() {
         padding: '0.85rem 1rem',
         borderRadius: 'var(--radius-sm)',
         marginBottom: '1.25rem',
-        background: (feasibility === 'unrealistic' || feasibility === 'difficult') ? '#FFEBEE' : feasibility === 'tight' ? '#FFF8E1' : '#E8F5E9',
-        border: `1px solid ${(feasibility === 'unrealistic' || feasibility === 'difficult') ? '#EF5350' : feasibility === 'tight' ? '#FFB300' : '#4CAF50'}`,
-        color: (feasibility === 'unrealistic' || feasibility === 'difficult') ? '#C62828' : feasibility === 'tight' ? '#B78103' : '#2E7D32',
+        background: (feasibility === 'unrealistic' || feasibility === 'difficult') ? 'var(--color-error-bg, rgba(239, 68, 68, 0.12))' : feasibility === 'tight' ? 'var(--color-warning-bg, rgba(245, 158, 11, 0.12))' : 'var(--color-success-bg, rgba(16, 185, 129, 0.12))',
+        border: `1px solid ${(feasibility === 'unrealistic' || feasibility === 'difficult') ? 'rgba(239, 68, 68, 0.35)' : feasibility === 'tight' ? 'rgba(245, 158, 11, 0.35)' : 'rgba(16, 185, 129, 0.35)'}`,
+        color: (feasibility === 'unrealistic' || feasibility === 'difficult') ? 'var(--color-error, #EF4444)' : feasibility === 'tight' ? 'var(--color-warning, #F59E0B)' : 'var(--color-success, #10B981)',
         fontSize: '0.85rem',
         fontWeight: 600,
         lineHeight: 1.5,
@@ -247,18 +252,19 @@ export default function AIBudgetPlanCard() {
       {/* Deficit Tradeoff Options when budget is unrealistic/difficult */}
       {meta.tradeoffOptions && meta.tradeoffOptions.length > 0 && (
         <div style={{
-          background: '#FFF3E0',
-          border: '1px solid #FFE0B2',
-          borderRadius: 'var(--radius-sm)',
-          padding: '0.85rem 1rem',
+          background: 'var(--color-warning-bg, rgba(245, 158, 11, 0.12))',
+          border: '1.5px solid rgba(245, 158, 11, 0.35)',
+          borderRadius: '16px',
+          padding: '0.9rem 1.15rem',
           marginBottom: '1.25rem',
+          boxShadow: '0 4px 12px rgba(15, 23, 42, 0.04)',
           minWidth: 0
         }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#E65100', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <ShieldAlert size={15} style={{ flexShrink: 0 }} />
+          <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--color-warning, #d97706)', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <ShieldAlert size={16} style={{ flexShrink: 0 }} />
             <span>{isSwahili ? 'Chaguzi za Kubana Matumizi (Tradeoff Options)' : 'Actionable Tradeoff Recommendations'}</span>
           </div>
-          <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: '#5D4037', lineHeight: 1.5, minWidth: 0 }}>
+          <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.82rem', color: 'var(--app-text-secondary, #475569)', lineHeight: 1.55, minWidth: 0 }}>
             {meta.tradeoffOptions.map((opt, idx) => (
               <li key={idx} style={{ overflowWrap: 'anywhere' }}>{opt}</li>
             ))}
@@ -282,8 +288,8 @@ export default function AIBudgetPlanCard() {
             <div
               key={category}
               style={{
-                background: amount === 0 ? '#FAFAFA' : 'var(--color-surface-soft)',
-                border: `1px solid ${amount === 0 ? '#E0E0E0' : 'var(--color-border)'}`,
+                background: amount === 0 ? 'var(--app-surface-secondary, #f8fafc)' : 'var(--color-surface-soft)',
+                border: `1px solid ${amount === 0 ? 'var(--color-border)' : 'var(--color-border)'}`,
                 borderRadius: 'var(--radius-sm)',
                 padding: '0.85rem 1rem',
                 display: 'flex',

@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { DEFAULT_OPERATING_SCHEDULE, PLATFORM_TIMEZONE } from '../services/businessSchedule';
+import { useAppContext } from '../context/AppContext';
+import { DEFAULT_OPERATING_SCHEDULE, PLATFORM_TIMEZONE, getTodayDarEsSalaam } from '../services/businessSchedule';
 import { Clock, Calendar, Save, CheckCircle, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import GlassDatePicker from './ui/GlassDatePicker';
 
 const DAYS_OF_WEEK = [
-  { day: 1, label: 'Monday' },
-  { day: 2, label: 'Tuesday' },
-  { day: 3, label: 'Wednesday' },
-  { day: 4, label: 'Thursday' },
-  { day: 5, label: 'Friday' },
-  { day: 6, label: 'Saturday' },
-  { day: 0, label: 'Sunday' },
+  { day: 1, label: 'Monday', sw: 'Jumatatu' },
+  { day: 2, label: 'Tuesday', sw: 'Jumanne' },
+  { day: 3, label: 'Wednesday', sw: 'Jumatano' },
+  { day: 4, label: 'Thursday', sw: 'Alhamisi' },
+  { day: 5, label: 'Friday', sw: 'Ijumaa' },
+  { day: 6, label: 'Saturday', sw: 'Jumamosi' },
+  { day: 0, label: 'Sunday', sw: 'Jumapili' },
 ];
 
 export default function VendorScheduleSettings({ vendorId }) {
+  const { language } = useAppContext();
+  const isSwahili = language === 'sw';
   const [schedule, setSchedule] = useState({
     workingDays: [...DEFAULT_OPERATING_SCHEDULE.workingDays],
     workingHours: { ...DEFAULT_OPERATING_SCHEDULE.workingHours },
@@ -102,6 +106,7 @@ export default function VendorScheduleSettings({ vendorId }) {
   const handleAddDayOff = (e) => {
     e.preventDefault();
     if (!newDayOff) return;
+    if (newDayOff < getTodayDarEsSalaam()) return;
     if (schedule.daysOff.includes(newDayOff)) return;
     setSchedule(prev => ({
       ...prev,
@@ -141,10 +146,10 @@ export default function VendorScheduleSettings({ vendorId }) {
   };
 
   const glassCard = {
-    background: '#FFFFFF',
-    borderRadius: 'var(--radius-lg)',
-    border: '1px solid var(--color-border)',
-    boxShadow: 'var(--shadow-sm)',
+    background: 'var(--app-card-bg, rgba(255, 255, 255, 0.72))',
+    borderRadius: 'var(--radius-xl)',
+    border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+    boxShadow: 'var(--clay-shadow)',
     padding: '1.5rem',
   };
 
@@ -258,7 +263,7 @@ export default function VendorScheduleSettings({ vendorId }) {
                     padding: '0.5rem 0.9rem',
                     borderRadius: 'var(--radius)',
                     border: `1.5px solid ${isActive ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                    background: isActive ? 'var(--color-primary-light)' : '#FFFFFF',
+                    background: isActive ? 'var(--color-primary-light)' : 'var(--app-surface-elevated, #FFFFFF)',
                     color: isActive ? 'var(--color-primary-hover)' : 'var(--color-text-muted)',
                     fontWeight: 700,
                     fontSize: '0.85rem',
@@ -325,18 +330,15 @@ export default function VendorScheduleSettings({ vendorId }) {
           </p>
 
           <form onSubmit={handleAddDayOff} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', maxWidth: 360 }}>
-            <input
-              type="date"
-              value={newDayOff}
-              onChange={e => setNewDayOff(e.target.value)}
-              style={{
-                flex: 1,
-                padding: '0.45rem 0.75rem',
-                borderRadius: 'var(--radius)',
-                border: '1px solid var(--color-border)',
-                fontSize: '0.85rem',
-              }}
-            />
+            <div style={{ flex: 1 }}>
+              <GlassDatePicker
+                value={newDayOff}
+                min={getTodayDarEsSalaam()}
+                onChange={setNewDayOff}
+                ariaLabel="Day off date"
+                placeholder="Pick a date"
+              />
+            </div>
             <button
               type="submit"
               disabled={!newDayOff}
@@ -352,7 +354,7 @@ export default function VendorScheduleSettings({ vendorId }) {
                 gap: '0.25rem',
               }}
             >
-              <Plus size={14} /> Add Day Off
+              <Plus size={14} /> {isSwahili ? 'Ongeza Siku ya Mapumziko' : 'Add Day Off'}
             </button>
           </form>
 
@@ -379,7 +381,8 @@ export default function VendorScheduleSettings({ vendorId }) {
                     type="button"
                     onClick={() => handleRemoveDayOff(dateStr)}
                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-error)' }}
-                    title="Remove"
+                    title={isSwahili ? 'Ondoa' : 'Remove'}
+                    aria-label={isSwahili ? 'Ondoa' : 'Remove'}
                   >
                     <Trash2 size={12} />
                   </button>
@@ -387,7 +390,9 @@ export default function VendorScheduleSettings({ vendorId }) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>No specific days off scheduled.</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>
+              {isSwahili ? 'Hakuna siku maalum za mapumziko zilizopangwa.' : 'No specific days off scheduled.'}
+            </div>
           )}
         </div>
 
@@ -411,7 +416,7 @@ export default function VendorScheduleSettings({ vendorId }) {
               opacity: saving ? 0.7 : 1,
             }}
           >
-            <Save size={16} /> {saving ? 'Saving Changes...' : 'Save Business Schedule'}
+            <Save size={16} /> {saving ? (isSwahili ? 'Inahifadhi...' : 'Saving Changes...') : (isSwahili ? 'Hifadhi Ratiba ya Biashara' : 'Save Business Schedule')}
           </button>
         </div>
       </div>
@@ -460,7 +465,7 @@ export default function VendorScheduleSettings({ vendorId }) {
                       {appt.status}
                     </span>
                     {appt.allowException && (
-                      <span style={{ fontSize: '0.7rem', background: '#fef08a', color: '#854d0e', padding: '0.1rem 0.4rem', borderRadius: 'var(--radius-pill)', fontWeight: 700 }}>
+                      <span style={{ fontSize: '0.7rem', background: 'var(--color-warning-bg, rgba(245, 158, 11, 0.16))', color: 'var(--color-warning, #854d0e)', padding: '0.1rem 0.4rem', borderRadius: 'var(--radius-pill)', fontWeight: 700 }}>
                         Special Exception
                       </span>
                     )}

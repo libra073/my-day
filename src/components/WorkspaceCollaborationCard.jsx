@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Users, UserPlus, Trash2, Clock, Check, Copy, AlertCircle, RefreshCw } from 'lucide-react';
-
-const ROLE_LABELS = {
-  owner: { label: 'Owner (Wedding Host)', color: 'var(--color-primary-hover)', bg: 'var(--color-primary-light)' },
-  partner: { label: 'Partner (Bride / Groom)', color: '#D97706', bg: '#FEF3C7' },
-  planner: { label: 'Wedding Planner / Coordinator', color: '#2563EB', bg: '#DBEAFE' },
-  family: { label: 'Family Member', color: '#059669', bg: '#D1FAE5' },
-  friend: { label: 'Friend / Wedding Party', color: '#7C3AED', bg: '#EDE9FE' },
-  vendor: { label: 'Restricted Vendor', color: '#4B5563', bg: '#F3F4F6' },
-};
+import GlassSelect from './ui/GlassSelect';
 
 export default function WorkspaceCollaborationCard() {
   const {
@@ -21,8 +13,27 @@ export default function WorkspaceCollaborationCard() {
     removeMember,
     revokeInvitation,
     refreshWorkspace,
-    workspaceLoading
+    workspaceLoading,
+    language = 'en'
   } = useAppContext();
+
+  const ROLE_LABELS = {
+    owner: { label: language === 'sw' ? 'Mwenye Harusi (Mwenyeji)' : 'Owner (Wedding Host)', color: 'var(--color-primary, #0071E3)', bg: 'rgba(0, 102, 238, 0.12)' },
+    partner: { label: language === 'sw' ? 'Mwenzi (Bibi / Bwana Harusi)' : 'Partner (Bride / Groom)', color: 'var(--clay-warning-text, #D97706)', bg: 'var(--clay-warning-bg, #FEF3C7)' },
+    planner: { label: language === 'sw' ? 'Mratibu wa Harusi' : 'Wedding Planner / Coordinator', color: 'var(--color-primary, #0071E3)', bg: 'rgba(0, 102, 238, 0.14)' },
+    family: { label: language === 'sw' ? 'Mwanafamilia' : 'Family Member', color: '#10B981', bg: 'rgba(16, 185, 129, 0.14)' },
+    friend: { label: language === 'sw' ? 'Rafiki / Kamati ya Harusi' : 'Friend / Wedding Party', color: '#0056B3', bg: 'rgba(93, 58, 36, 0.14)' },
+    vendor: { label: language === 'sw' ? 'Mtoa Huduma Aliyedhibitiwa' : 'Restricted Vendor', color: 'var(--app-text-secondary, #475569)', bg: 'var(--app-surface-elevated, #F1F5F9)' },
+  };
+
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('partner');
+  const [inviteHours, setInviteHours] = useState('48');
+  const [generatedInvite, setGeneratedInvite] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [actionSuccess, setActionSuccess] = useState('');
 
   if (!wedding || !wedding.id) {
     return null;
@@ -31,15 +42,6 @@ export default function WorkspaceCollaborationCard() {
   const permissions = wedding?.permissions || {};
   const isOwner = wedding?.userRole === 'owner';
   const canInvite = permissions.canInviteMembers;
-
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('partner');
-  const [inviteHours, setInviteHours] = useState(48);
-  const [generatedInvite, setGeneratedInvite] = useState(null);
-  const [copied, setCopied] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [actionSuccess, setActionSuccess] = useState('');
 
   const handleGenerateInvite = async (e) => {
     e.preventDefault();
@@ -51,10 +53,10 @@ export default function WorkspaceCollaborationCard() {
         expiresInHours: Number(inviteHours),
       });
       setGeneratedInvite(invite);
-      setActionSuccess(`Invitation link generated for ${inviteRole}!`);
+      setActionSuccess(language === 'sw' ? `Kiungo cha mwaliko kimetengenezwa kwa ajili ya ${inviteRole}!` : `Invitation link generated for ${inviteRole}!`);
       setTimeout(() => setActionSuccess(''), 4000);
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to generate invitation');
+      setErrorMsg(err.message || (language === 'sw' ? 'Imeshindwa kutengeneza mwaliko' : 'Failed to generate invitation'));
     }
   };
 
@@ -70,42 +72,42 @@ export default function WorkspaceCollaborationCard() {
   const handleRoleChange = async (memberId, newRole) => {
     try {
       await changeMemberRole(memberId, newRole);
-      setActionSuccess('Member role updated successfully');
+      setActionSuccess(language === 'sw' ? 'Wadhifa wa mwanachama umesasishwa' : 'Member role updated successfully');
       setTimeout(() => setActionSuccess(''), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to update member role');
+      alert(err.message || (language === 'sw' ? 'Imeshindwa kubadilisha wadhifa' : 'Failed to update member role'));
     }
   };
 
   const handleRemove = async (memberId, memberName) => {
-    if (!window.confirm(`Are you sure you want to remove ${memberName} from this wedding workspace?`)) return;
+    if (!window.confirm(language === 'sw' ? `Je, una uhakika unataka kumwondoa ${memberName} kwenye nafasi hii ya harusi?` : `Are you sure you want to remove ${memberName} from this wedding workspace?`)) return;
     try {
       await removeMember(memberId);
-      setActionSuccess('Member removed successfully');
+      setActionSuccess(language === 'sw' ? 'Mwanachama ameondolewa' : 'Member removed successfully');
       setTimeout(() => setActionSuccess(''), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to remove member');
+      alert(err.message || (language === 'sw' ? 'Imeshindwa kumwondoa mwanachama' : 'Failed to remove member'));
     }
   };
 
   const handleRevoke = async (invitationId) => {
-    if (!window.confirm('Revoke this invitation link? It will no longer be usable.')) return;
+    if (!window.confirm(language === 'sw' ? 'Futa kiungo hiki cha mwaliko? Hakitaweza kutumika tena.' : 'Revoke this invitation link? It will no longer be usable.')) return;
     try {
       await revokeInvitation(invitationId);
-      setActionSuccess('Invitation revoked');
+      setActionSuccess(language === 'sw' ? 'Mwaliko umefutwa' : 'Invitation revoked');
       setTimeout(() => setActionSuccess(''), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to revoke invitation');
+      alert(err.message || (language === 'sw' ? 'Imeshindwa kufuta mwaliko' : 'Failed to revoke invitation'));
     }
   };
 
   return (
     <div style={{
-      background: '#FFFFFF',
+      background: 'var(--app-card-bg, rgba(255, 255, 255, 0.72))',
       borderRadius: 'var(--radius-xl)',
-      padding: 'clamp(1rem, 3.5vw, 1.75rem)',
-      border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)',
+      padding: 'clamp(1.25rem, 3.5vw, 2rem)',
+      border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+      boxShadow: 'var(--clay-shadow)',
       marginBottom: '2rem',
       width: '100%',
       maxWidth: '100%',
@@ -115,56 +117,47 @@ export default function WorkspaceCollaborationCard() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary-hover)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.25rem' }}>
-            <Users size={16} /> Shared Wedding Collaboration Hub
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-primary, #0071E3)', fontWeight: 800, fontSize: '0.82rem', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <Users size={16} /> {language === 'sw' ? 'Kituo cha Ushirikiano wa Harusi' : 'Shared Wedding Collaboration Hub'}
           </div>
-          <h2 style={{ fontSize: '1.4rem', color: 'var(--color-text)', fontWeight: 800, margin: 0 }}>
-            Wedding Team & Member Access
+          <h2 style={{ fontSize: '1.45rem', color: 'var(--app-text-primary, #0F172A)', fontWeight: 850, margin: 0, letterSpacing: '-0.02em' }}>
+            {language === 'sw' ? 'Timu ya Harusi & Ufikiaji wa Wanachama' : 'Wedding Team & Member Access'}
           </h2>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>
-            Separate accounts for Bride & Groom sharing one private workspace with role-based permissions.
+          <p style={{ color: 'var(--app-text-muted, #64748B)', fontSize: '0.88rem', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
+            {language === 'sw'
+              ? 'Akaunti tofauti za Bibi na Bwana Harusi zinazoshiriki nafasi moja ya siri.'
+              : 'Separate accounts for Bride & Groom sharing one private workspace with role-based permissions.'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={() => refreshWorkspace()}
+            className="btn-liquid-white"
             style={{
-              background: 'var(--color-surface-soft)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border)',
-              padding: '0.5rem 0.85rem',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '0.8rem',
-              fontWeight: 600,
+              padding: '0.55rem 1rem',
+              fontSize: '0.82rem',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
-              cursor: 'pointer'
             }}
           >
-            <RefreshCw size={13} className={workspaceLoading ? 'spin' : ''} /> Refresh
+            <RefreshCw size={13} className={workspaceLoading ? 'spin' : ''} /> {language === 'sw' ? 'Onyesha Upya' : 'Refresh'}
           </button>
 
           {canInvite && (
             <button
               onClick={() => { setShowInviteModal(!showInviteModal); setGeneratedInvite(null); setErrorMsg(''); }}
+              className="btn-primary"
               style={{
-                background: 'var(--color-primary)',
-                color: '#FFFFFF',
-                border: 'none',
                 padding: '0.55rem 1.15rem',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '0.85rem',
-                fontWeight: 700,
+                fontSize: '0.82rem',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                cursor: 'pointer',
-                boxShadow: 'var(--shadow-glow)'
               }}
             >
-              <UserPlus size={15} /> Invite Partner / Member
+              <UserPlus size={15} /> {language === 'sw' ? 'Alika Mpenzi / Timu' : 'Invite Partner / Team'}
             </button>
           )}
         </div>
@@ -197,12 +190,12 @@ export default function WorkspaceCollaborationCard() {
           border: '1px solid var(--color-border)'
         }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.75rem' }}>
-            Generate Secure Expiring Invitation
+            {language === 'sw' ? 'Tengeneza Kiungo Salama cha Mwaliko' : 'Generate Secure Expiring Invitation'}
           </h3>
           <form onSubmit={handleGenerateInvite} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', alignItems: 'end' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
-                Collaborator Email (Optional)
+                {language === 'sw' ? 'Barua Pepe ya Mshirika (Hiari)' : 'Collaborator Email (Optional)'}
               </label>
               <input
                 type="email"
@@ -215,34 +208,36 @@ export default function WorkspaceCollaborationCard() {
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
-                Access Role
+                {language === 'sw' ? 'Wadhifa wa Ufikiaji' : 'Access Role'}
               </label>
-              <select
+              <GlassSelect
                 value={inviteRole}
-                onChange={e => setInviteRole(e.target.value)}
-                style={{ width: '100%', padding: '0.45rem 0.75rem', fontSize: '0.85rem', borderRadius: 'var(--radius)', border: '1px solid var(--color-border)', background: '#FFFFFF' }}
-              >
-                <option value="partner">Partner (Bride / Groom)</option>
-                <option value="planner">Wedding Planner / Coordinator</option>
-                <option value="family">Family Member</option>
-                <option value="friend">Friend / Wedding Party</option>
-                <option value="vendor">Restricted Vendor</option>
-              </select>
+                onChange={setInviteRole}
+                ariaLabel={language === 'sw' ? 'Wadhifa wa Ufikiaji' : 'Access Role'}
+                options={[
+                  { value: 'partner', label: language === 'sw' ? 'Mwenzi (Bibi / Bwana Harusi)' : 'Partner (Bride / Groom)' },
+                  { value: 'planner', label: language === 'sw' ? 'Mratibu wa Harusi' : 'Wedding Planner / Coordinator' },
+                  { value: 'family', label: language === 'sw' ? 'Mwanafamilia' : 'Family Member' },
+                  { value: 'friend', label: language === 'sw' ? 'Rafiki / Kamati ya Harusi' : 'Friend / Wedding Party' },
+                  { value: 'vendor', label: language === 'sw' ? 'Mtoa Huduma Aliyedhibitiwa' : 'Restricted Vendor' },
+                ]}
+              />
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
-                Link Expiration
+                {language === 'sw' ? 'Muda wa Kiungo' : 'Link Expiration'}
               </label>
-              <select
+              <GlassSelect
                 value={inviteHours}
-                onChange={e => setInviteHours(e.target.value)}
-                style={{ width: '100%', padding: '0.45rem 0.75rem', fontSize: '0.85rem', borderRadius: 'var(--radius)', border: '1px solid var(--color-border)', background: '#FFFFFF' }}
-              >
-                <option value="24">Expires in 24 hours</option>
-                <option value="48">Expires in 48 hours (Default)</option>
-                <option value="168">Expires in 7 days</option>
-              </select>
+                onChange={setInviteHours}
+                ariaLabel={language === 'sw' ? 'Muda wa Kiungo' : 'Link Expiration'}
+                options={[
+                  { value: '24', label: language === 'sw' ? 'Inaisha baada ya saa 24' : 'Expires in 24 hours' },
+                  { value: '48', label: language === 'sw' ? 'Inaisha baada ya saa 48 (Kawaida)' : 'Expires in 48 hours (Default)' },
+                  { value: '168', label: language === 'sw' ? 'Inaisha baada ya siku 7' : 'Expires in 7 days' },
+                ]}
+              />
             </div>
 
             <div>
@@ -260,7 +255,7 @@ export default function WorkspaceCollaborationCard() {
                   cursor: 'pointer'
                 }}
               >
-                Create Invitation Link
+                {language === 'sw' ? 'Tengeneza Kiungo cha Mwaliko' : 'Create Invitation Link'}
               </button>
             </div>
           </form>
@@ -274,17 +269,18 @@ export default function WorkspaceCollaborationCard() {
           {generatedInvite && (
             <div style={{
               marginTop: '1rem',
-              padding: '0.85rem',
-              background: '#FFFFFF',
-              borderRadius: 'var(--radius)',
-              border: '1px solid rgba(255, 157, 59, 0.4)'
+              padding: '1rem',
+              background: 'var(--app-surface-secondary, rgba(255, 255, 255, 0.72))',
+              borderRadius: 'var(--radius-lg)',
+              border: '1.5px solid rgba(245, 166, 35, 0.45)',
+              boxShadow: 'var(--clay-shadow-tile)'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary-hover)' }}>
-                  ✅ Link Ready for {generatedInvite.role.toUpperCase()}
+                  ✅ {language === 'sw' ? 'Kiungo Kiko Tayari kwa' : 'Link Ready for'} {generatedInvite.role.toUpperCase()}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Clock size={12} /> Expires: {new Date(generatedInvite.expiresAt).toLocaleString()}
+                  <Clock size={12} /> {language === 'sw' ? 'Inaisha:' : 'Expires:'} {new Date(generatedInvite.expiresAt).toLocaleString()}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -311,7 +307,7 @@ export default function WorkspaceCollaborationCard() {
                     cursor: 'pointer'
                   }}
                 >
-                  {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Copied!' : 'Copy'}
+                  {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? (language === 'sw' ? 'Kimenakiliwa!' : 'Copied!') : (language === 'sw' ? 'Nakili' : 'Copy')}
                 </button>
               </div>
             </div>
@@ -324,18 +320,18 @@ export default function WorkspaceCollaborationCard() {
         <table style={{ width: '100%', minWidth: '460px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>Team Member</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>Contact</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>Workspace Role</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>Status</th>
-              {isOwner && <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700, textAlign: 'right' }}>Actions</th>}
+              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>{language === 'sw' ? 'Mwanachama' : 'Team Member'}</th>
+              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>{language === 'sw' ? 'Mawasiliano' : 'Contact'}</th>
+              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>{language === 'sw' ? 'Wadhifa' : 'Workspace Role'}</th>
+              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700 }}>{language === 'sw' ? 'Hali' : 'Status'}</th>
+              {isOwner && <th style={{ padding: '0.75rem 0.5rem', fontWeight: 700, textAlign: 'right' }}>{language === 'sw' ? 'Vitendo' : 'Actions'}</th>}
             </tr>
           </thead>
           <tbody>
             {workspaceMembers.length === 0 ? (
               <tr>
                 <td colSpan={isOwner ? 5 : 4} style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                  Loading workspace members...
+                  {language === 'sw' ? 'Inapakia wanachama...' : 'Loading workspace members...'}
                 </td>
               </tr>
             ) : (
@@ -345,7 +341,9 @@ export default function WorkspaceCollaborationCard() {
                   <tr key={m.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td style={{ padding: '0.75rem 0.5rem' }}>
                       <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>{m.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Joined {new Date(m.joinedAt).toLocaleDateString()}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                        {language === 'sw' ? 'Alijiunga' : 'Joined'} {new Date(m.joinedAt).toLocaleDateString()}
+                      </div>
                     </td>
                     <td style={{ padding: '0.75rem 0.5rem', color: 'var(--color-text-muted)' }}>
                       <div>{m.email}</div>
@@ -366,33 +364,29 @@ export default function WorkspaceCollaborationCard() {
                     </td>
                     <td style={{ padding: '0.75rem 0.5rem' }}>
                       <span style={{ color: 'var(--color-success)', fontWeight: 700, fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--color-success)' }} /> Active
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--color-success)' }} /> {language === 'sw' ? 'Amilifu' : 'Active'}
                       </span>
                     </td>
                     {isOwner && (
                       <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }}>
                         {!m.isOwner ? (
                           <div style={{ display: 'inline-flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <select
+                            <GlassSelect
+                              size="sm"
                               value={m.role}
-                              onChange={e => handleRoleChange(m.id, e.target.value)}
-                              style={{
-                                padding: '0.25rem 0.5rem',
-                                fontSize: '0.75rem',
-                                borderRadius: 'var(--radius-sm)',
-                                border: '1px solid var(--color-border)',
-                                background: '#FFFFFF'
-                              }}
-                            >
-                              <option value="partner">Partner</option>
-                              <option value="planner">Planner</option>
-                              <option value="family">Family</option>
-                              <option value="friend">Friend</option>
-                              <option value="vendor">Vendor</option>
-                            </select>
+                              onChange={(role) => handleRoleChange(m.id, role)}
+                              ariaLabel={language === 'sw' ? 'Wadhifa wa mwanachama' : 'Member role'}
+                              options={[
+                                { value: 'partner', label: language === 'sw' ? 'Mwenzi' : 'Partner' },
+                                { value: 'planner', label: language === 'sw' ? 'Mratibu' : 'Planner' },
+                                { value: 'family', label: language === 'sw' ? 'Familia' : 'Family' },
+                                { value: 'friend', label: language === 'sw' ? 'Rafiki' : 'Friend' },
+                                { value: 'vendor', label: language === 'sw' ? 'Mtoa Huduma' : 'Vendor' },
+                              ]}
+                            />
                             <button
                               onClick={() => handleRemove(m.id, m.name)}
-                              title="Remove Member"
+                              title={language === 'sw' ? 'Mtoe Mwanachama' : 'Remove Member'}
                               style={{
                                 background: 'transparent',
                                 border: 'none',
@@ -405,7 +399,9 @@ export default function WorkspaceCollaborationCard() {
                             </button>
                           </div>
                         ) : (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Primary Host</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                            {language === 'sw' ? 'Mwenyeji Mkuu' : 'Primary Host'}
+                          </span>
                         )}
                       </td>
                     )}
@@ -421,7 +417,9 @@ export default function WorkspaceCollaborationCard() {
       {canInvite && pendingInvitations.filter(i => i.status === 'pending').length > 0 && (
         <div style={{ marginTop: '1rem', borderTop: '1px dashed var(--color-border)', paddingTop: '1rem' }}>
           <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.5rem' }}>
-            Pending Invitations ({pendingInvitations.filter(i => i.status === 'pending').length})
+            {language === 'sw'
+              ? `Mialiko Inayosubiri (${pendingInvitations.filter(i => i.status === 'pending').length})`
+              : `Pending Invitations (${pendingInvitations.filter(i => i.status === 'pending').length})`}
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {pendingInvitations.filter(i => i.status === 'pending').map(inv => (
@@ -435,10 +433,12 @@ export default function WorkspaceCollaborationCard() {
                 fontSize: '0.8rem'
               }}>
                 <div>
-                  <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>Role: {inv.role.toUpperCase()}</span>
+                  <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>
+                    {language === 'sw' ? 'Wadhifa:' : 'Role:'} {inv.role.toUpperCase()}
+                  </span>
                   {inv.email && <span style={{ color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>({inv.email})</span>}
                   <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                    Expires: {new Date(inv.expiresAt).toLocaleString()}
+                    {language === 'sw' ? 'Inaisha:' : 'Expires:'} {new Date(inv.expiresAt).toLocaleString()}
                   </div>
                 </div>
 
@@ -446,19 +446,21 @@ export default function WorkspaceCollaborationCard() {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(`${window.location.origin}/invite/${inv.token}`);
-                      alert('Invitation link copied to clipboard!');
+                      alert(language === 'sw' ? 'Kiungo cha mwaliko kimenakiliwa!' : 'Invitation link copied to clipboard!');
                     }}
                     style={{
-                      background: '#FFFFFF',
-                      border: '1px solid var(--color-border)',
-                      padding: '0.25rem 0.6rem',
-                      borderRadius: 'var(--radius-sm)',
+                      background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
+                      border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+                      padding: '0.3rem 0.75rem',
+                      borderRadius: 'var(--radius-pill)',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
                       fontSize: '0.75rem',
-                      fontWeight: 600,
+                      fontWeight: 700,
+                      color: 'var(--app-text-primary, #0f172a)',
                       cursor: 'pointer'
                     }}
                   >
-                    Copy Link
+                    {language === 'sw' ? 'Nakili Kiungo' : 'Copy Link'}
                   </button>
                   <button
                     onClick={() => handleRevoke(inv.id)}
@@ -473,7 +475,7 @@ export default function WorkspaceCollaborationCard() {
                       cursor: 'pointer'
                     }}
                   >
-                    Revoke
+                    {language === 'sw' ? 'Futa' : 'Revoke'}
                   </button>
                 </div>
               </div>

@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import api from '../services/api';
 import {
   CheckCircle2, Store, MapPin, Phone, Wallet, FileText, Rocket, ShieldCheck,
   Zap, BadgeCheck, Building2, Palette, Music, UtensilsCrossed, Scissors, Car,
-  Loader2, Sparkles, Star, ChevronDown, Check, TrendingUp, Calendar, CreditCard,
-  MessageCircle, Award, Users
+  Loader2, Sparkles, Star, Check, TrendingUp, Calendar, CreditCard,
+  MessageCircle, Award, Users, ArrowRight, Image as ImageIcon, Clock3,
 } from 'lucide-react';
+import '../styles/vendor-program.css';
 
 const CATEGORIES = [
-  { id: 'wapambaji', name: 'Wapambaji – Decorators', swName: 'Wapambaji – Mapambo', short: 'Decorators', sub: 'Decor & Styling', icon: Palette, color: '#F59E0B' },
-  { id: 'kumbi', name: 'Kumbi – Venues', swName: 'Kumbi – Venues', short: 'Venues', sub: 'Halls & Gardens', icon: Building2, color: '#3B82F6' },
-  { id: 'entertainment', name: 'MCs & Entertainment', swName: 'MCs & Burudani', short: 'MCs & Music', sub: 'DJs, Bands & MCs', icon: Music, color: '#8B5CF6' },
-  { id: 'catering', name: 'Catering & Chakula', swName: 'Chakula – Catering', short: 'Catering', sub: 'Food & Drinks', icon: UtensilsCrossed, color: '#EC4899' },
-  { id: 'saloon', name: 'Saloon & Barbershop', swName: 'Saluni & Urembo', short: 'Saloon', sub: 'Hair & Bridal Makeup', icon: Scissors, color: '#10B981' },
-  { id: 'transport', name: 'Transport & Luxury Cars', swName: 'Usafiri – Magari ya Harusi', short: 'Transport', sub: 'Luxury Wedding Cars', icon: Car, color: '#6366F1' },
+  { id: 'wapambaji', name: 'Wapambaji - Decorators', swName: 'Wapambaji - Mapambo', short: 'Decorators', sub: 'Decor & Styling', icon: Palette },
+  { id: 'kumbi', name: 'Kumbi - Venues', swName: 'Kumbi - Kumbi', short: 'Venues', sub: 'Halls & Gardens', icon: Building2 },
+  { id: 'entertainment', name: 'MCs & Entertainment', swName: 'MCs & Burudani', short: 'MCs & Music', sub: 'DJs, Bands & MCs', icon: Music },
+  { id: 'catering', name: 'Catering & Chakula', swName: 'Chakula - Catering', short: 'Catering', sub: 'Food & Drinks', icon: UtensilsCrossed },
+  { id: 'saloon', name: 'Saloon & Barbershop', swName: 'Saluni & Urembo', short: 'Saloon', sub: 'Hair & Bridal Makeup', icon: Scissors },
+  { id: 'transport', name: 'Transport & Luxury Cars', swName: 'Usafiri - Magari ya Harusi', short: 'Transport', sub: 'Luxury Wedding Cars', icon: Car },
 ];
 
 const PRICE_UNITS = {
@@ -47,18 +49,36 @@ const AMENITY_TAGS = [
   '🤝 Complimentary Wedding Consultation',
 ];
 
+const AMENITY_LABELS_SW = {
+  'Red Carpet & VIP Walkway': 'Zulia Jekundu & Njia ya VIP',
+  'Full Air Conditioning (AC)': 'Kiyoyozi Kamili (AC)',
+  'High-Capacity Backup Generator': 'Jenereta Msaidizi ya Nguvu',
+  'Dedicated Bridal Changing Suite': 'Chumba Maalum cha Kubadilishia Bibi Harusi',
+  'Professional Sound & PA System': 'Sauti ya Kitaalamu & Mfumo wa PA',
+  'Dynamic Stage & LED Ambient Lighting': 'Jukwaa la Kisasa & Mwanga wa LED',
+  'Complete Buffet Ware & Chafing Dishes': 'Vyombo Kamili vya Buffet & Chafing',
+  'Complimentary Wedding Consultation': 'Ushauri wa Bure wa Harusi',
+};
+
 const DESC_MAX = 500;
 
+const stripEmoji = (tag) => tag.replace(/^[^\w\s]+/, '').trim();
+
+function scrollToId(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 export default function BecomeVendorPage() {
-  const { setProviders, switchRole, t, language } = useAppContext();
+  const { setProviders, providers, language } = useAppContext();
   const navigate = useNavigate();
   const isSw = language === 'sw';
 
   const [formData, setFormData] = useState({
     name: '',
-    category: 'wapambaji', // Defaulting to Wapambaji – Decorators as highlighted by user
+    category: 'wapambaji',
     location: 'Dar es Salaam',
-    contact: '+255 700 000 000',
+    contact: '700 000 000',
     priceRate: 1500000,
     description: '',
   });
@@ -66,604 +86,840 @@ export default function BecomeVendorPage() {
   const [registered, setRegistered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const formRef = useRef(null);
 
-  // Calculate completion percentage
-  const requiredFields = [
-    formData.name.trim().length > 0,
-    formData.category.length > 0,
-    formData.location.trim().length > 0,
-    formData.contact.trim().length >= 9,
-    formData.priceRate > 0,
-  ];
-  const completion = Math.round((requiredFields.filter(Boolean).length / requiredFields.length) * 100);
+  /* ---- live marketplace figures (derived from the provider list, not hard-coded) ---- */
+  const activeVendors = Array.isArray(providers) ? providers.length : 0;
+  const averageRating = useMemo(() => {
+    const rated = (providers || []).filter((p) => Number.isFinite(Number(p.rating)) && Number(p.rating) > 0);
+    if (!rated.length) return null;
+    return (rated.reduce((sum, p) => sum + Number(p.rating), 0) / rated.length).toFixed(1);
+  }, [providers]);
 
-  const activeUnit = isSw ? (PRICE_UNITS[formData.category]?.sw || 'kwa kifurushi') : (PRICE_UNITS[formData.category]?.en || 'per package');
+  const completion = useMemo(() => {
+    const checks = [
+      formData.name.trim().length > 0,
+      formData.category.length > 0,
+      formData.location.trim().length > 0,
+      formData.contact.replace(/\D/g, '').length >= 9,
+      formData.priceRate > 0,
+    ];
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  }, [formData]);
 
-  const handleAddAmenity = (tag) => {
-    setFormData(prev => {
-      const cleanTag = tag.replace(/^[^\w\s]+/, '').trim();
-      if (prev.description.includes(cleanTag)) return prev;
+  const activeUnit = isSw
+    ? PRICE_UNITS[formData.category]?.sw || 'kwa kifurushi'
+    : PRICE_UNITS[formData.category]?.en || 'per package';
+
+  const isAmenitySelected = (tag) => formData.description.includes(stripEmoji(tag));
+
+  // chips show the localised label; the stored text stays canonical English
+  const amenityLabel = (tag) => {
+    if (!isSw) return stripEmoji(tag);
+    const clean = stripEmoji(tag);
+    return AMENITY_LABELS_SW[clean] || clean;
+  };
+
+  const handleToggleAmenity = (tag) => {
+    const cleanTag = stripEmoji(tag);
+    setFormData((prev) => {
+      if (prev.description.includes(cleanTag)) {
+        const next = prev.description
+          .split('\n')
+          .filter((line) => !line.replace(/^•\s*/, '').trim().startsWith(cleanTag))
+          .join('\n')
+          .replace(/\n{3,}/g, '\n\n')
+          .trimEnd();
+        return { ...prev, description: next };
+      }
       const separator = prev.description.trim().length > 0 ? '\n• ' : '• ';
-      const newDesc = `${prev.description}${separator}${cleanTag}`;
-      return { ...prev, description: newDesc.slice(0, DESC_MAX) };
+      return { ...prev, description: `${prev.description}${separator}${cleanTag}`.slice(0, DESC_MAX) };
     });
   };
 
-  const handleSubmit = (e) => {
+  const normalizePhone = () => {
+    const digits = formData.contact.replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('255')) return `+${digits}`;
+    if (digits.startsWith('0')) return `+255 ${digits.slice(1)}`;
+    return `+255 ${digits}`;
+  };
+
+  const validate = () => {
+    if (!formData.name.trim()) return isSw ? 'Tafadhali weka jina la biashara yako.' : 'Please enter your business name.';
+    if (!formData.category) return isSw ? 'Tafadhali chagua kundi la huduma.' : 'Please choose a service category.';
+    if (!formData.location.trim()) return isSw ? 'Tafadhali weka eneo au jiji lako.' : 'Please enter your business location.';
+    if (formData.contact.replace(/\D/g, '').length < 9) {
+      return isSw
+        ? 'Tafadhali weka nambari sahihi ya simu / WhatsApp (+255 700 000 000).'
+        : 'Please enter a valid phone / WhatsApp contact number.';
+    }
+    if (!formData.priceRate || formData.priceRate <= 0) {
+      return isSw ? 'Tafadhali weka bei ya kuanzia iliyo sahihi.' : 'Please enter a valid starting price.';
+    }
+    return '';
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!formData.name.trim()) {
-      setError(isSw ? 'Tafadhali weka jina la biashara yako.' : 'Please enter your business name.');
-      return;
-    }
-    if (!formData.location.trim()) {
-      setError(isSw ? 'Tafadhali weka eneo au jiji lako.' : 'Please enter your business location.');
-      return;
-    }
-    if (formData.contact.replace(/\D/g, '').length < 9) {
-      setError(isSw ? 'Tafadhali weka nambari sahihi ya simu / WhatsApp (+255 700 000 000).' : 'Please enter a valid phone / WhatsApp contact number.');
-      return;
-    }
-    if (!formData.priceRate || formData.priceRate <= 0) {
-      setError(isSw ? 'Tafadhali weka bei ya kuanzia iliyo sahihi.' : 'Please enter a valid starting price.');
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      formRef.current?.querySelector('#vreg-name')?.focus();
       return;
     }
 
     setSubmitting(true);
 
-    const newVendor = {
-      id: `vendor-${Date.now()}`,
-      category: formData.category,
+    const payload = {
       name: formData.name.trim(),
+      category: formData.category,
       location: formData.location.trim(),
-      pricePerDay: (formData.category === 'kumbi' || formData.category === 'transport') ? formData.priceRate : null,
-      pricePerPerson: formData.category === 'catering' ? formData.priceRate : null,
-      pricePerEvent: formData.category === 'entertainment' ? formData.priceRate : null,
-      packages: (formData.category === 'wapambaji' || formData.category === 'saloon') ? [
-        {
-          id: `pkg-${Date.now()}`,
-          name: isSw ? 'Kifurushi cha Msingi cha Harusi' : 'Standard Wedding Package',
-          price: formData.priceRate,
-          description: formData.description || (isSw ? 'Huduma kamili ya kitaalamu kwa harusi yako.' : 'Full professional wedding package included.')
-        }
-      ] : [],
-      rating: 5.0,
-      reviewsCount: 1,
-      verified: true,
-      isFeatured: true,
-      image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80',
+      contact: normalizePhone(),
+      priceRate: formData.priceRate,
       description: formData.description.trim(),
-      contact: formData.contact.trim(),
-      unavailableDates: []
     };
 
-    setProviders(prev => [newVendor, ...prev]);
+    let created;
+    try {
+      const res = await api.registerVendor(payload);
+      created = res?.vendor;
+      if (!created?.id) throw new Error('Registration was not confirmed by the server.');
+    } catch (err) {
+      setSubmitting(false);
+      const serverMessage = err?.data?.error || (err?.status === 422 ? err.message : '');
+      setError(
+        serverMessage ||
+          (isSw
+            ? 'Hatukuweza kuwasilisha usajili wako kwa sasa. Tafadhali angalia muunganisho wako na ujaribu tena.'
+            : 'We could not submit your registration right now. Please check your connection and try again.')
+      );
+      return;
+    }
+
+    const newVendor = {
+      id: created.id,
+      category: payload.category,
+      name: payload.name,
+      location: payload.location,
+      pricePerDay: ['kumbi', 'transport'].includes(payload.category) ? payload.priceRate : null,
+      pricePerPerson: payload.category === 'catering' ? payload.priceRate : null,
+      pricePerEvent: payload.category === 'entertainment' ? payload.priceRate : null,
+      packages: ['wapambaji', 'saloon'].includes(payload.category)
+        ? [
+            {
+              id: `pkg-${Date.now()}`,
+              name: isSw ? 'Kifurushi cha Msingi cha Harusi' : 'Standard Wedding Package',
+              price: payload.priceRate,
+              description:
+                payload.description ||
+                (isSw ? 'Huduma kamili ya kitaalamu kwa harusi yako.' : 'Full professional wedding package included.'),
+            },
+          ]
+        : [],
+      rating: 0,
+      reviewsCount: 0,
+      verified: false,
+      isFeatured: false,
+      status: created.status || 'pending_review',
+      image: '/portfolio/reception-toast.jpg',
+      description: payload.description,
+      contact: payload.contact,
+      unavailableDates: [],
+    };
+
+    setProviders((prev) => [newVendor, ...prev]);
+    setSubmitting(false);
+    setRegistered(true);
 
     setTimeout(() => {
-      setSubmitting(false);
-      setRegistered(true);
-      setTimeout(() => {
-        switchRole('provider');
-        navigate('/provider');
-      }, 1900);
-    }, 800);
+      navigate('/login');
+      navigate('/provider');
+    }, 2400);
   };
 
   const benefits = [
     {
-      title: isSw ? 'Tengeneza Wasifu wa Biashara' : 'Create Business Profile',
-      desc: isSw ? 'Onyesha picha, bei, vifurushi, na vifaa vyako kwa maelfu ya maharusi wanaopanga harusi kila mwezi.' : 'Showcase your portfolio, packages, pricing, and amenities to thousands of active couples.',
       icon: Store,
       tag: isSw ? 'BURE 100%' : '100% Free',
-      iconBg: '#FEF3C7',
-      iconColor: '#D97706'
+      title: isSw ? 'Tengeneza Wasifu wa Biashara' : 'Create Your Business Profile',
+      desc: isSw
+        ? 'Onyesha kazi zako, vifurushi, bei na vifaa vyako kwa wanandoa wanaotafuta watoa huduma wa harusi.'
+        : 'Showcase your portfolio, packages, pricing and amenities to couples searching for wedding professionals.',
     },
     {
-      title: isSw ? 'Pokea Maombi ya Uhifadhi Moja kwa Moja' : 'Receive Direct Booking Requests',
-      desc: isSw ? 'Pata oda za papo hapo na amana ya awali ya 30% moja kwa moja kwenye akaunti au simu yako.' : 'Get instant booking requests and 30% advance deposits straight to your account.',
       icon: Rocket,
       tag: isSw ? 'AMANA 30%' : '30% Advance',
-      iconBg: '#EDE9FE',
-      iconColor: '#7C3AED'
+      title: isSw ? 'Pokea Maombi ya Uhifadhi Moja kwa Moja' : 'Receive Direct Booking Requests',
+      desc: isSw
+        ? 'Pokea maombi ya uhifadhi moja kwa moja kutoka kwa wanandoa, pamoja na amana ya awali ya 30% kulingana na masharti ya uhifadhi.'
+        : 'Receive booking requests directly from couples, with a 30% advance deposit according to the booking terms.',
     },
     {
-      title: isSw ? 'Simamia Kalenda ya Tarehe' : 'Manage Calendar Availability',
-      desc: isSw ? 'Funga kwa urahisi tarehe ulizopokea oda kuzuia muingiliano wakati wa msimu wa harusi.' : 'Effortlessly block out unavailable dates and avoid scheduling conflicts during peak wedding season.',
       icon: Calendar,
-      tag: isSw ? 'HAKUNA CONFLICT' : 'Zero Conflicts',
-      iconBg: '#DCFCE7',
-      iconColor: '#16A34A'
+      tag: isSw ? 'HAKUNA MIGONGANO' : 'Zero Conflicts',
+      title: isSw ? 'Simamia Upatikanaji wa Kalenda' : 'Manage Calendar Availability',
+      desc: isSw
+        ? 'Dhibiti upatikanaji wako, funga tarehe zisizopatikana na punguza migongano wakati wa misimu yenye shughuli nyingi.'
+        : 'Control your availability, block unavailable dates and reduce scheduling conflicts during busy wedding seasons.',
     },
     {
-      title: isSw ? 'Pokea Malipo Salama ya Mtandaoni' : 'Accept Online Payments',
-      desc: isSw ? 'Malipo ya uhakika na salama kupitia M-Pesa, Tigo Pesa, Airtel Money, au benki zote nchini.' : 'Guaranteed payouts via M-Pesa, Tigo Pesa, Airtel Money, or direct bank transfer.',
       icon: CreditCard,
-      tag: isSw ? 'M-PESA & BENKI' : 'Mobile & Bank',
-      iconBg: '#E0E7FF',
-      iconColor: '#4F46E5'
+      tag: isSw ? 'SIMU & BENKI' : 'Mobile & Bank',
+      title: isSw ? 'Pokea Malipo ya Mtandaoni' : 'Accept Online Payments',
+      desc: isSw
+        ? 'Pokea malipo kupitia njia zinazotumika ikiwa ni pamoja na M-Pesa, Tigo Pesa, Airtel Money na uhamishaji wa benki.'
+        : 'Receive payments through supported channels including M-Pesa, Tigo Pesa, Airtel Money and bank transfers.',
     },
     {
-      title: isSw ? 'Fuatilia Mapato na Takwimu' : 'Track Earnings & Analytics',
-      desc: isSw ? 'Ripoti za kifedha za wakati halisi, historia ya malipo, na wateja watarajiwa kiganjani mwako.' : 'Real-time financial breakdown of gross earnings, platform payouts, and upcoming events.',
       icon: TrendingUp,
-      tag: isSw ? 'RIPOTI LIVE' : 'Live Analytics',
-      iconBg: '#FCE7F3',
-      iconColor: '#DB2777'
+      tag: isSw ? 'TAKWIMU HALISI' : 'Live Analytics',
+      title: isSw ? 'Fuatilia Mapato na Takwimu' : 'Track Earnings & Analytics',
+      desc: isSw
+        ? 'Tazama mgawanyo wa kifedha, shughuli za uhifadhi, mapato na matukio yajayo kutoka kwenye tovuti yako ya mtoa huduma.'
+        : 'View financial breakdowns, booking activity, earnings and upcoming events from your provider portal.',
     },
     {
-      title: isSw ? 'Jenga Heshima na Ushuhuda' : 'Build Client Reputation',
-      desc: isSw ? 'Pata maoni ya nyota 5 yaliyothibitishwa na jenga jina lako kama kinara wa huduma Tanzania.' : 'Gain verified 5-star customer reviews and boost your business ranking across Tanzania.',
       icon: Award,
-      tag: isSw ? 'BEJI YA VERIFIED' : 'Verified Badge',
-      iconBg: '#CCFBF1',
-      iconColor: '#0D9488'
+      tag: isSw ? 'BEJI YA UTHIBITISHO' : 'Verified Badge',
+      title: isSw ? 'Jenga Sifa kwa Wateja' : 'Build Client Reputation',
+      desc: isSw
+        ? 'Jenga imani kupitia maoni ya wateja yaliyothibitishwa na ongeza mwonekano wako kwenye soko la MY DAY.'
+        : 'Build trust through verified customer reviews and strengthen your visibility across the MY DAY marketplace.',
     },
   ];
 
+  const steps = [
+    {
+      n: '01',
+      icon: FileText,
+      title: isSw ? 'Jisajili' : 'Register',
+      desc: isSw
+        ? 'Tengeneza wasifu wa biashara yako na toa taarifa zako za mawasiliano.'
+        : 'Create your business profile and provide your contact information.',
+    },
+    {
+      n: '02',
+      icon: ImageIcon,
+      title: isSw ? 'Kamilisha Orodha Yako' : 'Complete Your Listing',
+      desc: isSw
+        ? 'Ongeza maelezo ya biashara, bei, huduma na picha za kazi zako.'
+        : 'Add your business description, pricing, services and portfolio images.',
+    },
+    {
+      n: '03',
+      icon: Users,
+      title: isSw ? 'Uonekane' : 'Get Discovered',
+      desc: isSw
+        ? 'Biashara yako inaonekana kwa wanandoa wanaotafuta kwenye soko la MY DAY.'
+        : 'Your business becomes visible to couples searching the MY DAY marketplace.',
+    },
+    {
+      n: '04',
+      icon: Calendar,
+      title: isSw ? 'Pokea Uhifadhi' : 'Receive Bookings',
+      desc: isSw
+        ? 'Simamia maombi ya uhifadhi, upatikanaji na malipo kupitia tovuti yako ya mtoa huduma.'
+        : 'Manage booking requests, availability and payments through your provider portal.',
+    },
+  ];
+
+  const advantages = [
+    {
+      icon: Zap,
+      title: isSw ? 'Uchapishaji wa Haraka' : 'Instant Publishing',
+      desc: isSw
+        ? 'Orodha yako inaweza kuonekana kwenye soko mara usajili na ukaguzi unaohitajika kukamilika.'
+        : 'Your listing can become visible on the marketplace once registration and required checks are successfully completed.',
+    },
+    {
+      icon: FileText,
+      title: isSw ? 'Mikataba ya Kidijitali' : 'Digital Contracts',
+      desc: isSw
+        ? 'Makubaliano ya kidijitali yanaweza kutengenezwa kwa uhifadhi kulingana na mtiririko wa uhifadhi wa jukwaa.'
+        : "Digital agreements can be generated for bookings according to the platform's booking workflow.",
+    },
+    {
+      icon: ShieldCheck,
+      title: isSw ? 'Malipo Yaliyolindwa' : 'Protected Payouts',
+      desc: isSw
+        ? 'Pata njia za malipo na malipo zinazotumika, kulingana na masharti ya malipo ya jukwaa.'
+        : "Access supported payment and payout channels, subject to the platform's payment terms.",
+    },
+  ];
+
+  const assurances = [
+    isSw ? 'Kujiunga ni bure' : 'Free to join',
+    isSw ? 'Hakuna ada ya kila mwezi' : 'No monthly subscription fees',
+    isSw ? 'Kamisheni kwa uhifadhi uliothibitishwa pekee' : 'Commission only on confirmed bookings',
+  ];
+
   return (
-    <div className="container" style={{ padding: '2.5rem 1.25rem 6.5rem' }}>
-      {/* Top Hero Banner */}
-      <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto 3rem' }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.45rem',
-          background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
-          color: '#92400E',
-          padding: '0.45rem 1.1rem',
-          borderRadius: '999px',
-          fontSize: '0.8rem',
-          fontWeight: 800,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          border: '1px solid rgba(245, 166, 35, 0.4)',
-          boxShadow: '0 4px 14px rgba(245, 166, 35, 0.15)',
-          marginBottom: '1rem'
-        }}>
-          <Sparkles size={14} color="#D97706" />
-          {t('vreg_hero_badge', "Official Vendor Partner Program")}
-        </div>
-
-        <h1 style={{
-          fontSize: '2.65rem',
-          color: '#1E130B',
-          marginTop: '0.25rem',
-          marginBottom: '0.9rem',
-          fontWeight: 850,
-          letterSpacing: '-0.02em',
-          lineHeight: 1.2
-        }}>
-          {t('vreg_hero_title', "Grow Your Wedding Business with MY DAY")}
-        </h1>
-
-        <p style={{
-          fontSize: '1.15rem',
-          color: '#6B5543',
-          lineHeight: 1.6,
-          maxWidth: '700px',
-          margin: '0 auto 1.5rem'
-        }}>
-          {t('vreg_hero_desc', "Join Tanzania's premier wedding marketplace. Connect with hundreds of couples actively planning their dream weddings every month.")}
-        </p>
-
-        {/* Live Marketplace Highlights Bar */}
-        <div style={{
-          display: 'inline-flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '1.5rem',
-          background: '#FFFFFF',
-          padding: '0.75rem 1.75rem',
-          borderRadius: '999px',
-          border: '1px solid #EFE6DC',
-          boxShadow: '0 8px 24px -10px rgba(61, 44, 31, 0.08)'
-        }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.86rem', fontWeight: 750, color: '#2C1E14' }}>
-            <Users size={16} color="#D97706" /> 250+ {isSw ? 'Watoa Huduma' : 'Vendors Active'}
-          </span>
-          <span style={{ color: '#E5D7C7' }}>•</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.86rem', fontWeight: 750, color: '#2C1E14' }}>
-            <Star size={16} color="#F5A623" fill="#F5A623" /> 4.9★ {isSw ? 'Kiwango cha Wastani' : 'Average Rating'}
-          </span>
-          <span style={{ color: '#E5D7C7' }}>•</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.86rem', fontWeight: 750, color: '#16A34A' }}>
-            <ShieldCheck size={16} color="#16A34A" /> {isSw ? '0 TSh Kujiunga' : '0 TSh Upfront Fee'}
-          </span>
-        </div>
-      </div>
-
-      {/* Benefits Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-        gap: '1.35rem',
-        marginBottom: '3.5rem'
-      }}>
-        {benefits.map((b, i) => {
-          const Icon = b.icon;
-          return (
-            <div key={i} className="vreg-benefit-card">
-              <div className="vreg-benefit-header">
-                <div className="vreg-benefit-icon-box" style={{ background: b.iconBg, color: b.iconColor }}>
-                  <Icon size={22} />
-                </div>
-                <span className="vreg-benefit-tag">{b.tag}</span>
-              </div>
-              <h3 className="vreg-benefit-title">{b.title}</h3>
-              <p className="vreg-benefit-desc">{b.desc}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Main Registration Card */}
-      <section className="vreg-card" id="vendor-register" aria-labelledby="vreg-title">
-        {/* Left: Brand / Trust panel */}
-        <aside className="vreg-side">
-          <span className="vreg-side-badge">
-            <BadgeCheck size={15} /> {t('vreg_badge', "Partner Program")}
-          </span>
-
-          <h3 className="vreg-side-title">
-            {t('vreg_side_title', "Your listing goes live in minutes")}
-          </h3>
-
-          <p className="vreg-side-text">
-            {t('vreg_side_desc', "Couples across Tanzania are searching right now. Fill in the basics — you can add photos and packages later from your provider portal.")}
-          </p>
-
-          <ul className="vreg-perks">
-            <li>
-              <span className="vreg-perk-icon"><Zap size={18} /></span>
-              <div>
-                <strong>{t('vreg_instant_pub', "Instant publishing")}</strong>
-                <small>{t('vreg_instant_pub_sub', "Visible on the marketplace immediately")}</small>
-              </div>
-            </li>
-            <li>
-              <span className="vreg-perk-icon"><FileText size={18} /></span>
-              <div>
-                <strong>{t('vreg_digital_contracts', "Digital contracts")}</strong>
-                <small>{t('vreg_digital_contracts_sub', "Auto-generated legal agreement for every booking")}</small>
-              </div>
-            </li>
-            <li>
-              <span className="vreg-perk-icon"><ShieldCheck size={18} /></span>
-              <div>
-                <strong>{t('vreg_protected_payouts', "Protected payouts")}</strong>
-                <small>{t('vreg_protected_payouts_sub', "M-Pesa, Tigo Pesa, Airtel & Bank transfers")}</small>
-              </div>
-            </li>
-          </ul>
-
-          {/* Testimonial Quote */}
-          <div className="vreg-side-testimonial">
-            <p className="vreg-side-quote">
-              {isSw
-                ? "“MY DAY ilituwezesha kupata oda 18 za mapambo ndani ya mwezi wetu wa kwanza. Ni jukwaa bora la harusi nchini Tanzania!”"
-                : "“MY DAY helped us secure 18 new wedding decor bookings in our first month alone. Truly the best wedding platform in Tanzania!”"}
-            </p>
-            <span className="vreg-side-author">
-              <Sparkles size={13} color="#FFB547" />
-              {isSw ? "Amina K. — Imperial Floral, Dar es Salaam" : "Amina K. — Imperial Floral, Dar es Salaam"}
+    <div className="vp-page">
+      {/* 01 - HERO */}
+      <section className="vp-hero" aria-labelledby="vp-hero-title">
+        <div className="container vp-hero__inner">
+          <div className="vp-hero__copy">
+            <span className="vp-eyebrow">
+              <Sparkles size={13} /> {isSw ? 'MPANGO RASMI WA WASHIRIKA WA MY DAY' : 'Official MY DAY Vendor Partner Program'}
             </span>
+
+            <h1 id="vp-hero-title" className="vp-hero__title">
+              {isSw ? 'Kukuza Biashara Yako ya Harusi na MY DAY.' : 'Grow Your Wedding Business with MY DAY.'}
+            </h1>
+
+            <p className="vp-hero__lead">
+              {isSw
+                ? "Jiunge na soko kuu la harusi Tanzania. Ungana na wanandoa wanaopanga harusi zao, onyesha huduma zako na kukuza biashara yako kupitia uhifadhi wa moja kwa moja."
+                : "Join Tanzania's premier wedding marketplace. Connect with couples actively planning their weddings, showcase your services and grow your business through direct bookings."}
+            </p>
+
+            <div className="vp-hero__actions">
+              <button type="button" className="vp-btn vp-btn--primary" onClick={() => scrollToId('vendor-register')}>
+                {isSw ? 'Kuwa Mshirika' : 'Become a Partner'} <ArrowRight size={16} />
+              </button>
+              <button type="button" className="vp-btn vp-btn--ghost" onClick={() => scrollToId('vp-benefits')}>
+                {isSw ? 'Gundua Faida za Mshirika' : 'Explore Partner Benefits'}
+              </button>
+            </div>
+
+            <ul className="vp-trust" aria-label={isSw ? 'Takwimu za soko' : 'Marketplace figures'}>
+              <li>
+                <Users size={15} />
+                <strong>{activeVendors}</strong> {isSw ? 'Watoa Huduma' : 'Active Vendors'}
+              </li>
+              <li>
+                <Star size={15} fill="currentColor" />
+                <strong>{averageRating ? `${averageRating}★` : 'New'}</strong>{' '}
+                {isSw ? 'Kiwango cha Wastani' : 'Average Rating'}
+              </li>
+              <li>
+                <ShieldCheck size={15} />
+                <strong>0 TSh</strong> {isSw ? 'Ada ya Kujiunga' : 'Upfront Fee'}
+              </li>
+            </ul>
           </div>
 
-          <div className="vreg-side-stats">
-            <div>
-              <strong>250+</strong>
-              <span>{isSw ? 'Watoa Huduma' : 'Vendors'}</span>
+          <figure className="vp-hero__visual">
+            <div className="vp-hero__frame vp-hero__frame--main">
+              <img src="/portfolio/kanga-sisters.jpg" alt={isSw ? 'Sherehe ya harusi Tanzania' : 'A Tanzanian wedding celebration'} />
             </div>
-            <div>
-              <strong>4.9★</strong>
-              <span>{isSw ? 'Ukadiriaji' : 'Avg Rating'}</span>
+            <div className="vp-hero__frame vp-hero__frame--inset">
+              <img src="/portfolio/gele-portrait.jpg" alt={isSw ? 'Bibi harusi wa Tanzania' : 'A Tanzanian bride'} />
             </div>
-            <div>
-              <strong>0 TSh</strong>
-              <span>{isSw ? 'Kujiunga' : 'To Join'}</span>
-            </div>
-          </div>
-        </aside>
+            <figcaption className="vp-hero__caption">
+              <BadgeCheck size={15} /> {isSw ? 'Biashara washirika kote Tanzania' : 'Partner businesses across Tanzania'}
+            </figcaption>
+          </figure>
+        </div>
+      </section>
 
-        {/* Right: Registration Form */}
-        <div className="vreg-main">
-          <header className="vreg-head">
-            <div className="vreg-title-wrap">
-              <span className="vreg-pill-micro">
-                <Sparkles size={12} color="#D97706" />
-                {isSw ? 'Fomu Rasmi ya Usajili' : 'Official Onboarding Form'}
-              </span>
-              <h2 id="vreg-title" className="vreg-title">
-                {t('vreg_title', "Register as a Partner Vendor")}
-              </h2>
-              <p className="vreg-sub">
-                {t('vreg_sub', "Instant publishing & digital contract setup")}
-              </p>
-            </div>
-
-            <div className="vreg-progress-ring" style={{ '--p': completion }} aria-label={`Form ${completion}% complete`}>
-              <span>
-                {completion}%
-                <small style={{ fontSize: '0.55rem', fontWeight: 700, color: '#8C7662', textTransform: 'uppercase' }}>
-                  {completion === 100 ? (isSw ? 'Tayari' : 'Ready') : (isSw ? 'Hatua' : 'Done')}
-                </small>
-              </span>
-            </div>
+      {/* 02 - BENEFITS */}
+      <section className="vp-section" id="vp-benefits" aria-labelledby="vp-benefits-title">
+        <div className="container">
+          <header className="vp-sec-head">
+            <span className="vp-eyebrow vp-eyebrow--quiet">
+              <Sparkles size={12} /> {isSw ? 'Kwa Nini MY DAY' : 'Why partner with MY DAY'}
+            </span>
+            <h2 id="vp-benefits-title" className="vp-h2">
+              {isSw ? 'Kila unachohitaji kukuza biashara yako.' : 'Everything you need to grow your business.'}
+            </h2>
+            <p className="vp-lead">
+              {isSw
+                ? 'Kuanzia orodha yako ya kwanza hadi uhifadhi unaofuata, MY DAY inakupa zana za kukua.'
+                : 'From your first listing to your next confirmed booking, MY DAY gives your business the tools to grow.'}
+            </p>
           </header>
 
-          {registered ? (
-            <div className="vreg-success" role="status">
-              <div className="vreg-success-icon"><CheckCircle2 size={38} /></div>
-              <h3>
-                {isSw ? `Karibu Sana, ${formData.name}!` : `Welcome aboard, ${formData.name}!`}
-              </h3>
+          <div className="vp-benefits">
+            {benefits.map((b) => {
+              const Icon = b.icon;
+              return (
+                <article key={b.title} className="vp-benefit">
+                  <div className="vp-benefit__top">
+                    <span className="vp-benefit__icon" aria-hidden="true">
+                      <Icon size={19} />
+                    </span>
+                    <span className="vp-benefit__tag">{b.tag}</span>
+                  </div>
+                  <h3>{b.title}</h3>
+                  <p>{b.desc}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 03 - PROCESS */}
+      <section className="vp-section vp-section--tight" aria-labelledby="vp-process-title">
+        <div className="container">
+          <header className="vp-sec-head vp-sec-head--center">
+            <h2 id="vp-process-title" className="vp-h2">
+              {isSw ? 'Kutoka usajili hadi uhifadhi unaofuata.' : 'From registration to your next booking.'}
+            </h2>
+          </header>
+
+          <ol className="vp-steps">
+            {steps.map((s) => {
+              const Icon = s.icon;
+              return (
+                <li key={s.n} className="vp-step">
+                  <span className="vp-step__num">{s.n}</span>
+                  <span className="vp-step__icon" aria-hidden="true">
+                    <Icon size={17} />
+                  </span>
+                  <h3>{s.title}</h3>
+                  <p>{s.desc}</p>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </section>
+
+      {/* 04 - ADVANTAGES */}
+      <section className="vp-section" aria-labelledby="vp-adv-title">
+        <div className="container vp-split">
+          <figure className="vp-split__visual">
+            <img src="/portfolio/coastal-bride.jpg" alt={isSw ? 'Sherehe ya harusi' : 'Wedding celebration'} />
+            <figcaption>{isSw ? 'Sherehe halisi, washirika halisi' : 'Real celebrations, real partners'}</figcaption>
+          </figure>
+
+          <div className="vp-split__copy">
+            <h2 id="vp-adv-title" className="vp-h2">
+              {isSw ? 'Biashara yako. Chapa yako. Fursa zaidi.' : 'Your business. Your brand. More opportunities.'}
+            </h2>
+
+            <ul className="vp-adv">
+              {advantages.map((a) => {
+                const Icon = a.icon;
+                return (
+                  <li key={a.title}>
+                    <span className="vp-adv__icon" aria-hidden="true">
+                      <Icon size={17} />
+                    </span>
+                    <div>
+                      <h3>{a.title}</h3>
+                      <p>{a.desc}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 05 - TESTIMONIAL */}
+      <section className="vp-section vp-section--tight" aria-labelledby="vp-quote-title">
+        <div className="container">
+          <figure className="vp-quote">
+            <span className="vp-quote__mark" aria-hidden="true">“</span>
+            <div className="vp-quote__body">
+            <blockquote id="vp-quote-title">
+              {isSw
+                ? '“MY DAY ilitusaidia kupata uhifadhi 18 mpya wa mapambo ya harusi katika mwezi wetu wa kwanza pekee. Kwa kweli jukwaa bora la harusi Tanzania!”'
+                : '“MY DAY helped us secure 18 new wedding decor bookings in our first month alone. Truly the best wedding platform in Tanzania!”'}
+            </blockquote>
+            <figcaption>
+              <div className="vp-quote__who">
+                <strong>Amina K.</strong>
+                <span>Imperial Floral — Dar es Salaam</span>
+              </div>
+              <span className="vp-quote__note">
+                {isSw ? 'Ushuhuda wa mshirika — haujathibitishwa kwa uhuru.' : 'Partner story — not independently verified.'}
+              </span>
+            </figcaption>
+            </div>
+            <img className="vp-quote__photo" src="/portfolio/bouquet-and-shoes.jpg" alt="" aria-hidden="true" />
+          </figure>
+        </div>
+      </section>
+
+      {/* 06 - REGISTRATION */}
+      <section className="vp-section vp-section--form" id="vendor-register" aria-labelledby="vreg-title">
+        <div className="container">
+          <header className="vp-sec-head vp-sec-head--center">
+            <h2 id="vreg-title" className="vp-h2">
+              {isSw ? "Weka biashara yako kwenye MY DAY." : "Let's get your business on MY DAY."}
+            </h2>
+            <p className="vp-lead">
+              {isSw
+                ? 'Jaza taarifa za biashara yako ili kuunda wasifu wako wa mtoa huduma. Unaweza kuongeza picha, vifurushi na taarifa zaidi baadaye kupitia tovuti yako ya mtoa huduma.'
+                : 'Fill in your business details to create your vendor profile. You can add your photos, packages and additional information later through your provider portal.'}
+            </p>
+            <ul className="vp-assurances">
+              {assurances.map((a) => (
+                <li key={a}>
+                  <Check size={13} /> {a}
+                </li>
+              ))}
+            </ul>
+          </header>
+
+          <div className="vp-panel">
+            <aside className="vp-panel__side">
+              <span className="vp-panel__badge">
+                <BadgeCheck size={15} /> {isSw ? 'Usajili Rasmi' : 'Official registration'}
+              </span>
+
+              <h3>{isSw ? 'Orodha yako, hatua kwa hatua' : 'Your listing, step by step'}</h3>
               <p>
                 {isSw
-                  ? "Orodha yako iko hewani sasa! Tunakuhamisha kwenye Tovuti yako ya Mtoa Huduma..."
-                  : "Your listing is now live across Tanzania! Launching your Provider Portal…"}
+                  ? 'Dakika chache tu. Taarifa hizi ndizo wanandoa wanaona kwenye soko.'
+                  : 'A few minutes is all it takes. These are the details couples see in the marketplace.'}
               </p>
-              <div className="vreg-success-bar"><span /></div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="vreg-form" noValidate>
-              {/* Field 1: Business Name */}
-              <div className="vreg-field">
-                <label htmlFor="vreg-name">
-                  <span className="label-left">
-                    <Store size={15} color="#D97706" />
-                    {t('vreg_business_name', "Business Name")} <em>*</em>
-                  </span>
-                </label>
-                <div className="vreg-input-wrap">
-                  <Store size={18} className="vreg-input-icon" />
-                  <input
-                    id="vreg-name"
-                    type="text"
-                    placeholder={t('vreg_business_placeholder', "E.g. Imperial Floral & Decor")}
-                    value={formData.name}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
+
+              <ol className="vp-panel__steps">
+                <li><span>1</span>{isSw ? 'Utambulisho wa biashara' : 'Business identity'}</li>
+                <li><span>2</span>{isSw ? 'Eneo na mawasiliano' : 'Location & contact'}</li>
+                <li><span>3</span>{isSw ? 'Bei ya kuanzia' : 'Starting price'}</li>
+                <li><span>4</span>{isSw ? 'Maelezo na huduma' : 'Description & amenities'}</li>
+              </ol>
+
+              <div className="vp-panel__progress" aria-live="polite">
+                <div className="vp-panel__progress-head">
+                  <span>{isSw ? 'Maendeleo' : 'Progress'}</span>
+                  <strong>{completion}%</strong>
+                </div>
+                <div
+                  className="vp-panel__bar"
+                  role="progressbar"
+                  aria-valuenow={completion}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <span style={{ width: `${completion}%` }} />
                 </div>
               </div>
 
-              {/* Field 2: Service Category */}
-              <div className="vreg-field">
-                <label id="vreg-cat-label">
-                  <span className="label-left">
-                    <Palette size={15} color="#D97706" />
-                    {t('vreg_service_cat', "Service Category")} <em>*</em>
-                  </span>
-                  <span style={{ fontSize: '0.78rem', color: '#8C7662', fontWeight: 600 }}>
-                    {isSw ? 'Chagua kundi lako kuu' : 'Select your primary specialty'}
-                  </span>
-                </label>
+              <p className="vp-panel__fineprint">
+                <Clock3 size={13} />
+                {isSw
+                  ? 'Orodha inaonekana baada ya usajili na ukaguzi unaohitajika kukamilika.'
+                  : 'Your listing becomes visible once registration and required checks are complete.'}
+              </p>
+            </aside>
 
-                <div className="vreg-cats" role="radiogroup" aria-labelledby="vreg-cat-label">
-                  {CATEGORIES.map(c => {
-                    const Icon = c.icon;
-                    const active = formData.category === c.id;
-                    const displayName = isSw ? c.swName : c.name;
+            <div className="vp-panel__main">
+              {registered ? (
+                <div className="vp-success" role="status">
+                  <span className="vp-success__icon">
+                    <CheckCircle2 size={34} />
+                  </span>
+                  <h3>
+                    {isSw ? `Karibu, ${formData.name}!` : `Welcome aboard, ${formData.name}!`}
+                  </h3>
+                  <p>
+                    {isSw
+                      ? 'Usajili wako umepokelewa na upo kwenye ukaguzi. Tunakuhamisha kwenye tovuti yako ya mtoa huduma…'
+                      : 'Your registration is confirmed and pending review. Taking you to your provider portal…'}
+                  </p>
+                  <div className="vp-success__bar"><span /></div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="vp-form" ref={formRef} noValidate>
+                  {/* STEP 1 */}
+                  <fieldset className="vp-stepset">
+                    <legend>
+                      <span className="vp-stepset__num">1</span>
+                      <span>
+                        <strong>{isSw ? 'Utambulisho wa Biashara' : 'Business Identity'}</strong>
+                        <small>{isSw ? 'Jina na aina ya huduma' : 'Name and service category'}</small>
+                      </span>
+                    </legend>
 
-                    return (
-                      <button
-                        key={c.id}
-                        id={`vreg-cat-${c.id}`}
-                        type="button"
-                        role="radio"
-                        aria-checked={active}
-                        title={displayName}
-                        className={`vreg-cat ${active ? 'is-active' : ''}`}
-                        onClick={() => setFormData({ ...formData, category: c.id })}
-                      >
-                        <div className="vreg-cat-top">
-                          <div className="vreg-cat-icon-wrap">
-                            <Icon size={17} />
-                          </div>
-                          {active && (
-                            <CheckCircle2 size={16} className="vreg-cat-check" />
-                          )}
+                    <div className="vp-field">
+                      <label htmlFor="vreg-name">
+                        {isSw ? 'Jina la Biashara' : 'Business Name'} <em aria-hidden="true">*</em>
+                      </label>
+                      <div className="vp-input">
+                        <Store size={17} aria-hidden="true" />
+                        <input
+                          id="vreg-name"
+                          type="text"
+                          autoComplete="organization"
+                          placeholder={isSw ? 'Mf. Imperial Floral & Decor' : 'Enter your registered or business trading name.'}
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="vp-field">
+                      <span className="vp-field__label" id="vreg-cat-label">
+                        {isSw ? 'Kundi la Huduma' : 'Service Category'} <em aria-hidden="true">*</em>
+                      </span>
+                      <p className="vp-field__hint" id="vreg-cat-hint">
+                        {isSw ? 'Chagua utaalamu wako mkuu.' : 'Select your primary specialty.'}
+                      </p>
+
+                      <div className="vp-cats" role="radiogroup" aria-labelledby="vreg-cat-label" aria-describedby="vreg-cat-hint">
+                        {CATEGORIES.map((c) => {
+                          const Icon = c.icon;
+                          const active = formData.category === c.id;
+                          const label = isSw ? c.swName : c.name;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              role="radio"
+                              aria-checked={active}
+                              className={`vp-cat ${active ? 'is-active' : ''}`}
+                              onClick={() => setFormData({ ...formData, category: c.id })}
+                            >
+                              <span className="vp-cat__icon"><Icon size={16} /></span>
+                              <span className="vp-cat__text">
+                                <strong>{label}</strong>
+                                <small>{c.sub}</small>
+                              </span>
+                              {active && <Check size={14} className="vp-cat__check" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  {/* STEP 2 */}
+                  <fieldset className="vp-stepset">
+                    <legend>
+                      <span className="vp-stepset__num">2</span>
+                      <span>
+                        <strong>{isSw ? 'Eneo na Mawasiliano' : 'Location & Contact'}</strong>
+                        <small>{isSw ? 'Jiji na simu ya WhatsApp' : 'City and WhatsApp number'}</small>
+                      </span>
+                    </legend>
+
+                    <div className="vp-grid2">
+                      <div className="vp-field">
+                        <label htmlFor="vreg-location">
+                          {isSw ? 'Eneo / Jiji' : 'Location / City'} <em aria-hidden="true">*</em>
+                        </label>
+                        <div className="vp-input">
+                          <MapPin size={17} aria-hidden="true" />
+                          <input
+                            id="vreg-location"
+                            type="text"
+                            autoComplete="address-level2"
+                            placeholder="Dar es Salaam"
+                            value={formData.location}
+                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                            required
+                          />
                         </div>
-                        <div>
-                          <div className="vreg-cat-name">{displayName}</div>
-                          <span className="vreg-cat-sub">{c.sub}</span>
+                        <div className="vp-pills">
+                          {CITY_PRESETS.map((city) => (
+                            <button
+                              key={city}
+                              type="button"
+                              aria-pressed={formData.location === city}
+                              className={`vp-pill ${formData.location === city ? 'is-active' : ''}`}
+                              onClick={() => setFormData({ ...formData, location: city })}
+                            >
+                              {city}
+                            </button>
+                          ))}
                         </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                      </div>
 
-              {/* Field 3 & 4: Location / City & Phone / WhatsApp Contact */}
-              <div className="vreg-grid">
-                <div className="vreg-field">
-                  <label htmlFor="vreg-location">
-                    <span className="label-left">
-                      <MapPin size={15} color="#D97706" />
-                      {t('vreg_location', "Location / City")} <em>*</em>
-                    </span>
-                  </label>
-                  <div className="vreg-input-wrap">
-                    <MapPin size={18} className="vreg-input-icon" />
-                    <input
-                      id="vreg-location"
-                      type="text"
-                      placeholder={t('vreg_location_placeholder', "E.g. Dar es Salaam")}
-                      value={formData.location}
-                      onChange={e => setFormData({ ...formData, location: e.target.value })}
-                      required
-                    />
-                  </div>
+                      <div className="vp-field">
+                        <label htmlFor="vreg-contact">
+                          {isSw ? 'Simu / WhatsApp' : 'Phone / WhatsApp Contact'} <em aria-hidden="true">*</em>
+                        </label>
+                        <div className="vp-input vp-input--phone">
+                          <Phone size={17} aria-hidden="true" />
+                          <span className="vp-input__prefix">+255</span>
+                          <input
+                            id="vreg-contact"
+                            type="tel"
+                            inputMode="tel"
+                            autoComplete="tel"
+                            placeholder="700 000 000"
+                            value={formData.contact}
+                            onChange={(e) => setFormData({ ...formData, contact: e.target.value.replace(/^\s*\+?255\s*/, '') })}
+                            required
+                            aria-describedby="vreg-contact-hint"
+                          />
+                          <MessageCircle size={15} className="vp-input__wa" aria-hidden="true" />
+                        </div>
+                        <p className="vp-field__hint" id="vreg-contact-hint">
+                          {isSw ? 'Inatumika kupokea arifa za uhifadhi wa wanandoa.' : 'Used for instant couple booking alerts.'}
+                        </p>
+                      </div>
+                    </div>
+                  </fieldset>
 
-                  {/* Quick City Presets */}
-                  <div className="vreg-pills">
-                    {CITY_PRESETS.map(city => (
-                      <button
-                        key={city}
-                        type="button"
-                        className={`vreg-pill-btn ${formData.location === city ? 'is-active' : ''}`}
-                        onClick={() => setFormData({ ...formData, location: city })}
-                      >
-                        {city}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                  {/* STEP 3 */}
+                  <fieldset className="vp-stepset">
+                    <legend>
+                      <span className="vp-stepset__num">3</span>
+                      <span>
+                        <strong>{isSw ? 'Bei' : 'Pricing'}</strong>
+                        <small>{isSw ? 'Bei ya kuanzia kwa kifurushi' : 'Starting price per package'}</small>
+                      </span>
+                    </legend>
 
-                <div className="vreg-field">
-                  <label htmlFor="vreg-contact">
-                    <span className="label-left">
-                      <Phone size={15} color="#D97706" />
-                      {t('vreg_phone', "Phone / WhatsApp Contact")} <em>*</em>
-                    </span>
-                    <span style={{ fontSize: '0.72rem', color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                      <MessageCircle size={12} /> WhatsApp
-                    </span>
-                  </label>
-                  <div className="vreg-input-wrap">
-                    <Phone size={18} className="vreg-input-icon" />
-                    <input
-                      id="vreg-contact"
-                      type="tel"
-                      inputMode="tel"
-                      placeholder={t('vreg_phone_placeholder', "+255 700 000 000")}
-                      value={formData.contact}
-                      onChange={e => setFormData({ ...formData, contact: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div style={{ marginTop: '0.35rem', fontSize: '0.75rem', color: '#7A6657' }}>
-                    {isSw ? 'Mfano: +255 700 000 000 (Inatumika kupokea arifa za wateja)' : 'Example: +255 700 000 000 (Used for instant couple booking alerts)'}
-                  </div>
-                </div>
-              </div>
+                    <div className="vp-field">
+                      <label htmlFor="vreg-price">
+                        {isSw ? 'Bei ya Kuanzia (TSh)' : 'Starting Price Rate (TSh)'} <em aria-hidden="true">*</em>
+                      </label>
+                      <p className="vp-field__hint">
+                        {isSw ? 'Weka bei yako ya kuanzia kwa kifurushi.' : 'Enter your starting price per package.'}
+                      </p>
 
-              {/* Field 5: Starting Price Rate */}
-              <div className="vreg-field">
-                <label htmlFor="vreg-price">
-                  <span className="label-left">
-                    <Wallet size={15} color="#D97706" />
-                    {t('vreg_starting_price', "Starting Price Rate (TSh)")} <em>*</em>
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: '#92400E', fontWeight: 700 }}>
-                    {activeUnit}
-                  </span>
-                </label>
+                      <div className="vp-input vp-input--price">
+                        <Wallet size={17} aria-hidden="true" />
+                        <span className="vp-input__prefix">TSh</span>
+                        <input
+                          id="vreg-price"
+                          type="number"
+                          min="10000"
+                          step="50000"
+                          inputMode="numeric"
+                          value={formData.priceRate}
+                          onChange={(e) => setFormData({ ...formData, priceRate: parseInt(e.target.value, 10) || 0 })}
+                          required
+                        />
+                        <span className="vp-input__suffix">{activeUnit}</span>
+                      </div>
 
-                <div className="vreg-input-wrap vreg-price-wrap">
-                  <Wallet size={18} className="vreg-input-icon" />
-                  <span className="vreg-prefix">TSh</span>
-                  <input
-                    id="vreg-price"
-                    type="number"
-                    min="10000"
-                    step="50000"
-                    value={formData.priceRate}
-                    onChange={e => setFormData({ ...formData, priceRate: parseInt(e.target.value) || 0 })}
-                    required
-                  />
-                  <span className="vreg-suffix">{activeUnit}</span>
-                </div>
+                      <div className="vp-pills vp-pills--presets">
+                        {PRICE_PRESETS.map((p) => (
+                          <button
+                            key={p.label}
+                            type="button"
+                            aria-pressed={formData.priceRate === p.value}
+                            className={`vp-pill ${formData.priceRate === p.value ? 'is-active' : ''}`}
+                            onClick={() => setFormData({ ...formData, priceRate: p.value })}
+                          >
+                            TSh {p.label}
+                          </button>
+                        ))}
+                      </div>
 
-                {/* Quick Price Preset Buttons */}
-                <div className="vreg-pills" style={{ marginTop: '0.5rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#8C7662', alignSelf: 'center', fontWeight: 600 }}>
-                    {isSw ? 'Viwango vya Haraka:' : 'Quick Presets:'}
-                  </span>
-                  {PRICE_PRESETS.map(p => (
-                    <button
-                      key={p.label}
-                      type="button"
-                      className={`vreg-pill-btn ${formData.priceRate === p.value ? 'is-active' : ''}`}
-                      onClick={() => setFormData({ ...formData, priceRate: p.value })}
-                    >
-                      TSh {p.label}
-                    </button>
-                  ))}
-                </div>
+                      <div className="vp-price-preview" aria-live="polite">
+                        <span>
+                          {isSw ? 'Wanandoa wataona:' : 'Couples will see:'}{' '}
+                          <strong>TSh {Number(formData.priceRate || 0).toLocaleString()}</strong> {activeUnit}
+                        </span>
+                        <span className="vp-price-preview__tag">
+                          <Check size={11} /> {isSw ? 'Bei Halisi' : 'Live preview'}
+                        </span>
+                      </div>
+                    </div>
+                  </fieldset>
 
-                {/* Live Formatted Price Display */}
-                <div className="vreg-price-preview">
-                  <span>
-                    {t('vreg_price_hint_prefix', "Couples will see:")} <strong>TSh {Number(formData.priceRate || 0).toLocaleString()}</strong> {activeUnit}
-                  </span>
-                  <span className="vreg-price-tag">
-                    <Check size={11} /> {isSw ? 'Bei Halisi ya Orodha' : 'Live Base Rate'}
-                  </span>
-                </div>
-              </div>
+                  {/* STEP 4 */}
+                  <fieldset className="vp-stepset">
+                    <legend>
+                      <span className="vp-stepset__num">4</span>
+                      <span>
+                        <strong>{isSw ? 'Maelezo na Huduma' : 'Description & Amenities'}</strong>
+                        <small>{isSw ? 'Hiari — inaongeza mvuto' : 'Optional — helps you stand out'}</small>
+                      </span>
+                    </legend>
 
-              {/* Field 6: Business Description & Amenities */}
-              <div className="vreg-field">
-                <label htmlFor="vreg-desc">
-                  <span className="label-left">
-                    <FileText size={15} color="#D97706" />
-                    {t('vreg_desc_amenities', "Business Description & Amenities")}
-                  </span>
-                  <span className="vreg-optional">{t('vreg_desc_optional', "optional")}</span>
-                </label>
+                    <div className="vp-field">
+                      <label htmlFor="vreg-desc">
+                        {isSw ? 'Maelezo ya Biashara' : 'Business Description'}{' '}
+                        <span className="vp-field__optional">{isSw ? 'hiari' : 'optional'}</span>
+                      </label>
+                      <textarea
+                        id="vreg-desc"
+                        rows={4}
+                        maxLength={DESC_MAX}
+                        placeholder={
+                          isSw
+                            ? 'Tuambie kinachofanya biashara yako kuwa maalum, huduma unazotoa na kile wanandoa wanachoweza kutarajia.'
+                            : 'Tell couples what makes your business special, what services you provide and what they can expect.'
+                        }
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        aria-describedby="vreg-desc-count"
+                      />
+                      <div className="vp-field__meta">
+                        <span>{isSw ? 'Chips za huduma za haraka:' : 'Quick amenity chips:'}</span>
+                        <span id="vreg-desc-count" className="vp-counter">
+                          {formData.description.length} / {DESC_MAX}
+                        </span>
+                      </div>
 
-                <textarea
-                  id="vreg-desc"
-                  rows="4"
-                  maxLength={DESC_MAX}
-                  placeholder={t('vreg_desc_placeholder', "Describe your services, capacity, amenities, or past experience...")}
-                  value={formData.description}
-                  onChange={e => setFormData({ ...formData, description: e.target.value })}
-                />
+                      <div className="vp-amenities">
+                        {AMENITY_TAGS.map((tag) => {
+                          const selected = isAmenitySelected(tag);
+                          return (
+                            <button
+                              key={tag}
+                              type="button"
+                              aria-pressed={selected}
+                              className={`vp-amenity ${selected ? 'is-selected' : ''}`}
+                              onClick={() => handleToggleAmenity(tag)}
+                            >
+                              <span aria-hidden="true">{tag.split(' ')[0]}</span>
+                              <span>{amenityLabel(tag)}</span>
+                              {selected && <Check size={13} className="vp-amenity__check" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </fieldset>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.4rem' }}>
-                  <span style={{ fontSize: '0.76rem', color: '#7A6657', fontWeight: 600 }}>
-                    {t('vreg_quick_amenities_label', "Quick-add popular amenities / features:")}
-                  </span>
-                  <div className="vreg-counter">{formData.description.length}/{DESC_MAX}</div>
-                </div>
+                  {error && (
+                    <div className="vp-error" role="alert">
+                      <ShieldCheck size={16} />
+                      <span>{error}</span>
+                    </div>
+                  )}
 
-                {/* Clickable Quick-Add Amenity Tags */}
-                <div className="vreg-pills" style={{ marginTop: '0.35rem' }}>
-                  {AMENITY_TAGS.map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className="vreg-pill-btn"
-                      onClick={() => handleAddAmenity(tag)}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  <button type="submit" className="vp-submit" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        <Loader2 size={19} className="vp-spin" />
+                        {isSw ? 'Tunawasilisha usajili…' : 'Submitting your registration…'}
+                      </>
+                    ) : (
+                      <>
+                        <Rocket size={19} />
+                        {isSw ? 'Sajili na Uzindue Orodha' : 'Register & Launch Listing'}
+                        <ArrowRight size={17} />
+                      </>
+                    )}
+                  </button>
 
-              {/* Error Box */}
-              {error && (
-                <div className="vreg-error" role="alert">
-                  <span style={{ fontSize: '1.1rem' }}>⚠️</span> {error}
-                </div>
+                  <p className="vp-legal">
+                    {isSw
+                      ? 'Kujiunga ni bure · Hakuna ada ya kila mwezi · Kamisheni kwa uhifadhi uliothibitishwa pekee.'
+                      : 'Free to join · No monthly fees · Commission only on confirmed bookings.'}
+                  </p>
+                </form>
               )}
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {/* Submit / Launch Button */}
-              <button id="vreg-submit" type="submit" className="vreg-submit" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 size={20} className="vreg-spin" />
-                    {t('vreg_launching', "Launching your listing…")}
-                  </>
-                ) : (
-                  <>
-                    <Rocket size={20} />
-                    {t('vreg_submit_btn', "Register & Launch Listing")}
-                  </>
-                )}
-              </button>
-
-              <p className="vreg-legal">
-                <ShieldCheck size={16} />
-                {t('vreg_free_join', "Free to join · No monthly fees · Commission only on confirmed bookings")}
-              </p>
-            </form>
-          )}
+      {/* 07 - CLOSING CTA */}
+      <section className="vp-close" aria-labelledby="vp-close-title">
+        <div className="container vp-close__inner">
+          <div>
+            <h2 id="vp-close-title">
+              {isSw ? 'Mteja wako ajaye anaweza kuwa anatafuta wewe leo.' : 'Your next customer could be searching for you today.'}
+            </h2>
+            <p>
+              {isSw
+                ? 'Jiunge na jamii ya watoa huduma wa MY DAY na weka biashara yako mbele ya wanandoa wanaopanga sherehe zao.'
+                : 'Join the MY DAY vendor community and put your business in front of couples planning their perfect celebration.'}
+            </p>
+          </div>
+          <button type="button" className="vp-btn vp-btn--primary vp-btn--lg" onClick={() => scrollToId('vendor-register')}>
+            {isSw ? 'Kuwa Mshirika Rasmi' : 'Become an Official Partner'} <ArrowRight size={17} />
+          </button>
         </div>
       </section>
     </div>

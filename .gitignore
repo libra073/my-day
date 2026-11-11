@@ -31,3 +31,8 @@ dist-ssr
 *.tmp
 server/data/*.tmp
 
+# local dev artefacts
+scratch/
+test-results/
+playwright-report/
+.env.local

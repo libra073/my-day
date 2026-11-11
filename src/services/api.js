@@ -1,5 +1,7 @@
 // src/services/api.js
 // Client API for MY DAY Auth, Workspaces, Members, and Invitations
+import { isSupabaseConfigured } from '../lib/supabaseClient';
+import { getAccessToken as getSupabaseToken } from './supabaseAuth';
 
 const TOKEN_KEY = 'myday_token';
 
@@ -24,13 +26,17 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
+    const activeLang = typeof window !== 'undefined' ? (localStorage.getItem('myday_lang') || 'en') : 'en';
     const headers = {
       'Content-Type': 'application/json',
+      'Accept-Language': activeLang,
       ...options.headers,
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Supabase session tokens take precedence when auth is configured.
+    const bearer = isSupabaseConfigured ? await getSupabaseToken() : this.token;
+    if (bearer) {
+      headers['Authorization'] = `Bearer ${bearer}`;
     }
 
     const res = await fetch(endpoint, {
@@ -83,6 +89,20 @@ class ApiClient {
     } finally {
       this.setToken(null);
     }
+  }
+
+  async sendVerificationEmail(email) {
+    return this.request('/api/auth/send-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async verifyEmail(email, code) {
+    return this.request('/api/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
   }
 
   // --- Workspace Endpoints ---
@@ -377,6 +397,18 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ token, newPassword }),
     });
+  }
+
+  // --- Vendor Partner Registration ---
+  async registerVendor(vendorData) {
+    return this.request('/api/vendors', {
+      method: 'POST',
+      body: JSON.stringify(vendorData),
+    });
+  }
+
+  async getVendors() {
+    return this.request('/api/vendors', { method: 'GET' });
   }
 }
 

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { getTodayDarEsSalaam } from '../services/businessSchedule';
 import WorkspaceCollaborationCard from '../components/WorkspaceCollaborationCard';
 import {
   Heart, Sparkles, CheckCircle2, Calendar, MapPin, Users, Wallet,
   Building2, UtensilsCrossed, Palette, Music, Scissors, Car,
   ArrowRight, ShieldCheck, Check, Clock, Edit3, UserCheck, Flame
 } from 'lucide-react';
+import GlassSelect from '../components/ui/GlassSelect';
+import GlassDatePicker from '../components/ui/GlassDatePicker';
 
 const LOCATIONS = ['Dar es Salaam', 'Arusha', 'Mwanza', 'Zanzibar', 'Dodoma', 'Tanga'];
 
@@ -51,7 +54,7 @@ export default function WeddingProfilePage() {
 
   const [saved, setSaved] = useState(false);
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getTodayDarEsSalaam();
 
   // Days remaining calculation
   const calcDaysRemaining = (targetDateStr) => {
@@ -98,6 +101,10 @@ export default function WeddingProfilePage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (formData.date && formData.date < todayStr) {
+      alert(isSw ? 'Huwezi kuchagua tarehe ya harusi iliyopita.' : 'Cannot select a wedding date in the past.');
+      return;
+    }
     if (!isLoggedIn) {
       openAuthPrompt({
         title: isSw ? 'Fungua akaunti yako ya MY DAY ili kuendelea.' : 'Create your free MY DAY account to continue.',
@@ -149,8 +156,8 @@ export default function WeddingProfilePage() {
       pct: 15,
       amount: formData.budget * 0.15,
       icon: Palette,
-      color: '#6366F1',
-      bg: '#EEF2FF',
+      color: '#5B95F5',
+      bg: '#DCEBFF',
       desc: isSw ? 'Mapambo, jukwaa & taa' : 'Stage, lighting & florals'
     },
     {
@@ -159,8 +166,8 @@ export default function WeddingProfilePage() {
       pct: 10,
       amount: formData.budget * 0.10,
       icon: Music,
-      color: '#8B5CF6',
-      bg: '#F3E8FF',
+      color: '#FF9E6B',
+      bg: '#FFE9DD',
       desc: isSw ? 'MC mkuu, DJ & muziki' : 'Master of ceremony & sound'
     },
     {
@@ -179,8 +186,8 @@ export default function WeddingProfilePage() {
       pct: 7,
       amount: formData.budget * 0.07,
       icon: Car,
-      color: '#06B6D4',
-      bg: '#CFFAFE',
+      color: 'var(--color-primary, #0071E3)',
+      bg: 'rgba(0, 102, 238, 0.14)',
       desc: isSw ? 'Msafara wa magari ya kifahari' : 'Bridal convoy & VIP cars'
     },
   ];
@@ -197,25 +204,25 @@ export default function WeddingProfilePage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.45rem',
-            background: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%)',
-            color: '#E11D48',
+            background: 'var(--app-surface-elevated, rgba(255, 252, 247, 0.92))',
+            color: 'var(--color-primary, #0071E3)',
             padding: '0.4rem 1.1rem',
-            borderRadius: '999px',
+            borderRadius: 'var(--radius-pill)',
             fontSize: '0.8rem',
             fontWeight: 800,
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
-            border: '1px solid rgba(225, 29, 72, 0.25)',
-            boxShadow: '0 4px 14px rgba(225, 29, 72, 0.12)',
+            border: '1.5px solid var(--app-border, rgba(168, 101, 62, 0.22))',
+            boxShadow: '0 4px 14px rgba(0, 102, 238, 0.12)',
             marginBottom: '0.9rem'
           }}>
-            <Heart size={14} fill="#E11D48" color="#E11D48" />
+            <Heart size={14} fill="var(--color-primary, #0071E3)" color="var(--color-primary, #0071E3)" />
             {t('profile_hero_badge', "Couple Workspace & Event Settings")}
           </div>
 
           <h1 style={{
             fontSize: '2.5rem',
-            color: '#1E130B',
+            color: 'var(--app-text-primary, #0F172A)',
             fontWeight: 850,
             letterSpacing: '-0.02em',
             lineHeight: 1.22,
@@ -226,7 +233,7 @@ export default function WeddingProfilePage() {
 
           <p style={{
             fontSize: '1.1rem',
-            color: '#6B5543',
+            color: 'var(--app-text-secondary, #475569)',
             lineHeight: 1.6,
             maxWidth: '680px',
             margin: '0 auto 1.5rem'
@@ -241,24 +248,24 @@ export default function WeddingProfilePage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '1.25rem',
-            background: '#FFFFFF',
+            background: 'var(--app-surface-elevated, rgba(255, 252, 247, 0.92))',
             padding: '0.75rem 1.75rem',
-            borderRadius: '999px',
-            border: '1px solid #EFE6DC',
-            boxShadow: '0 8px 24px -10px rgba(61, 44, 31, 0.08)'
+            borderRadius: 'var(--radius-pill)',
+            border: '1.5px solid var(--app-border, rgba(168, 101, 62, 0.22))',
+            boxShadow: '0 8px 24px rgba(84, 50, 29, 0.08)'
           }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.88rem', fontWeight: 800, color: '#D97706' }}>
-              <Flame size={16} color="#D97706" />
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.88rem', fontWeight: 800, color: 'var(--color-primary, #0071E3)' }}>
+              <Flame size={16} color="var(--color-primary, #0071E3)" />
               {daysRemaining} {isSw ? 'Siku Zilizobaki' : 'Days to the Big Day'}
             </span>
-            <span style={{ color: '#E5D7C7' }}>•</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.86rem', fontWeight: 750, color: '#2C1E14' }}>
-              <Calendar size={15} color="#8C7662" />
+            <span style={{ color: 'var(--app-text-muted, #cbd5e1)' }}>•</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.86rem', fontWeight: 750, color: 'var(--app-text-primary, #21143D)' }}>
+              <Calendar size={15} color="var(--color-primary, #0071E3)" />
               {formatDisplayDate(formData.date)}
             </span>
-            <span style={{ color: '#E5D7C7' }}>•</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.86rem', fontWeight: 750, color: '#16A34A' }}>
-              <MapPin size={15} color="#16A34A" />
+            <span style={{ color: 'var(--app-text-muted, #cbd5e1)' }}>•</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.86rem', fontWeight: 750, color: 'var(--app-success, #059669)' }}>
+              <MapPin size={15} color="var(--app-success, #059669)" />
               {formData.location}
             </span>
           </div>
@@ -267,9 +274,9 @@ export default function WeddingProfilePage() {
         {/* Success Alert */}
         {saved && (
           <div style={{
-            background: '#ECFDF5',
-            color: '#065F46',
-            border: '1.5px solid #A7F3D0',
+            background: 'rgba(85, 214, 160, 0.15)',
+            color: 'var(--app-success, #55D6A0)',
+            border: '1.5px solid rgba(85, 214, 160, 0.35)',
             padding: '1.1rem 1.5rem',
             borderRadius: '16px',
             marginBottom: '1.75rem',
@@ -277,7 +284,7 @@ export default function WeddingProfilePage() {
             alignItems: 'center',
             gap: '0.75rem',
             fontWeight: 750,
-            boxShadow: '0 6px 20px -8px rgba(16, 185, 129, 0.25)',
+            boxShadow: '0 6px 20px -8px rgba(85, 214, 160, 0.25)',
             animation: 'wprofRise 0.35s ease both'
           }}>
             <CheckCircle2 size={24} color="#059669" />
@@ -305,22 +312,18 @@ export default function WeddingProfilePage() {
                   {formData.bride || 'Bride'} &amp; {formData.groom || 'Groom'}
                 </div>
                 <div className="wprof-couple-sub">
-                  <Sparkles size={12} color="#D97706" />
+                  <Sparkles size={12} color="var(--color-primary, #0071E3)" />
                   {t('profile_monogram_badge', "Official Wedding Workspace")}
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{
-                background: '#FFFFFF',
-                border: '1px solid rgba(245, 166, 35, 0.35)',
+              <div className="wprof-configured" style={{
                 padding: '0.35rem 0.85rem',
-                borderRadius: '999px',
+                borderRadius: 'var(--radius-pill)',
                 fontSize: '0.78rem',
-                fontWeight: 800,
-                color: '#92400E',
-                boxShadow: '0 2px 8px rgba(245, 166, 35, 0.15)'
+                fontWeight: 800
               }}>
                 ✓ {completion}% {isSw ? 'Imekamilika' : 'Configured'}
               </div>
@@ -332,10 +335,10 @@ export default function WeddingProfilePage() {
             <div className="wprof-field">
               <label htmlFor="wprof-title">
                 <span className="label-icon-text">
-                  <Sparkles size={16} color="#D97706" />
+                  <Sparkles size={16} color="var(--color-primary, #0071E3)" />
                   {t('profile_event_title', "Wedding Event Title")} <em>*</em>
                 </span>
-                <span style={{ fontSize: '0.75rem', color: '#8C7662', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--app-text-muted, #64748b)', fontWeight: 600 }}>
                   {isSw ? 'Jina linaloonekana kwenye mikataba' : 'Visible on quotes & contracts'}
                 </span>
               </label>
@@ -354,11 +357,15 @@ export default function WeddingProfilePage() {
 
               {/* Title Suggestions */}
               <div className="vreg-pills" style={{ marginTop: '0.45rem' }}>
-                {[
+                {(formData.groom && formData.bride ? [
                   `${formData.groom} & ${formData.bride}'s Wedding`,
                   `Harusi ya ${formData.groom} & ${formData.bride}`,
                   `${formData.groom} & ${formData.bride}'s Royal Celebration`
-                ].map(suggested => (
+                ] : [
+                  isSw ? 'Harusi Yetu ya Ndoto' : 'Our Dream Wedding',
+                  isSw ? 'Sherehe Yetu' : 'Our Big Celebration',
+                  isSw ? 'Siku Yetu' : 'Our Special Day'
+                ]).map(suggested => (
                   <button
                     key={suggested}
                     type="button"
@@ -388,7 +395,7 @@ export default function WeddingProfilePage() {
                     name="bride"
                     value={formData.bride}
                     onChange={handleChange}
-                    placeholder="E.g. Sarah Kimaro"
+                    placeholder={isSw ? 'Mfano: Sarah Kimaro' : 'E.g. Sarah Kimaro'}
                     required
                   />
                 </div>
@@ -402,14 +409,14 @@ export default function WeddingProfilePage() {
                   </span>
                 </label>
                 <div className="wprof-input-wrap">
-                  <UserCheck size={18} className="wprof-input-icon" color="#2563EB" />
+                  <UserCheck size={18} className="wprof-input-icon" color="var(--color-primary, #0071E3)" />
                   <input
                     id="wprof-groom"
                     type="text"
                     name="groom"
                     value={formData.groom}
                     onChange={handleChange}
-                    placeholder="E.g. John Msuya"
+                    placeholder={isSw ? 'Mfano: John Msuya' : 'E.g. John Msuya'}
                     required
                   />
                 </div>
@@ -430,14 +437,13 @@ export default function WeddingProfilePage() {
                 </label>
                 <div className="wprof-input-wrap">
                   <Calendar size={18} className="wprof-input-icon" />
-                  <input
+                  <GlassDatePicker
                     id="wprof-date"
-                    type="date"
-                    name="date"
-                    min={todayStr}
                     value={formData.date}
-                    onChange={handleChange}
-                    required
+                    min={todayStr}
+                    onChange={(date) => setFormData((prev) => ({ ...prev, date }))}
+                    ariaLabel={t('profile_date', 'Wedding date')}
+                    placeholder={isSw ? 'Chagua tarehe' : 'Select your date'}
                   />
                 </div>
               </div>
@@ -451,16 +457,13 @@ export default function WeddingProfilePage() {
                 </label>
                 <div className="wprof-input-wrap">
                   <MapPin size={18} className="wprof-input-icon" />
-                  <select
+                  <GlassSelect
                     id="wprof-location"
-                    name="location"
                     value={formData.location}
-                    onChange={handleChange}
-                  >
-                    {LOCATIONS.map(loc => (
-                      <option key={loc} value={loc}>{loc}</option>
-                    ))}
-                  </select>
+                    onChange={(location) => setFormData((prev) => ({ ...prev, location }))}
+                    ariaLabel={t('profile_location', 'Location / City')}
+                    options={LOCATIONS.map((loc) => ({ value: loc, label: loc }))}
+                  />
                 </div>
 
                 {/* Quick Location Pills */}
@@ -487,7 +490,7 @@ export default function WeddingProfilePage() {
                     <Users size={16} color="#D97706" />
                     {t('profile_guests', "Expected Guests")} <em>*</em>
                   </span>
-                  <span style={{ fontSize: '0.74rem', color: '#8C7662', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--app-text-muted, #8C7662)', fontWeight: 700 }}>
                     ~{approxTables} {t('profile_tables_est', "tables approx.")}
                   </span>
                 </label>
@@ -563,9 +566,13 @@ export default function WeddingProfilePage() {
             </div>
 
             {/* Submit Button */}
-            <button id="wprof-save-btn" type="submit" className="wprof-submit">
-              <Sparkles size={20} />
-              {t('profile_save_btn', "Save Wedding Profile & Open Dashboard")}
+            <button
+              id="wprof-save-btn"
+              type="submit"
+              className={`wprof-submit btn-sweep ${saved ? 'motion-save-pulse' : ''}`}
+            >
+              {saved ? <CheckCircle2 size={20} color="#10B981" /> : <Sparkles size={20} />}
+              {saved ? (isSw ? 'Imehifadhiwa Kikamilifu!' : 'Profile Saved Successfully!') : t('profile_save_btn', "Save Wedding Profile & Open Dashboard")}
               <ArrowRight size={18} />
             </button>
 
@@ -575,7 +582,7 @@ export default function WeddingProfilePage() {
               justifyContent: 'center',
               gap: '0.4rem',
               fontSize: '0.8rem',
-              color: '#8C7662',
+              color: 'var(--app-text-muted, #8C7662)',
               marginTop: '0.75rem',
               textAlign: 'center',
               fontWeight: 600
@@ -593,33 +600,33 @@ export default function WeddingProfilePage() {
 
         {/* Recommended Budget Allocation Preview */}
         <div className="wprof-card" style={{ marginTop: '2.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <h3 style={{
               fontSize: '1.25rem',
               fontWeight: 850,
-              color: '#1E130B',
+              color: 'var(--app-text-primary, #0F172A)',
               margin: 0,
               display: 'flex',
               alignItems: 'center',
               gap: '0.6rem'
             }}>
-              <Sparkles size={20} color="#F5A623" />
+              <Sparkles size={20} color="var(--color-primary, #0071E3)" />
               {t('profile_recommended_breakdown', "Recommended Budget Allocation Breakdown")}
             </h3>
             <span style={{
               fontSize: '0.9rem',
               fontWeight: 850,
-              color: '#92400E',
-              background: '#FEF3C7',
-              padding: '0.25rem 0.75rem',
-              borderRadius: '999px',
-              border: '1px solid rgba(245, 166, 35, 0.4)'
+              color: 'var(--color-primary, #0071E3)',
+              background: 'rgba(0, 102, 238, 0.12)',
+              padding: '0.3rem 0.85rem',
+              borderRadius: 'var(--radius-pill)',
+              border: '1px solid rgba(0, 102, 238, 0.22)'
             }}>
               TSh {Number(formData.budget || 0).toLocaleString()}
             </span>
           </div>
 
-          <p style={{ fontSize: '0.92rem', color: '#7A6657', margin: '0 0 1.25rem', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '0.92rem', color: 'var(--app-text-secondary, #475569)', margin: '0 0 1.25rem', lineHeight: 1.5 }}>
             {t('profile_budget_hint', "Personalized breakdown calculated from your target budget based on top Tanzanian weddings.")}
           </p>
 
@@ -659,7 +666,7 @@ export default function WeddingProfilePage() {
                 <div key={b.shortCat} className="wprof-breakdown-card">
                   <div className="wprof-breakdown-top">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <div style={{
+                      <div className="wprof-cat-icon-wrap" style={{
                         width: 32,
                         height: 32,
                         borderRadius: 10,
@@ -681,7 +688,7 @@ export default function WeddingProfilePage() {
                     TSh {Math.round(b.amount).toLocaleString()}
                   </div>
 
-                  <span style={{ fontSize: '0.74rem', color: '#8C7662' }}>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--app-text-muted, #8C7662)' }}>
                     {b.desc}
                   </span>
                 </div>

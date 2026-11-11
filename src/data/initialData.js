@@ -15,7 +15,7 @@ export const providers = [
     image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80',
     photos: [
       'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1545232979-fbf34f5ce947?auto=format&fit=crop&w=800&q=80'
+      '/portfolio/reception-toast.jpg'
     ],
     facilities: ['VIP Lounge', 'Air Conditioning', 'Private Garden', 'High-End Sound System', '200+ Parking Bays', 'Backup Generator'],
     description: 'Luxurious air-conditioned ballroom with expansive tropical gardens, crystal chandeliers, and panoramic ocean views.',
@@ -51,7 +51,7 @@ export const providers = [
     rating: 4.9,
     reviewsCount: 42,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80',
+    image: '/portfolio/bouquet-and-shoes.jpg',
     packages: [
       { id: 'basic', name: 'Classic Elegance Package', price: 1200000, description: 'Stage decor, guest table centerpieces, entrance archway, and chair sashes.' },
       { id: 'premium', name: 'Royal Platinum Package', price: 3000000, description: 'Full venue transformation, custom mood lighting, fresh floral installations, VIP head table setup, and walkway carpet.' },

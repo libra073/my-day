@@ -2,7 +2,7 @@
 // Comprehensive Intelligence Evolution Automated Test Suite for MY DAY AI Planner.
 
 import assert from "node:assert/strict";
-import { parseMoney, parseGuests, parseLocation, detectLanguage } from "../src/services/ai/languageParser.js";
+import { parseMoney, parseGuests, parseLocation, parseInput, detectLanguage } from "../src/services/ai/languageParser.js";
 import { classifyIntent } from "../src/services/ai/intentClassifier.js";
 import { evaluateConstraints, evaluateCuriosity, executeReallocation } from "../src/services/ai/reasoningEngine.js";
 import { processMessage } from "../src/services/aiPlannerService.js";
@@ -11,9 +11,6 @@ import {
   calculateEstimatedMinimumCost,
   calculateMinimumCostBreakdown,
   getRegionalMultiplier,
-  EVENT_SERVICE_SCOPES,
-  UNIT_COSTS_PER_GUEST,
-  CATEGORY_BASE_MINIMUMS,
 } from "../src/services/budgetCalculatorService.js";
 
 console.log("=================================================");
@@ -170,6 +167,27 @@ test("Parses 250,000/= to 250,000", () => {
 
 test("Parses 250,000/- to 250,000", () => {
   assert.equal(parseMoney("250,000/-")?.value, 250000);
+});
+
+test("Parses bajeti yangu ni laki mbili na nusu to 250,000", () => {
+  assert.equal(parseMoney("bajeti yangu ni laki mbili na nusu")?.value, 250000);
+});
+
+test("Parses Nina laki mbili na nusu kwa birthday to 250,000", () => {
+  assert.equal(parseMoney("Nina laki mbili na nusu kwa birthday")?.value, 250000);
+});
+
+test("Parses Tuna bajeti ya 1.5m to 1,500,000", () => {
+  assert.equal(parseMoney("Tuna bajeti ya 1.5m")?.value, 1500000);
+});
+
+test("Parses laki mbili na nusu nauli na chakula without collision and extracts requirements", () => {
+  const money = parseMoney("laki mbili na nusu nauli na chakula");
+  assert.equal(money?.value, 250000);
+  const parsed = parseInput("laki mbili na nusu nauli na chakula");
+  assert.equal(parsed.entities.budget?.value, 250000);
+  assert.equal(parsed.entities.requirements.transport, true);
+  assert.equal(parsed.entities.requirements.catering, true);
 });
 
 test("Ambiguous or invalid amounts return null rather than fabricating numbers", () => {
@@ -380,6 +398,28 @@ await testAsync("End-to-End Birthday Party Swahili Money Flow & Correction", asy
   // Step 5: Ambiguous amount does not fabricate values
   const turn5 = await processMessage({}, "sherehe ya birthday, nina bajeti nzuri sana");
   assert.equal(turn5.updatedContext.budget, null); // Not fabricated
+});
+
+await testAsync("User initially says laki mbili, then corrects to laki mbili na nusu, then changes guests to 80", async () => {
+  // Step 1: Initial budget laki mbili (200,000)
+  const turn1 = await processMessage({}, "Nataka harusi Dar, nina laki mbili wageni 50");
+  assert.equal(turn1.updatedContext.budget, 200000);
+  assert.equal(turn1.plan._meta.totalBudget, 200000);
+  assert.ok(turn1.message.includes("200,000"));
+
+  // Step 2: User corrects budget to laki mbili na nusu (250,000)
+  const turn2 = await processMessage(turn1.updatedContext, "laki mbili na nusu");
+  assert.equal(turn2.intent, "budget_correction");
+  assert.equal(turn2.updatedContext.budget, 250000);
+  assert.equal(turn2.plan._meta.totalBudget, 250000);
+  assert.ok(turn2.message.includes("250,000"));
+
+  // Step 3: User changes guest count to 80
+  const turn3 = await processMessage(turn2.updatedContext, "actually 80 guests");
+  assert.equal(turn3.intent, "guest_correction");
+  assert.equal(turn3.updatedContext.guestCount, 80);
+  assert.equal(turn3.updatedContext.budget, 250000); // 250,000 preserved!
+  assert.equal(turn3.plan._meta.totalBudget, 250000);
 });
 
 // ---------------------------------------------------------------------------

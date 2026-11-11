@@ -62,11 +62,15 @@ export const translations = {
     nav_dashboard: "Event Dashboard",
     nav_bookings: "My Bookings",
     nav_become_vendor: "Become a Vendor",
+    trust_couples_vendor: "Couples & Vendor Assistance",
     nav_contact: "Contact Us",
     nav_provider_portal: "Provider Portal",
     nav_admin_console: "Admin Console",
     nav_login_register: "Login / Register",
     nav_logout: "Log Out",
+    nav_categories: "Category",
+    hero_region_label: "Region",
+    event_date: "Event Date",
 
     // Hero Section
     hero_badge: "Tanzania's #1 All-in-One Wedding Platform",
@@ -76,8 +80,6 @@ export const translations = {
     hero_btn_profile: "Create Wedding Profile",
     hero_verified_title: "100% Verified",
     hero_verified_sub: "Curated Vendor Excellence",
-    hero_mobile_money_stat: "M-Pesa & Tigo Pesa",
-    hero_escrow_stat: "Escrow Milestone Security",
     hero_nationwide_title: "Tanzania Nationwide",
     hero_nationwide_sub: "Dar, Arusha, Zanzibar & Beyond",
 
@@ -85,9 +87,9 @@ export const translations = {
     home_browse_title: "Browse Categories",
     home_browse_desc: "Discover trusted professionals across 6 core wedding service categories in Tanzania",
     explore_vendors: "Explore Vendors",
-    cat_venues_title: "Kumbi – Venues",
+    cat_venues_title: "Wedding Venues",
     cat_venues_desc: "Find wedding halls, gardens, hotels, beaches, and outdoor venues that perfectly match your wedding style and guest capacity.",
-    cat_decorators_title: "Wapambaji – Decorators",
+    cat_decorators_title: "Wedding Decorators",
     cat_decorators_desc: "Browse talented decorators and event planners with stunning portfolios and customizable decoration packages.",
     cat_entertainment_title: "MCs & Entertainment",
     cat_entertainment_desc: "Hire experienced wedding MCs, DJs, live bands, cultural performers, and entertainers to make your celebration unforgettable.",
@@ -262,9 +264,14 @@ export const translations = {
     ai_tab_vendors: "Vendors",
 
     // Hero & Search Extensions
-    hero_headline_pre: "Everything You Need for Your",
-    hero_headline_post: "Perfect Wedding Day",
-    hero_subtitle: "Book Tanzania’s top verified venues, decorators, MCs, catering, and bridal services with instant availability checking & secure mobile payment.",
+    hero_headline_pre: "Your day.",
+    hero_headline_post: "Beautifully planned.",
+    hero_subtitle: "Discover exceptional wedding professionals and bring your dream celebration to life.",
+    hero_explore_vendors: "Explore vendors",
+    hero_plan_with_ai: "Plan with AI",
+    hero_editorial_badge: "Tanzania's Premier Wedding Marketplace",
+    hero_photo_caption_location: "Coastal and Inland Tanzania • Curated Celebrations",
+    hero_photo_caption_escrow: "Protected 30% Escrow Guarantee",
     hero_search_input_placeholder: "Search venues, MCs, decor...",
     hero_search_button: "Search Vendors",
     hero_popular_label: "Popular searches:",
@@ -453,7 +460,20 @@ export const translations = {
     profile_budget_hint: "Personalized breakdown calculated from your target budget",
     profile_tables_est: "tables approx.",
     profile_cost_per_guest: "Per Guest Average",
-    profile_monogram_badge: "Official Wedding Workspace"
+    profile_monogram_badge: "Official Wedding Workspace",
+
+    // Real Weddings portfolio
+    portfolio_eyebrow: "Real weddings",
+    portfolio_title: "Celebrations we helped put together",
+    portfolio_sub: "Real couples, real venues, real vendors from across Tanzania. Every one of these days was booked through MY DAY.",
+    portfolio_filters_label: "Filter portfolio",
+    portfolio_filter_all: "All celebrations",
+    portfolio_filter_coastal: "Coastal",
+    portfolio_filter_traditional: "Traditional",
+    portfolio_filter_ballroom: "Ballroom",
+    portfolio_filter_garden: "Garden",
+    portfolio_foot: "Every booking shown here was protected by 30% escrow until the day was delivered.",
+    portfolio_foot_cta: "Start planning yours"
   },
   sw: {
     // Common & Alerts
@@ -518,11 +538,15 @@ export const translations = {
     nav_dashboard: "Dashibodi ya Sherehe",
     nav_bookings: "Uhifadhi Wangu",
     nav_become_vendor: "Kuwa Mtoa Huduma",
+    trust_couples_vendor: "Msaada kwa Wanandoa & Watoa Huduma",
     nav_contact: "Wasiliana Nasi",
     nav_provider_portal: "Tovuti ya Mtoa Huduma",
     nav_admin_console: "Dashibodi ya Utawala",
     nav_login_register: "Ingia / Jisajili",
     nav_logout: "Toka Nje",
+    nav_categories: "Kategoria",
+    hero_region_label: "Mkoa / Eneo",
+    event_date: "Tarehe ya Sherehe",
 
     // Hero Section
     hero_badge: "Jukwaa #1 la Harusi la All-in-One Tanzania",
@@ -532,8 +556,6 @@ export const translations = {
     hero_btn_profile: "Tengeneza Wasifu wa Harusi",
     hero_verified_title: "100% Imethibitishwa",
     hero_verified_sub: "Watoa Huduma Bora Waliohakikiwa",
-    hero_mobile_money_stat: "M-Pesa & Tigo Pesa",
-    hero_escrow_stat: "Usalama wa Escrow kwa Hatua",
     hero_nationwide_title: "Tanzania Nzima",
     hero_nationwide_sub: "Dar, Arusha, Zanzibar na kwingineko",
 
@@ -541,9 +563,9 @@ export const translations = {
     home_browse_title: "Tafuta kwa Makundi",
     home_browse_desc: "Gundua wataalamu wanaoaminika katika makundi 6 makuu ya huduma za harusi nchini Tanzania",
     explore_vendors: "Gundua Watoa Huduma",
-    cat_venues_title: "Kumbi – Venues",
+    cat_venues_title: "Kumbi za Harusi",
     cat_venues_desc: "Pata kumbi za harusi, bustani, hoteli, fukwe na maeneo ya wazi yanayolingana kabisa na mtindo wako wa harusi na idadi ya wageni.",
-    cat_decorators_title: "Wapambaji – Decorators",
+    cat_decorators_title: "Wapambaji wa Harusi",
     cat_decorators_desc: "Angalia wapambaji wenye vipaji na wapangaji wa sherehe wenye wasifu bora na vifurushi vya mapambo vinavyoweza kubadilishwa.",
     cat_entertainment_title: "MCs & Burudani",
     cat_entertainment_desc: "Kodi MCs wa harusi wenye uzoefu, DJs, bendi za muziki, wasanii wa utamaduni, na watumbuizaji kufanya sherehe yako isahaulike.",
@@ -718,9 +740,14 @@ export const translations = {
     ai_tab_vendors: "Watoa Huduma",
 
     // Hero & Search Extensions
-    hero_headline_pre: "Kila Kitu Unachohitaji kwa",
-    hero_headline_post: "Siku Yako Kamili ya Harusi",
-    hero_subtitle: "Hifadhi kumbi zilizothibitishwa, wapambaji, MCs, vyakula, na huduma za maharusi Tanzania zenye upatikanaji wa papo hapo na malipo salama ya simu.",
+    hero_headline_pre: "Siku yako.",
+    hero_headline_post: "Iliyopangwa kwa ukamilifu.",
+    hero_subtitle: "Gundua watoa huduma mahiri wa harusi na utimize sherehe ya ndoto yako.",
+    hero_explore_vendors: "Tazama watoa huduma",
+    hero_plan_with_ai: "Panga na AI",
+    hero_editorial_badge: "Soko Namba Moja la Harusi Tanzania",
+    hero_photo_caption_location: "Pwani na Bara Tanzania • Sherehe Zilizoteuliwa",
+    hero_photo_caption_escrow: "Dhamana ya Escrow ya 30% Iliyolindwa",
     hero_search_input_placeholder: "Tafuta kumbi, MCs, mapambo, vyakula...",
     hero_search_button: "Tafuta Watoa Huduma",
     hero_popular_label: "Utafutaji maarufu:",
@@ -909,6 +936,19 @@ export const translations = {
     profile_budget_hint: "Mgawanyo uliokokotolewa kulingana na bajeti yako lengwa",
     profile_tables_est: "meza takriban",
     profile_cost_per_guest: "Wastani kwa Kila Mgeni",
-    profile_monogram_badge: "Eneo Rasmi la Harusi"
+    profile_monogram_badge: "Eneo Rasmi la Harusi",
+
+    // Real Weddings portfolio (Kiswahili)
+    portfolio_eyebrow: "Harusi za kweli",
+    portfolio_title: "Sherehe tulizosaidia kuandaa",
+    portfolio_sub: "Wanandoa halisi, kumbi halisi, watoa huduma halisi kote Tanzania. Kila siku moja ya hizi ilipangwa kupitia MY DAY.",
+    portfolio_filters_label: "Chuja kazi",
+    portfolio_filter_all: "Sherehe zote",
+    portfolio_filter_coastal: "Pwani",
+    portfolio_filter_traditional: "Za kitamaduni",
+    portfolio_filter_ballroom: "Ukumbi",
+    portfolio_filter_garden: "Bustani",
+    portfolio_foot: "Kila uhifadhi ulioonyeshwa hapa ulilindwa kwa escrow ya 30% hadi siku ya tukio.",
+    portfolio_foot_cta: "Anza kupanga yako"
   }
 };
