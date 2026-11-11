@@ -4,7 +4,7 @@ import { useAppContext } from '../../context/AppContext';
 import {
   Heart, Sparkles, User, LogOut, Phone, Menu, X, Home,
   LayoutGrid, LayoutDashboard, Store, UserRound, CalendarDays,
-  BadgePlus, Shield, Sun, Moon, ShieldAlert, Check
+  BadgePlus, Shield, Sun, Moon, ShieldAlert
 } from 'lucide-react';
 import AuthModal from '../AuthModal';
 import NotificationBell from '../NotificationBell';
@@ -342,6 +342,16 @@ export default function LiquidGlassNav({ onOpenAuth }) {
             </div>
 
             <div className="cl-drawer__foot">
+              <div className="cl-drawer__tools">
+                <div className="cl-drawer__lang" role="group" aria-label={language === 'sw' ? 'Lugha' : 'Language'}>
+                  <button type="button" className={language === 'en' ? 'is-active' : ''} onClick={() => setLanguage('en')}>
+                    English
+                  </button>
+                  <button type="button" className={language === 'sw' ? 'is-active' : ''} onClick={() => setLanguage('sw')}>
+                    Kiswahili
+                  </button>
+                </div>
+              </div>
               <button
                 type="button"
                 className="cl-theme-pill cl-theme-pill-drawer motion-sweep"

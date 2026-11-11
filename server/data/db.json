@@ -8,7 +8,7 @@
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "customer",
       "emailVerified": true,
-      "createdAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z"
     },
     {
       "id": "usr-bride",
@@ -18,7 +18,7 @@
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "customer",
       "emailVerified": true,
-      "createdAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z"
     },
     {
       "id": "usr-planner",
@@ -28,7 +28,7 @@
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "customer",
       "emailVerified": true,
-      "createdAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z"
     },
     {
       "id": "prov-1",
@@ -38,7 +38,7 @@
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "provider",
       "emailVerified": true,
-      "createdAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z"
     },
     {
       "id": "admin-1",
@@ -48,7 +48,17 @@
       "passwordHash": "50bee3f81bdceb1b44b1438e01dfa5c421c1f4c81198123bb72f3daef31c976d",
       "globalRole": "admin",
       "emailVerified": true,
-      "createdAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z"
+    },
+    {
+      "id": "usr-7695646c5df5",
+      "name": "Neema Bride",
+      "email": "neema.bride.1794420361452@example.co.tz",
+      "phone": "+255 777 888 999",
+      "passwordHash": "0ba2a534a6aa3b29f18cd5189abb6d826c3b647a5ef7b23377f4790c5ccf29e1",
+      "globalRole": "customer",
+      "emailVerified": true,
+      "createdAt": "2026-11-11T18:06:01.585Z"
     }
   ],
   "workspaces": [
@@ -63,8 +73,8 @@
       "guests": 300,
       "budget": 15000000,
       "currency": "TZS",
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     }
   ],
   "workspace_members": [
@@ -73,7 +83,7 @@
       "workspaceId": "wed-1",
       "userId": "usr-groom",
       "role": "owner",
-      "joinedAt": "2026-11-11T14:32:02.221Z",
+      "joinedAt": "2026-11-11T18:06:01.447Z",
       "invitedBy": null
     },
     {
@@ -81,56 +91,69 @@
       "workspaceId": "wed-1",
       "userId": "usr-bride",
       "role": "partner",
-      "joinedAt": "2026-11-11T14:32:02.221Z",
+      "joinedAt": "2026-11-11T18:06:01.447Z",
+      "invitedBy": "usr-groom"
+    },
+    {
+      "id": "wm-7b104b147f7e",
+      "workspaceId": "wed-1",
+      "userId": "usr-7695646c5df5",
+      "role": "partner",
+      "joinedAt": "2026-11-11T18:06:02.034Z",
       "invitedBy": "usr-groom"
     }
   ],
   "invitations": [
     {
-      "id": "inv-2e1c3727ebe5",
+      "id": "inv-c7bd13be5964",
       "workspaceId": "wed-1",
-      "token": "4caf921813c4a85bafe56764d6201f4786737a96",
-      "email": "invitee.1794407522442@example.co.tz",
+      "token": "1b1f27200fa2fb42833644902e5032da40577631",
+      "email": "invitee.1794420362013@example.co.tz",
       "role": "partner",
       "inviterId": "usr-groom",
       "inviterName": "John Msuya (Groom)",
       "status": "accepted",
-      "expiresAt": "2026-11-13T14:32:02.445Z",
-      "createdAt": "2026-11-11T14:32:02.445Z",
-      "acceptedBy": "usr-89911ed210d9",
-      "acceptedAt": "2026-11-11T14:32:02.452Z"
+      "expiresAt": "2026-11-13T18:06:02.015Z",
+      "createdAt": "2026-11-11T18:06:02.015Z",
+      "acceptedBy": "usr-7695646c5df5",
+      "acceptedAt": "2026-11-11T18:06:02.034Z"
     }
   ],
   "sessions": [
     {
       "token": "token-groom-session",
       "userId": "usr-groom",
-      "expiresAt": "2026-12-11T14:32:02.221Z"
+      "expiresAt": "2026-12-11T18:06:01.447Z"
     },
     {
       "token": "token-bride-session",
       "userId": "usr-bride",
-      "expiresAt": "2026-12-11T14:32:02.221Z"
+      "expiresAt": "2026-12-11T18:06:01.447Z"
     },
     {
       "token": "token-planner-session",
       "userId": "usr-planner",
-      "expiresAt": "2026-12-11T14:32:02.221Z"
+      "expiresAt": "2026-12-11T18:06:01.447Z"
     },
     {
       "token": "token-provider-session",
       "userId": "prov-1",
-      "expiresAt": "2026-12-11T14:32:02.221Z"
+      "expiresAt": "2026-12-11T18:06:01.447Z"
     },
     {
       "token": "token-admin-session",
       "userId": "admin-1",
-      "expiresAt": "2026-12-11T14:32:02.221Z"
+      "expiresAt": "2026-12-11T18:06:01.447Z"
     },
     {
-      "token": "myday_sess_5a7c09280b7bc050f90d5397382eb88ef41996fce5eec9fd",
+      "token": "myday_sess_0f1c0519f21b8204a3cfb5d69771510cd0f865077fa2e790",
+      "userId": "usr-7695646c5df5",
+      "expiresAt": "2026-12-11T18:06:01.930Z"
+    },
+    {
+      "token": "myday_sess_427fb80198c932883af61156fe0b70a53837efe861edf220",
       "userId": "usr-groom",
-      "expiresAt": "2026-12-11T14:32:02.441Z"
+      "expiresAt": "2026-12-11T18:06:02.010Z"
     }
   ],
   "tasks": [
@@ -150,7 +173,7 @@
           "userId": "usr-bride",
           "userName": "Sarah Kimaro (Bride)",
           "text": "Please ask about generator fuel policy for evening power cuts.",
-          "createdAt": "2026-11-11T14:32:02.221Z"
+          "createdAt": "2026-11-11T18:06:01.447Z"
         }
       ],
       "activityHistory": [
@@ -159,12 +182,12 @@
           "action": "created",
           "userId": "usr-groom",
           "userName": "John Msuya (Groom)",
-          "timestamp": "2026-11-11T14:32:02.221Z",
+          "timestamp": "2026-11-11T18:06:01.447Z",
           "details": "Task created with high priority"
         }
       ],
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z",
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z",
       "completedAt": null,
       "version": 1
     },
@@ -185,12 +208,12 @@
           "action": "created",
           "userId": "usr-bride",
           "userName": "Sarah Kimaro (Bride)",
-          "timestamp": "2026-11-11T14:32:02.221Z",
+          "timestamp": "2026-11-11T18:06:01.447Z",
           "details": "Task created"
         }
       ],
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z",
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z",
       "completedAt": null,
       "version": 1
     }
@@ -225,9 +248,9 @@
       ],
       "decisionNotes": "Agreed on Emerald Green & Warm Gold. Matches Grand Imperial ballroom chandeliers.",
       "decidedBy": "usr-bride",
-      "decidedAt": "2026-11-11T14:32:02.221Z",
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "decidedAt": "2026-11-11T18:06:01.447Z",
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     },
     {
       "id": "dec-2",
@@ -255,8 +278,8 @@
       "decisionNotes": "",
       "decidedBy": null,
       "decidedAt": null,
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     }
   ],
   "notes": [
@@ -269,8 +292,8 @@
       "pinned": true,
       "authorId": "usr-groom",
       "authorName": "John Msuya (Groom)",
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     }
   ],
   "budget_categories": [
@@ -335,8 +358,8 @@
       "status": "deposit_paid",
       "vendorId": "venue-1",
       "addedBy": "usr-groom",
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     },
     {
       "id": "exp-2",
@@ -349,8 +372,8 @@
       "status": "deposit_paid",
       "vendorId": "decor-1",
       "addedBy": "usr-bride",
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     }
   ],
   "notifications": [
@@ -362,7 +385,7 @@
       "title": "Task Assigned",
       "message": "You were assigned to \"Book Grand Imperial Reception Hall\"",
       "read": false,
-      "createdAt": "2026-11-11T14:32:02.221Z",
+      "createdAt": "2026-11-11T18:06:01.447Z",
       "entityId": "task-1",
       "entityType": "task"
     }
@@ -381,8 +404,8 @@
       "allowException": false,
       "exceptionReason": null,
       "notes": "Tour of main hall and food tasting with catering chef",
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     }
   ],
   "vendor_schedules": [
@@ -432,7 +455,7 @@
           "reason": "Tasting Showcase"
         }
       ],
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     }
   ],
   "bookings": [
@@ -449,8 +472,8 @@
       "paidAmount": 750000,
       "commission": 125000,
       "status": "confirmed",
-      "createdAt": "2026-11-11T14:32:02.221Z",
-      "updatedAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z",
+      "updatedAt": "2026-11-11T18:06:01.447Z"
     }
   ],
   "payments": [
@@ -461,34 +484,43 @@
       "gateway": "mpesa",
       "txnRef": "TXN-982341",
       "status": "success",
-      "createdAt": "2026-11-11T14:32:02.221Z"
+      "createdAt": "2026-11-11T18:06:01.447Z"
     }
   ],
-  "password_resets": [],
+  "password_resets": [
+    {
+      "token": "rst-b677fd0c4fe90d4600b028ef3ff22b37",
+      "userId": "usr-7695646c5df5",
+      "email": "neema.bride.1794420361452@example.co.tz",
+      "expiresAt": "2026-11-11T19:06:01.684Z",
+      "used": true,
+      "createdAt": "2026-11-11T18:06:01.684Z"
+    }
+  ],
   "email_verifications": [
     {
-      "id": "ev-b6635b3c898d",
-      "email": "neema.bride.1794407522223@example.co.tz",
-      "code": "650197",
-      "expiresAt": "2026-11-11T14:47:02.253Z",
+      "id": "ev-0552955589a0",
+      "email": "neema.bride.1794420361452@example.co.tz",
+      "code": "550600",
+      "expiresAt": "2026-11-11T18:21:01.516Z",
       "used": true,
-      "createdAt": "2026-11-11T14:32:02.284Z"
+      "createdAt": "2026-11-11T18:06:01.585Z"
     },
     {
       "id": "ev-test-expired",
-      "email": "neema.bride.1794407522223@example.co.tz",
+      "email": "neema.bride.1794420361452@example.co.tz",
       "code": "888111",
-      "expiresAt": "2026-11-11T14:31:02.302Z",
+      "expiresAt": "2026-11-11T18:05:01.625Z",
       "used": false,
-      "createdAt": "2026-11-11T14:30:02.302Z"
+      "createdAt": "2026-11-11T18:04:01.626Z"
     },
     {
-      "id": "ev-840b258e5750",
-      "email": "neema.bride.1794407522223@example.co.tz",
-      "code": "606034",
-      "expiresAt": "2026-11-11T14:47:02.317Z",
+      "id": "ev-ccf8ff85dd60",
+      "email": "neema.bride.1794420361452@example.co.tz",
+      "code": "902835",
+      "expiresAt": "2026-11-11T18:21:01.661Z",
       "used": true,
-      "createdAt": "2026-11-11T14:32:02.317Z"
+      "createdAt": "2026-11-11T18:06:01.661Z"
     }
   ]
 }
