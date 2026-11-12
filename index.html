@@ -1,21 +1,479 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#F4F7FB" />
-    <meta name="description" content="MY DAY — Tanzania's premier wedding services marketplace. Find venues, decorators, MCs, catering, salons & transport for your perfect wedding day." />
-    <meta name="keywords" content="wedding, Tanzania, Dar es Salaam, venue, decorator, catering, wedding planner, MY DAY" />
-    <meta property="og:title" content="MY DAY — Plan Your Perfect Wedding Day" />
-    <meta property="og:description" content="Discover, compare, book & pay for every wedding service in one place." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..700&family=Outfit:wght@400;500;600;700;800;900&family=Pacifico&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet" />
-    <title>MY DAY — Plan Your Perfect Wedding Day</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MY DAY — Tanzania's Wedding Marketplace</title>
+<meta name="description" content="Discover exceptional wedding professionals across Tanzania. Venues, MCs, decor, catering and more — your day, beautifully planned.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c6cf8'/%3E%3Cstop offset='1' stop-color='%23ff7fb8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='15' fill='url(%23g)'/%3E%3Cpath d='M16 24s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 23 14c0 5.4-7 10-7 10z' fill='white'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<!-- ======= SVG defs: icons + glass refraction ======= -->
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="glass-warp" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="8" result="noise"/>
+      <feGaussianBlur in="noise" stdDeviation="1.6" result="soft"/>
+      <feDisplacementMap in="SourceGraphic" in2="soft" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <linearGradient id="torusG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset=".45" stop-color="#ffb1d8" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#8fb8ff" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="brandG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c6cf8"/><stop offset="1" stop-color="#ff7fb8"/>
+    </linearGradient>
+
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.6 4.6 0 0 1 8-3.1A4.6 4.6 0 0 1 20 10c0 5.7-8 11-8 11z" fill="currentColor"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9zM5 16l.7 1.8L7.5 18.5l-1.8.7L5 21l-.7-1.8L2.5 18.5l1.8-.7z" fill="currentColor"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20a7 7 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-dash" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="10" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="4" width="7" height="6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="12" width="7" height="8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="16" width="7" height="4" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8.5v7M8.5 12h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10.5" r="2.3" fill="currentColor"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.6 2.6a.6.6 0 0 1-.5.9H4.9a.6.6 0 0 1-.5-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 21a2.2 2.2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v6c0 4.6-3.2 7.6-7.5 9-4.3-1.4-7.5-4.4-7.5-9V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 11.8l2.2 2.2 4-4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6 3h4l1.5 5-2.5 1.5a12 12 0 0 0 5.5 5.5L16 12.5l5 1.5v4a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-7-5 16-3.5-6.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M11.5 14.5L20 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M8 7l.7 13h6.6L16 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0M16 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.6a5.5 5.5 0 0 1 3 4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="4.8" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 3v4h4M10 12h5M10 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 9.5h17M16 14.5h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 16v-5M12 16V8M16 16v-3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h-8v16h8M10 12h10M17 8.5L20.5 12 17 15.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 12h17M12 3.5c-5.5 5-5.5 12 0 17M12 3.5c5.5 5 5.5 12 0 17" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M4 4l16 16M9.9 5.2A9.8 9.8 0 0 1 12 5c6 0 9.5 7 9.5 7a17.5 17.5 0 0 1-3.3 4M6.1 6.7A16.9 16.9 0 0 0 2.5 12S6 19 12 19a9.6 9.6 0 0 0 4-.9M9.9 9.9a3 3 0 0 0 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- ======= environment ======= -->
+<div class="env" aria-hidden="true">
+  <div class="aurora a1"></div>
+  <div class="aurora a2"></div>
+  <div class="aurora a3"></div>
+  <div class="aurora a4"></div>
+  <div class="spotlight"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ======= nav ======= -->
+<header class="nav-wrap" id="navWrap">
+  <nav class="nav glass-thick" aria-label="Main">
+    <a class="brand" href="#home">
+      <span class="brand-mark"><svg class="ic"><use href="#i-heart"/></svg></span>
+      <span class="brand-text"><strong>MY DAY</strong><small data-i18n="brand.sub">WEDDING MARKETPLACE</small></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#home" class="nav-link active"><svg class="ic"><use href="#i-home"/></svg><span data-i18n="nav.home">Home</span></a>
+      <a href="#planner" class="nav-link"><svg class="ic"><use href="#i-sparkles"/></svg><span data-i18n="nav.planner">AI Planner</span></a>
+      <a href="#services" class="nav-link"><svg class="ic"><use href="#i-grid"/></svg><span data-i18n="nav.services">Browse Services</span></a>
+      <a href="#profile" class="nav-link"><svg class="ic"><use href="#i-user"/></svg><span data-i18n="nav.profile">Wedding Profile</span></a>
+      <a href="#dashboard" class="nav-link"><svg class="ic"><use href="#i-dash"/></svg><span data-i18n="nav.dashboard">Event Dashboard</span></a>
+      <a href="#bookings" class="nav-link"><svg class="ic"><use href="#i-calendar"/></svg><span data-i18n="nav.bookings">My Bookings</span></a>
+      <a href="#vendor" class="nav-link"><svg class="ic"><use href="#i-plus"/></svg><span data-i18n="nav.vendor">Become a Vendor</span></a>
+    </div>
+    <div class="nav-actions">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" data-lang="en" class="active">English</button>
+        <button type="button" data-lang="sw">Kiswahili</button>
+      </div>
+      <button type="button" id="themeToggle" class="icon-btn theme-btn" data-i18n-aria="a11y.theme" aria-label="Toggle dark mode"><svg class="ic"><use href="#i-moon"/></svg><span data-i18n="theme.dark">Dark</span></button>
+      <div class="bell-wrap">
+        <button type="button" id="bellBtn" class="icon-btn" aria-label="Notifications"><svg class="ic"><use href="#i-bell"/></svg><span class="badge" id="bellBadge">3</span></button>
+        <div class="notif-panel glass hidden" id="notifPanel">
+          <div class="notif-head"><strong data-i18n="notif.title">Notifications</strong><button type="button" id="markRead" data-i18n="notif.read">Mark all read</button></div>
+          <ul id="notifList"></ul>
+        </div>
+      </div>
+      <button type="button" id="loginBtn" class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-user"/></svg><span data-i18n="nav.login">Log In</span></button>
+      <button type="button" id="menuBtn" class="icon-btn menu-btn" aria-label="Menu"><svg class="ic"><use href="#i-menu"/></svg></button>
+    </div>
+  </nav>
+  <div class="mobile-menu glass-thick hidden" id="mobileMenu"></div>
+</header>
+
+<main>
+  <!-- ======= HERO ======= -->
+  <section id="home" class="hero">
+    <div class="float-layer" aria-hidden="true">
+      <div class="float-item" data-depth="26" style="top:16%;left:6%"><div class="glass-orb orb-lg bob-a"></div></div>
+      <div class="float-item" data-depth="48" style="top:58%;left:11%"><div class="glass-orb orb-sm bob-b"></div></div>
+      <div class="float-item" data-depth="36" style="top:12%;right:8%"><div class="glass-cube spin-a"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="float-item" data-depth="20" style="top:64%;right:6%"><div class="glass-ring bob-c"><svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="56" fill="none" stroke="url(#torusG)" stroke-width="20" opacity=".9"/><circle cx="80" cy="80" r="56" fill="none" stroke="#fff" stroke-width="4" opacity=".75" stroke-dasharray="90 262" stroke-linecap="round" transform="rotate(-60 80 80)"/></svg></div></div>
+      <div class="float-item" data-depth="62" style="top:38%;right:16%"><div class="glass-orb orb-xs bob-b"></div></div>
+      <div class="float-item" data-depth="55" style="top:30%;left:17%"><div class="glass-orb orb-xs bob-a"></div></div>
+    </div>
+
+    <div class="hero-inner">
+      <div class="hero-badge glass rise" style="--d:.05s"><svg class="ic"><use href="#i-sparkles"/></svg><span data-i18n="hero.badge">Tanzania's Premier Wedding Marketplace</span></div>
+      <h1 class="rise" style="--d:.15s"><span data-i18n="hero.title1">Your day.</span><br><span class="grad-text" data-i18n="hero.title2">Beautifully planned.</span></h1>
+      <p class="hero-sub rise" style="--d:.3s" data-i18n="hero.sub">Discover exceptional wedding professionals and bring your dream celebration to life.</p>
+      <div class="hero-ctas rise" style="--d:.42s">
+        <a href="#services" class="btn btn-primary btn-lg"><span data-i18n="hero.cta1">Explore vendors</span><svg class="ic"><use href="#i-arrow"/></svg></a>
+        <button type="button" class="btn btn-glass btn-lg" id="heroPlanBtn"><svg class="ic"><use href="#i-sparkles"/></svg><span data-i18n="hero.cta2">Plan with AI</span></button>
+      </div>
+
+      <form id="heroSearch" class="search-bar glass-thick rise" style="--d:.54s">
+        <div class="search-field grow">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input type="text" id="q" data-i18n-ph="search.ph" placeholder="Search venues, MCs, decor..." autocomplete="off">
+        </div>
+        <div class="search-field">
+          <svg class="ic sf-ic"><use href="#i-sparkles"/></svg>
+          <label for="fCategory" data-i18n="search.category">CATEGORY</label>
+          <div class="select-wrap"><select id="fCategory"></select><svg class="ic"><use href="#i-chev"/></svg></div>
+        </div>
+        <div class="search-field">
+          <svg class="ic sf-ic"><use href="#i-pin"/></svg>
+          <label for="fRegion" data-i18n="search.region">REGION</label>
+          <div class="select-wrap"><select id="fRegion"></select><svg class="ic"><use href="#i-chev"/></svg></div>
+        </div>
+        <div class="search-field">
+          <svg class="ic sf-ic"><use href="#i-calendar"/></svg>
+          <label for="fDate" data-i18n="search.date">EVENT DATE</label>
+          <input type="date" id="fDate">
+        </div>
+        <button type="submit" class="btn btn-primary"><span data-i18n="hero.cta1">Explore vendors</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+      </form>
+
+      <div class="trust-row glass rise" style="--d:.66s">
+        <span class="trust"><i class="dot dot-violet"></i><span data-i18n="trust.1">100% Mobile Money</span></span>
+        <span class="trust-sep"></span>
+        <span class="trust"><i class="dot dot-pink"></i><span data-i18n="trust.2">100% Verified</span></span>
+        <span class="trust-sep"></span>
+        <span class="trust"><i class="dot dot-sky"></i><span data-i18n="trust.3">Tanzania Nationwide</span></span>
+      </div>
+
+      <div class="hero-photos rise" style="--d:.8s">
+        <figure class="photo-frame pf1 glass"><img src="assets/hero-balloons.jpg" alt="Couple releasing balloons at a poolside wedding celebration"></figure>
+        <figure class="photo-frame pf2 glass"><img src="assets/hero-arch.jpg" alt="Floral wedding ceremony arch with ivory drapery"></figure>
+        <figure class="photo-frame pf3 glass"><img src="assets/hero-hands.jpg" alt="Bride and groom holding hands showing wedding ring"></figure>
+        <div class="photo-caption glass"><svg class="ic"><use href="#i-pin"/></svg><span data-i18n="hero.caption">Coastal and Inland Tanzania · Curated Celebrations</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= SERVICES ======= -->
+  <section id="services" class="section">
+    <div class="section-head reveal">
+      <div class="eyebrow"><svg class="ic"><use href="#i-grid"/></svg><span data-i18n="services.eyebrow">Browse Services</span></div>
+      <h2><span data-i18n="services.title1">Exceptional vendors,</span> <span class="grad-text" data-i18n="services.title2">verified for you</span></h2>
+      <p data-i18n="services.sub">Every professional is vetted, reviewed by real couples, and payable with mobile money.</p>
+    </div>
+    <div class="market-toolbar glass reveal">
+      <div class="chip-row" id="catChips"></div>
+      <div class="toolbar-right">
+        <span class="result-count" id="resultCount"></span>
+        <div class="select-wrap sort-wrap"><select id="sortSel" aria-label="Sort vendors"></select><svg class="ic"><use href="#i-chev"/></svg></div>
+      </div>
+    </div>
+    <div id="vendorGrid" class="vendor-grid"></div>
+    <div id="noResults" class="empty glass hidden">
+      <svg class="ic big"><use href="#i-search"/></svg>
+      <h3 data-i18n="services.empty">No vendors match your search</h3>
+      <p data-i18n="services.emptySub">Try a different category or region.</p>
+      <button type="button" class="btn btn-glass" id="clearFilters" data-i18n="services.clear">Clear filters</button>
+    </div>
+  </section>
+
+  <!-- ======= AI PLANNER ======= -->
+  <section id="planner" class="section">
+    <div class="planner-layout">
+      <div class="planner-intro reveal">
+        <div class="eyebrow"><svg class="ic"><use href="#i-sparkles"/></svg><span data-i18n="planner.eyebrow">AI Planner</span></div>
+        <h2><span data-i18n="planner.title1">Meet your</span> <span class="grad-text" data-i18n="planner.title2">smart wedding planner</span></h2>
+        <p data-i18n="planner.sub">Budgets, vendor matching, timelines and guest math — ask anything about your big day and get answers grounded in real Tanzanian vendors.</p>
+        <ul class="planner-feats">
+          <li class="glass"><span class="feat-ic fg-violet"><svg class="ic"><use href="#i-wallet"/></svg></span><div><strong data-i18n="planner.f1t">Budget intelligence</strong><span data-i18n="planner.f1s">Smart splits in TZS, saved to your profile</span></div></li>
+          <li class="glass"><span class="feat-ic fg-pink"><svg class="ic"><use href="#i-heart"/></svg></span><div><strong data-i18n="planner.f2t">Vendor matching</strong><span data-i18n="planner.f2s">Matched by region, style and price</span></div></li>
+          <li class="glass"><span class="feat-ic fg-sky"><svg class="ic"><use href="#i-calendar"/></svg></span><div><strong data-i18n="planner.f3t">Living checklist</strong><span data-i18n="planner.f3s">Timelines that sync to your dashboard</span></div></li>
+        </ul>
+      </div>
+      <div class="chat-card glass-thick reveal" id="chatInline"></div>
+    </div>
+  </section>
+
+  <!-- ======= DASHBOARD ======= -->
+  <section id="dashboard" class="section">
+    <div class="section-head reveal">
+      <div class="eyebrow"><svg class="ic"><use href="#i-dash"/></svg><span data-i18n="dash.eyebrow">Event Dashboard</span></div>
+      <h2><span data-i18n="dash.title1">Your celebration,</span> <span class="grad-text" data-i18n="dash.title2">at a glance</span></h2>
+    </div>
+    <div class="dash-scene reveal">
+      <div class="float-layer" aria-hidden="true">
+        <div class="float-item" data-depth="30" style="top:6%;left:-2%"><div class="glass-cube spin-b"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="float-item" data-depth="44" style="top:38%;left:-4%"><div class="glass-orb orb-md bob-a"></div></div>
+        <div class="float-item" data-depth="58" style="top:74%;left:1%"><div class="glass-orb orb-sm bob-b"></div></div>
+        <div class="float-item" data-depth="26" style="top:80%;right:-1%"><div class="glass-ring ring-sm bob-c"><svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="56" fill="none" stroke="url(#torusG)" stroke-width="20" opacity=".9"/><circle cx="80" cy="80" r="56" fill="none" stroke="#fff" stroke-width="4" opacity=".75" stroke-dasharray="90 262" stroke-linecap="round" transform="rotate(-60 80 80)"/></svg></div></div>
+        <div class="float-item" data-depth="50" style="top:4%;right:2%"><div class="glass-orb orb-xs bob-a"></div></div>
+      </div>
+
+      <div class="dash-board glass-thick" id="dashBoard">
+        <div class="dash-rail">
+          <a href="#home" class="rail-btn" aria-label="Home"><svg class="ic"><use href="#i-home"/></svg></a>
+          <a href="#dashboard" class="rail-btn active" aria-label="Dashboard"><svg class="ic"><use href="#i-chart"/></svg></a>
+          <a href="#services" class="rail-btn" aria-label="Services"><svg class="ic"><use href="#i-grid"/></svg></a>
+          <a href="#profile" class="rail-btn" aria-label="Profile"><svg class="ic"><use href="#i-user"/></svg></a>
+          <a href="#bookings" class="rail-btn" aria-label="Bookings"><svg class="ic"><use href="#i-calendar"/></svg></a>
+        </div>
+        <div class="dash-main">
+          <div class="dash-topbar">
+            <div class="dash-search glass">
+              <svg class="ic"><use href="#i-search"/></svg>
+              <input type="text" id="dashSearch" data-i18n-ph="dash.search" placeholder="Search anything...">
+            </div>
+            <div class="dash-top-actions">
+              <div class="avatar-stack" id="avatarStack"></div>
+              <span class="mini-bell"><svg class="ic"><use href="#i-bell"/></svg><i></i></span>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="welcome-card glass">
+              <div class="wc-head">
+                <div><h3><span data-i18n="dash.welcome">Welcome back,</span> <span id="wcName">Amina</span>!</h3><p data-i18n="dash.welcomeSub">Here's an overview of your wedding progress</p></div>
+                <div class="select-wrap"><select id="rangeSel"></select><svg class="ic"><use href="#i-chev"/></svg></div>
+              </div>
+              <div class="area-wrap">
+                <svg id="areaChart" role="img" aria-label="Budget spending chart"></svg>
+                <div class="chart-tip hidden" id="areaTip"></div>
+              </div>
+            </div>
+            <div class="stat-col">
+              <div class="stat-card sc-violet">
+                <span class="stat-icon"><svg class="ic"><use href="#i-chart"/></svg></span>
+                <div class="stat-meta"><span class="stat-label" data-i18n="dash.stat1">Budget Used</span><span class="stat-value" id="statBudget">68%</span><span class="stat-delta" id="statBudgetSub">↑ 12% from last month</span></div>
+              </div>
+              <div class="stat-card sc-blue">
+                <span class="stat-icon"><svg class="ic"><use href="#i-users"/></svg></span>
+                <div class="stat-meta"><span class="stat-label" data-i18n="dash.stat2">Guests Confirmed</span><span class="stat-value" id="statGuests">184</span><span class="stat-delta" id="statGuestsSub">↑ 12 this week</span></div>
+              </div>
+              <div class="stat-card sc-peach">
+                <span class="stat-icon"><svg class="ic"><use href="#i-heart"/></svg></span>
+                <div class="stat-meta"><span class="stat-label" data-i18n="dash.stat3">Vendors Booked</span><span class="stat-value" id="statVendors">2</span><span class="stat-delta" id="statVendorsSub">of 12 planned</span></div>
+              </div>
+            </div>
+            <div class="donut-card glass">
+              <h4 data-i18n="dash.budget">Budget Breakdown</h4>
+              <div class="donut-flex">
+                <div class="donut-wrap">
+                  <svg id="donutChart" role="img" aria-label="Budget breakdown chart"></svg>
+                  <div class="donut-center"><strong id="donutPct">68%</strong><span data-i18n="dash.used">used</span></div>
+                </div>
+                <ul class="legend" id="donutLegend"></ul>
+              </div>
+            </div>
+            <div class="bars-card glass">
+              <div class="bc-head"><h4 data-i18n="dash.weekly">Weekly Planning</h4><div class="select-wrap"><select id="weekSel"></select><svg class="ic"><use href="#i-chev"/></svg></div></div>
+              <svg id="barChart" role="img" aria-label="Weekly planning activity chart"></svg>
+            </div>
+            <div class="quick-row">
+              <button type="button" class="quick-card glass" data-action="task"><span class="q-ic qg-violet"><svg class="ic"><use href="#i-doc"/></svg></span><strong data-i18n="dash.q1">Add Task</strong><span data-i18n="dash.q1s">New to-do</span></button>
+              <button type="button" class="quick-card glass" data-action="invite"><span class="q-ic qg-blue"><svg class="ic"><use href="#i-users"/></svg></span><strong data-i18n="dash.q2">Invite</strong><span data-i18n="dash.q2s">Collaboration</span></button>
+              <button type="button" class="quick-card glass" data-action="goal"><span class="q-ic qg-pink"><svg class="ic"><use href="#i-target"/></svg></span><strong data-i18n="dash.q3">Set Goal</strong><span data-i18n="dash.q3s">Track progress</span></button>
+              <button type="button" class="quick-card glass" data-action="schedule"><span class="q-ic qg-peach"><svg class="ic"><use href="#i-calendar"/></svg></span><strong data-i18n="dash.q4">Schedule</strong><span data-i18n="dash.q4s">Wedding date</span></button>
+            </div>
+            <div class="checklist-card glass">
+              <div class="cl-head"><h4 data-i18n="dash.checklist">Planning Checklist</h4><span class="cl-count" id="clProgress">5/8</span></div>
+              <div class="progress-track"><div class="progress-fill" id="clBar"></div></div>
+              <ul id="taskList" class="task-list"></ul>
+              <div id="goalList" class="goal-list"></div>
+              <form id="taskAdd" class="task-add">
+                <input type="text" id="taskInput" data-i18n-ph="dash.addTask" placeholder="Add a task..." maxlength="80">
+                <button type="submit" class="btn btn-primary btn-sm" aria-label="Add task"><svg class="ic"><use href="#i-plus"/></svg></button>
+              </form>
+            </div>
+            <div class="countdown-card glass">
+              <h4 data-i18n="dash.countdown">Countdown to the big day</h4>
+              <div class="count-num grad-text" id="countDays">128</div>
+              <div class="count-sub"><span data-i18n="dash.days">days</span> · <span id="countDate">20 Mar 2027</span></div>
+              <div class="count-names" id="countNames">Amina &amp; Daniel</div>
+              <div class="progress-track"><div class="progress-fill pc-alt" id="countBar"></div></div>
+              <p class="count-note" id="countNote"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pedestal" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ======= BOOKINGS ======= -->
+  <section id="bookings" class="section">
+    <div class="section-head reveal">
+      <div class="eyebrow"><svg class="ic"><use href="#i-calendar"/></svg><span data-i18n="bookings.eyebrow">My Bookings</span></div>
+      <h2><span data-i18n="bookings.title1">Your booked</span> <span class="grad-text" data-i18n="bookings.title2">dream team</span></h2>
+      <p data-i18n="bookings.sub">Deposits are held securely and released to vendors after your event.</p>
+    </div>
+    <div id="bookingList" class="booking-list"></div>
+    <div id="bookingEmpty" class="empty glass hidden">
+      <svg class="ic big"><use href="#i-calendar"/></svg>
+      <h3 data-i18n="bookings.empty">No bookings yet</h3>
+      <p data-i18n="bookings.emptySub">Browse verified vendors and book your first professional.</p>
+      <a href="#services" class="btn btn-primary" data-i18n="bookings.cta">Explore vendors</a>
+    </div>
+  </section>
+
+  <!-- ======= PROFILE ======= -->
+  <section id="profile" class="section">
+    <div class="section-head reveal">
+      <div class="eyebrow"><svg class="ic"><use href="#i-user"/></svg><span data-i18n="profile.eyebrow">Wedding Profile</span></div>
+      <h2><span data-i18n="profile.title1">Tell us about</span> <span class="grad-text" data-i18n="profile.title2">your day</span></h2>
+    </div>
+    <div class="profile-layout">
+      <form id="profileForm" class="profile-card glass-thick reveal">
+        <div class="form-row">
+          <div class="field"><label for="p1" data-i18n="profile.p1">Partner 1</label><input type="text" id="p1" required maxlength="30"></div>
+          <div class="field"><label for="p2" data-i18n="profile.p2">Partner 2</label><input type="text" id="p2" required maxlength="30"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="pDate" data-i18n="profile.date">Wedding date</label><input type="date" id="pDate" required></div>
+          <div class="field"><label for="pRegion" data-i18n="profile.region">Region</label><div class="select-wrap"><select id="pRegion"></select><svg class="ic"><use href="#i-chev"/></svg></div></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="pBudget" data-i18n="profile.budget">Budget (TZS)</label><input type="number" id="pBudget" min="500000" step="100000" required></div>
+          <div class="field"><label for="pGuests" data-i18n="profile.guests">Guests invited</label><input type="number" id="pGuests" min="10" max="2000" required></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="pConfirmed" data-i18n="profile.confirmed">RSVPs confirmed</label><input type="number" id="pConfirmed" min="0" max="2000" required></div>
+          <div class="field"><label data-i18n="profile.theme">Celebration style</label><div class="theme-chips" id="themeChips"></div></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block"><svg class="ic"><use href="#i-check"/></svg><span data-i18n="profile.save">Save profile</span></button>
+      </form>
+      <div class="vision-card glass-thick reveal">
+        <div class="vision-photo"><img src="assets/rings.jpg" alt="Gold wedding bands on linen"></div>
+        <div class="vision-body">
+          <h3 id="visionNames">Amina &amp; Daniel</h3>
+          <div class="vision-rows" id="visionRows"></div>
+          <p class="vision-note" id="visionNote"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= BECOME A VENDOR ======= -->
+  <section id="vendor" class="section">
+    <div class="vendor-layout">
+      <div class="vendor-pitch reveal">
+        <div class="eyebrow"><svg class="ic"><use href="#i-plus"/></svg><span data-i18n="vendor.eyebrow">Become a Vendor</span></div>
+        <h2><span data-i18n="vendor.title1">Grow your</span> <span class="grad-text" data-i18n="vendor.title2">wedding business</span></h2>
+        <p data-i18n="vendor.sub">Join Tanzania's fastest-growing wedding marketplace. Get discovered by couples who are ready to book and pay with mobile money.</p>
+        <div class="vendor-stats">
+          <div class="vstat glass"><strong>2,400+</strong><span data-i18n="vendor.s1">couples planning</span></div>
+          <div class="vstat glass"><strong>98%</strong><span data-i18n="vendor.s2">on-time payouts</span></div>
+          <div class="vstat glass"><strong>0%</strong><span data-i18n="vendor.s3">listing fee</span></div>
+        </div>
+        <ol class="vendor-steps">
+          <li><span>1</span><div><strong data-i18n="vendor.st1t">Apply in minutes</strong><p data-i18n="vendor.st1s">Tell us about your business and services.</p></div></li>
+          <li><span>2</span><div><strong data-i18n="vendor.st2t">Get verified</strong><p data-i18n="vendor.st2s">Our team checks your credentials within 48 hours.</p></div></li>
+          <li><span>3</span><div><strong data-i18n="vendor.st3t">Receive bookings</strong><p data-i18n="vendor.st3s">Couples book and pay deposits straight to your till.</p></div></li>
+        </ol>
+      </div>
+      <form id="vendorForm" class="vendor-form glass-thick reveal">
+        <h3 data-i18n="vendor.formTitle">Vendor application</h3>
+        <div class="field"><label for="vName" data-i18n="vendor.name">Business name</label><input type="text" id="vName" required maxlength="50" placeholder="e.g. Zanzi Pearl Events"></div>
+        <div class="form-row">
+          <div class="field"><label for="vCategory" data-i18n="search.category">Category</label><div class="select-wrap"><select id="vCategory"></select><svg class="ic"><use href="#i-chev"/></svg></div></div>
+          <div class="field"><label for="vRegion" data-i18n="search.region">Region</label><div class="select-wrap"><select id="vRegion"></select><svg class="ic"><use href="#i-chev"/></svg></div></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="vPrice" data-i18n="vendor.price">Starting price (TZS)</label><input type="number" id="vPrice" min="50000" step="50000" required placeholder="1500000"></div>
+          <div class="field"><label for="vPhone" data-i18n="vendor.phone">Business phone</label><input type="tel" id="vPhone" required placeholder="+255 7XX XXX XXX"></div>
+        </div>
+        <div class="field"><label for="vDesc" data-i18n="vendor.desc">Describe your services</label><textarea id="vDesc" rows="3" required maxlength="300" data-i18n-ph="vendor.descPh" placeholder="What makes your service special?"></textarea></div>
+        <div class="field"><label data-i18n="vendor.mm">Mobile money accepted</label>
+          <div class="mm-checks">
+            <label class="mm-check"><input type="checkbox" name="mm" value="M-Pesa" checked><i class="mm-dot mm-mpesa"></i>M-Pesa</label>
+            <label class="mm-check"><input type="checkbox" name="mm" value="Tigo Pesa" checked><i class="mm-dot mm-tigo"></i>Tigo Pesa</label>
+            <label class="mm-check"><input type="checkbox" name="mm" value="Airtel Money"><i class="mm-dot mm-airtel"></i>Airtel Money</label>
+            <label class="mm-check"><input type="checkbox" name="mm" value="HaloPesa"><i class="mm-dot mm-halo"></i>HaloPesa</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block"><span data-i18n="vendor.apply">Apply to list</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<!-- ======= footer ======= -->
+<footer class="footer">
+  <div class="footer-inner glass-thick">
+    <div class="footer-brand">
+      <a class="brand" href="#home"><span class="brand-mark"><svg class="ic"><use href="#i-heart"/></svg></span><span class="brand-text"><strong>MY DAY</strong><small data-i18n="brand.sub">WEDDING MARKETPLACE</small></span></a>
+      <p data-i18n="footer.tag">Your day, beautifully planned — from Zanzibar's shores to Kilimanjaro's slopes.</p>
+      <div class="pay-badges">
+        <span class="pay-badge"><i class="mm-dot mm-mpesa"></i>M-Pesa</span>
+        <span class="pay-badge"><i class="mm-dot mm-tigo"></i>Tigo Pesa</span>
+        <span class="pay-badge"><i class="mm-dot mm-airtel"></i>Airtel Money</span>
+        <span class="pay-badge"><i class="mm-dot mm-halo"></i>HaloPesa</span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <strong data-i18n="footer.explore">Explore</strong>
+      <a href="#services" data-filter-link="Venues" data-i18n="cat.Venues">Venues</a>
+      <a href="#services" data-filter-link="Photography" data-i18n="cat.Photography">Photography</a>
+      <a href="#services" data-filter-link="Catering" data-i18n="cat.Catering">Catering</a>
+      <a href="#services" data-filter-link="Decor & Florals" data-i18n="cat.Decor & Florals">Decor & Florals</a>
+    </div>
+    <div class="footer-col">
+      <strong data-i18n="footer.couples">For couples</strong>
+      <a href="#planner" data-i18n="nav.planner">AI Planner</a>
+      <a href="#dashboard" data-i18n="nav.dashboard">Event Dashboard</a>
+      <a href="#bookings" data-i18n="nav.bookings">My Bookings</a>
+      <a href="#profile" data-i18n="nav.profile">Wedding Profile</a>
+    </div>
+    <div class="footer-col">
+      <strong data-i18n="footer.support">Support</strong>
+      <a href="#vendor" data-i18n="nav.vendor">Become a Vendor</a>
+      <a href="#planner" id="footerHelp" data-i18n="footer.help">Help Center</a>
+      <a href="#home" id="footerPayments" data-i18n="footer.payments">Mobile Money</a>
+    </div>
+  </div>
+  <p class="copyright">© 2026 MY DAY · <span data-i18n="footer.made">Made with love in Tanzania</span></p>
+</footer>
+
+<!-- ======= floating AI ======= -->
+<button type="button" id="aiBubble" class="ai-bubble" aria-label="Open AI planner">
+  <span class="ai-orb"><svg class="ic"><use href="#i-sparkles"/></svg></span>
+  <span class="ai-bubble-text"><strong>MY DAY AI</strong><small data-i18n="ai.smart">Smart Planner</small></span>
+</button>
+<div id="chatFloat" class="chat-float glass-thick hidden"></div>
+<button type="button" id="backTop" class="back-top glass-thick" data-i18n-aria="a11y.backTop" aria-label="Back to top">
+  <span class="bt-dial" aria-hidden="true">
+    <svg viewBox="0 0 44 44"><circle class="bt-track" cx="22" cy="22" r="19"/><circle class="bt-ring" cx="22" cy="22" r="19"/></svg>
+    <svg class="ic bt-arrow"><use href="#i-arrow"/></svg>
+  </span>
+  <span class="bt-label" data-i18n="backTop">Back to top</span>
+</button>
+
+<!-- ======= drawer / modal / toasts ======= -->
+<div id="drawerOverlay" class="overlay hidden"></div>
+<aside id="vendorDrawer" class="drawer glass-thick hidden" aria-label="Vendor details"></aside>
+<div id="modalOverlay" class="overlay hidden"></div>
+<div id="modalRoot"></div>
+<div id="toastRoot" class="toast-root" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
 </html>
