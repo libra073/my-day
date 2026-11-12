@@ -49,16 +49,6 @@
       "globalRole": "admin",
       "emailVerified": true,
       "createdAt": "2026-11-12T07:20:01.556Z"
-    },
-    {
-      "id": "usr-14eae90905eb",
-      "name": "Neema Bride",
-      "email": "neema.bride.1794468001559@example.co.tz",
-      "phone": "+255 777 888 999",
-      "passwordHash": "0ba2a534a6aa3b29f18cd5189abb6d826c3b647a5ef7b23377f4790c5ccf29e1",
-      "globalRole": "customer",
-      "emailVerified": true,
-      "createdAt": "2026-11-12T07:20:01.615Z"
     }
   ],
   "workspaces": [
@@ -144,11 +134,6 @@
       "token": "token-admin-session",
       "userId": "admin-1",
       "expiresAt": "2026-12-12T07:20:01.556Z"
-    },
-    {
-      "token": "myday_sess_16a9d31bd34f1c08a07f0328924dc679c172887834e08503",
-      "userId": "usr-14eae90905eb",
-      "expiresAt": "2026-12-12T07:20:01.725Z"
     },
     {
       "token": "myday_sess_9707f24b04eb6f2c6614823dd4ff155ee514f00266841828",
@@ -487,40 +472,6 @@
       "createdAt": "2026-11-12T07:20:01.556Z"
     }
   ],
-  "password_resets": [
-    {
-      "token": "rst-186cec99bdb7eeb0bc3f9099c09f5ab4",
-      "userId": "usr-14eae90905eb",
-      "email": "neema.bride.1794468001559@example.co.tz",
-      "expiresAt": "2026-11-12T08:20:01.655Z",
-      "used": true,
-      "createdAt": "2026-11-12T07:20:01.655Z"
-    }
-  ],
-  "email_verifications": [
-    {
-      "id": "ev-fc65a49ee620",
-      "email": "neema.bride.1794468001559@example.co.tz",
-      "code": "984898",
-      "expiresAt": "2026-11-12T07:35:01.585Z",
-      "used": true,
-      "createdAt": "2026-11-12T07:20:01.615Z"
-    },
-    {
-      "id": "ev-test-expired",
-      "email": "neema.bride.1794468001559@example.co.tz",
-      "code": "888111",
-      "expiresAt": "2026-11-12T07:19:01.631Z",
-      "used": false,
-      "createdAt": "2026-11-12T07:18:01.631Z"
-    },
-    {
-      "id": "ev-1918ec7e5476",
-      "email": "neema.bride.1794468001559@example.co.tz",
-      "code": "531945",
-      "expiresAt": "2026-11-12T07:35:01.645Z",
-      "used": true,
-      "createdAt": "2026-11-12T07:20:01.646Z"
-    }
-  ]
+  "password_resets": [],
+  "email_verifications": []
 }
