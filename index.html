@@ -93,12 +93,14 @@
       <a href="#dashboard" class="nav-link"><svg class="ic"><use href="#i-dash"/></svg><span data-i18n="nav.dashboard">Event Dashboard</span></a>
       <a href="#bookings" class="nav-link"><svg class="ic"><use href="#i-calendar"/></svg><span data-i18n="nav.bookings">My Bookings</span></a>
       <a href="#vendor" class="nav-link"><svg class="ic"><use href="#i-plus"/></svg><span data-i18n="nav.vendor">Become a Vendor</span></a>
+      <a href="#admin" class="nav-link hidden" id="navAdminLink"><svg class="ic"><use href="#i-shield"/></svg><span data-i18n="nav.admin">Platform Admin</span></a>
     </div>
     <div class="nav-actions">
       <div class="lang-toggle" role="group" aria-label="Language">
         <button type="button" data-lang="en" class="active">English</button>
         <button type="button" data-lang="sw">Kiswahili</button>
       </div>
+      <div class="nav-extras" id="navExtras">
       <button type="button" id="themeToggle" class="icon-btn theme-btn" data-i18n-aria="a11y.theme" aria-label="Toggle dark mode"><svg class="ic"><use href="#i-moon"/></svg><span data-i18n="theme.dark">Dark</span></button>
       <div class="bell-wrap">
         <button type="button" id="bellBtn" class="icon-btn" aria-label="Notifications"><svg class="ic"><use href="#i-bell"/></svg><span class="badge" id="bellBadge">3</span></button>
@@ -106,6 +108,7 @@
           <div class="notif-head"><strong data-i18n="notif.title">Notifications</strong><button type="button" id="markRead" data-i18n="notif.read">Mark all read</button></div>
           <ul id="notifList"></ul>
         </div>
+      </div>
       </div>
       <button type="button" id="loginBtn" class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-user"/></svg><span data-i18n="nav.login">Log In</span></button>
       <button type="button" id="menuBtn" class="icon-btn menu-btn" aria-label="Menu"><svg class="ic"><use href="#i-menu"/></svg></button>
@@ -374,7 +377,8 @@
 
   <!-- ======= BECOME A VENDOR ======= -->
   <section id="vendor" class="section">
-    <div class="vendor-layout">
+    <div id="vendorDash" class="vdash hidden"></div>
+    <div class="vendor-layout" id="vendorApply">
       <div class="vendor-pitch reveal">
         <div class="eyebrow"><svg class="ic"><use href="#i-plus"/></svg><span data-i18n="vendor.eyebrow">Become a Vendor</span></div>
         <h2><span data-i18n="vendor.title1">Grow your</span> <span class="grad-text" data-i18n="vendor.title2">wedding business</span></h2>
@@ -413,6 +417,16 @@
         <button type="submit" class="btn btn-primary btn-lg btn-block"><span data-i18n="vendor.apply">Apply to list</span><svg class="ic"><use href="#i-arrow"/></svg></button>
       </form>
     </div>
+  </section>
+
+  <section id="admin" class="section hidden">
+    <div class="section-head reveal">
+      <div class="eyebrow"><svg class="ic"><use href="#i-shield"/></svg><span data-i18n="adm.eyebrow">Restricted access</span></div>
+      <h2 data-i18n="adm.title">Platform Admin</h2>
+      <p data-i18n="adm.sub">MY DAY platform management team. Manage customers and vendors, verify businesses, approve or suspend listings, monitor bookings and transactions, handle complaints, categories and regions, analytics and settings.</p>
+    </div>
+    <div class="adm-tabs" id="admTabs"></div>
+    <div class="adm-body glass-thick" id="admBody"></div>
   </section>
 </main>
 

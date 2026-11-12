@@ -7,7 +7,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const uid = () => 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
 const icon = (n, cls = 'ic') => `<svg class="${cls}"><use href="#i-${n}"/></svg>`;
 const fmtTZS = n => 'TZS ' + Math.round(n).toLocaleString('en-US');
-const fmtM = n => n >= 1e6 ? 'TZS ' + (+(n / 1e6).toFixed(1)) + 'M' : 'TZS ' + Math.round(n / 1e3) + 'K';
+const fmtM = n => n >= 1e6 ? 'TZS ' + (+(n / 1e6).toFixed(1)) + 'M' : n >= 1e3 ? 'TZS ' + Math.round(n / 1e3) + 'K' : 'TZS ' + Math.round(n);
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- i18n ---------------- */
@@ -68,6 +68,22 @@ const I18N = {
     'auth.loginTab': 'Log In', 'auth.signupTab': 'Create account',
     'auth.loginTitle': 'Welcome back', 'auth.loginSub': 'Log in to your local preview account on this browser.',
     'auth.signupTitle': 'Create your account', 'auth.signupSub': 'Try your account on this browser. Preview only — use a test password.',
+    'role.title': 'Welcome to MY DAY', 'role.sub': 'How would you like to use MY DAY?',
+    'role.customerT': "I'm planning a wedding", 'role.customerS': 'Discover vendors, plan your wedding and manage bookings.', 'role.customerTag': 'Customer account',
+    'role.vendorT': 'I offer wedding services', 'role.vendorS': 'Showcase your business, receive bookings and grow your business.', 'role.vendorTag': 'Vendor account',
+    'role.adminNote': 'Administrator accounts are created internally, never through public registration.',
+    'role.chosen': r => `Signing up as: ${r}`, 'role.change': 'Change', 'role.demo': 'Demo accounts', 'role.demoHint': 'Tap to fill',
+    'vdash.title': 'Your business dashboard', 'vdash.status': 'Listing status', 'vdash.requests': 'Booking requests', 'vdash.accept': 'Accept', 'vdash.decline': 'Decline',
+    'vdash.escrow': 'In escrow', 'vdash.released': 'Released to you', 'vdash.empty': 'No new requests right now — couples will find you here.',
+    'vdash.pending': 'Pending review', 'vdash.verified': 'Verified', 'vdash.suspended': 'Suspended', 'vdash.accepted': 'Request accepted — the couple has been notified.', 'vdash.declined': 'Request declined.',
+    'nav.admin': 'Platform Admin', 'adm.eyebrow': 'Restricted access', 'adm.title': 'Platform Admin',
+    'adm.sub': 'MY DAY platform management team. Manage customers and vendors, verify businesses, approve or suspend listings, monitor bookings and transactions, handle complaints, categories and regions, analytics and settings.',
+    'adm.overview': 'Overview', 'adm.customers': 'Customers', 'adm.vendors': 'Vendors', 'adm.bookings': 'Bookings', 'adm.complaints': 'Complaints', 'adm.cats': 'Categories & Regions', 'adm.settings': 'Settings',
+    'adm.custCount': 'Customer accounts', 'adm.vendorCount': 'Listed vendors', 'adm.bookCount': 'Bookings', 'adm.gmv': 'Gross booking value', 'adm.verify': 'Verify', 'adm.suspend': 'Suspend', 'adm.restore': 'Restore',
+    'adm.resolve': 'Resolve', 'adm.open': 'Open', 'adm.resolved': 'Resolved', 'adm.addRegion': 'Add region', 'adm.remove': 'Remove', 'adm.escrowOn': 'Escrow protection on deposits',
+    'adm.verifyReq': 'Verification required before listing', 'adm.fee': 'Platform listing fee (%)', 'adm.verified': 'Vendor verified', 'adm.suspendedV': 'Vendor suspended', 'adm.restored': 'Vendor restored',
+    'adm.resolvedC': 'Complaint marked resolved', 'adm.regionAdded': 'Region added', 'adm.regionRemoved': 'Region removed', 'adm.noComplaints': 'No complaints — everyone is happy.',
+    'adm.couple': 'Couple', 'adm.vendor': 'Vendor', 'adm.amount': 'Amount', 'adm.status': 'Status', 'adm.date': 'Date', 'adm.email': 'Email', 'adm.role': 'Role', 'adm.joined': 'Joined',
     'auth.errUnavailable': 'Account access is unavailable. Open this preview on localhost or HTTPS and try again.',
     'auth.name': 'Full name', 'auth.email': 'Email address', 'auth.password': 'Password', 'auth.confirm': 'Confirm password', 'auth.newPass': 'New password',
     'auth.forgot': 'Forgot password?', 'auth.loginBtn': 'Log in', 'auth.signupBtn': 'Create account',
@@ -163,6 +179,22 @@ const I18N = {
     'auth.loginTab': 'Ingia', 'auth.signupTab': 'Fungua akaunti',
     'auth.loginTitle': 'Karibu tena', 'auth.loginSub': 'Ingia kwenye akaunti yako ya majaribio katika kivinjari hiki.',
     'auth.signupTitle': 'Fungua akaunti yako', 'auth.signupSub': 'Jaribu akaunti katika kivinjari hiki. Tumia nenosiri la majaribio tu.',
+    'role.title': 'Karibu MY DAY', 'role.sub': 'Ungependa kutumia MY DAY vipi?',
+    'role.customerT': 'Napanga harusi', 'role.customerS': 'Gundua watoa huduma, panga harusi yako na simamia uhifadhi.', 'role.customerTag': 'Akaunti ya mteja',
+    'role.vendorT': 'Ninatoa huduma za harusi', 'role.vendorS': 'Onyesha biashara yako, pokea uhifadhi na kukuza biashara yako.', 'role.vendorTag': 'Akaunti ya muuzaji',
+    'role.adminNote': 'Akaunti za msimamizi zinaundwa ndani ya mfumo, kamwe kupitia usajili wa umma.',
+    'role.chosen': r => `Unafungua kama: ${r}`, 'role.change': 'Badilisha', 'role.demo': 'Akaunti za majaribio', 'role.demoHint': 'Gusa kujaza',
+    'vdash.title': 'Dashibodi ya biashara yako', 'vdash.status': 'Hali ya orodha', 'vdash.requests': 'Maombi ya uhifadhi', 'vdash.accept': 'Kubali', 'vdash.decline': 'Kataa',
+    'vdash.escrow': 'Kwenye escrow', 'vdash.released': 'Imetolewa kwako', 'vdash.empty': 'Hakuna maombi mapya kwa sasa — wandoa watakupata hapa.',
+    'vdash.pending': 'Inasubiri ukaguzi', 'vdash.verified': 'Imethibitishwa', 'vdash.suspended': 'Imesimamishwa', 'vdash.accepted': 'Ombi limekubaliwa — wandoa wamearifiwa.', 'vdash.declined': 'Ombi limekataliwa.',
+    'nav.admin': 'Msimamizi', 'adm.eyebrow': 'Ufikiaji maalum', 'adm.title': 'Msimamizi wa Jukwaa',
+    'adm.sub': 'Timu ya usimamizi wa jukwaa la MY DAY. Simamia wateja na wauzaji, thibitisha biashara, idhinisha au simamisha orodha, fuatilia uhifadhi na malipo, shughulikia malalamiko, kategoria na mikoa, takwimu na mipangilio.',
+    'adm.overview': 'Muhtasari', 'adm.customers': 'Wateja', 'adm.vendors': 'Wauzaji', 'adm.bookings': 'Uhifadhi', 'adm.complaints': 'Malalamiko', 'adm.cats': 'Kategoria na Mikoa', 'adm.settings': 'Mipangilio',
+    'adm.custCount': 'Akaunti za wateja', 'adm.vendorCount': 'Wauzaji walioorodheshwa', 'adm.bookCount': 'Uhifadhi', 'adm.gmv': 'Thamani ya uhifadhi', 'adm.verify': 'Thibitisha', 'adm.suspend': 'Simamisha', 'adm.restore': 'Rejesha',
+    'adm.resolve': 'Maliza', 'adm.open': 'Wazi', 'adm.resolved': 'Imemalizwa', 'adm.addRegion': 'Ongeza mkoa', 'adm.remove': 'Ondoa', 'adm.escrowOn': 'Ulinzi wa escrow kwa amana',
+    'adm.verifyReq': 'Uthibitisho unahitajika kabla ya kuorodhesha', 'adm.fee': 'Ada ya orodha (%)', 'adm.verified': 'Muuzaji amethibitishwa', 'adm.suspendedV': 'Muuzaji amesimamishwa', 'adm.restored': 'Muuzaji amerejeshwa',
+    'adm.resolvedC': 'Lalamiko limemalizwa', 'adm.regionAdded': 'Mkoa umeongezwa', 'adm.regionRemoved': 'Mkoa umeondolewa', 'adm.noComplaints': 'Hakuna malalamiko — kila mtu yuko furaha.',
+    'adm.couple': 'Wandoa', 'adm.vendor': 'Muuzaji', 'adm.amount': 'Kiasi', 'adm.status': 'Hali', 'adm.date': 'Tarehe', 'adm.email': 'Barua pepe', 'adm.role': 'Aina', 'adm.joined': 'Amejiunga',
     'auth.errUnavailable': 'Akaunti haipatikani sasa. Fungua majaribio kupitia localhost au HTTPS kisha ujaribu tena.',
     'auth.name': 'Jina kamili', 'auth.email': 'Barua pepe', 'auth.password': 'Nenosiri', 'auth.confirm': 'Thibitisha nenosiri', 'auth.newPass': 'Nenosiri jipya',
     'auth.forgot': 'Umesahau nenosiri?', 'auth.loginBtn': 'Ingia', 'auth.signupBtn': 'Fungua akaunti',
@@ -260,6 +292,16 @@ let state;
 try { state = JSON.parse(localStorage.getItem('myday-v1')) || seedState(); if (!state.vendors || !state.profile) state = seedState(); }
 catch { state = seedState(); }
 if (!state.accounts) state.accounts = [];
+if (!state.regions) state.regions = [...REGIONS];
+if (!state.vendorRequests) state.vendorRequests = [
+  { id: 'vr1', couple: 'Amina & Daniel', service: 'Full-day photography', serviceSw: 'Picha siku nzima', date: '2027-03-20', guests: 250, deposit: 1350000, status: 'new' },
+  { id: 'vr2', couple: 'Neema & Brian', service: 'Half-day coverage', serviceSw: 'Nusu siku', date: '2026-12-12', guests: 120, deposit: 600000, status: 'new' },
+];
+if (!state.complaints) state.complaints = [
+  { id: 'cp1', who: 'couple@myday.co.tz', en: 'Deposit released late for a confirmed booking.', sw: 'Amana ilitolewa kuchelewa kwa uhifadhi uliothibitishwa.', status: 'open' },
+  { id: 'cp2', who: 'neema@example.com', en: 'Vendor changed package price after booking.', sw: 'Muuzaji alibadilisha bei ya pakiti baada ya uhifadhi.', status: 'open' },
+];
+if (!state.settings) state.settings = { escrow: true, verifyReq: true, fee: 0 };
 const save = () => { try { localStorage.setItem('myday-v1', JSON.stringify(state)); } catch {} };
 const t = (k, ...args) => { const v = (I18N[state.lang] && I18N[state.lang][k]) ?? I18N.en[k] ?? k; return typeof v === 'function' ? v(...args) : v; };
 const catT = c => t('cat.' + c);
@@ -481,13 +523,13 @@ addEventListener('resize', () => { if (openPop) placePanel(openPop.panel, openPo
 
 function renderSelects() {
   fillSelect($('#fCategory'), CATEGORIES.map(c => ({ value: c, label: catT(c) })), filters.category, t('search.allCats'));
-  fillSelect($('#fRegion'), REGIONS.map(r => ({ value: r, label: regT(r) })), filters.region, t('search.allRegions'));
+  fillSelect($('#fRegion'), state.regions.map(r => ({ value: r, label: regT(r) })), filters.region, t('search.allRegions'));
   fillSelect($('#sortSel'), [{ value: 'recommended', label: t('sort.recommended') }, { value: 'priceAsc', label: t('sort.priceAsc') }, { value: 'priceDesc', label: t('sort.priceDesc') }, { value: 'rating', label: t('sort.rating') }], filters.sort);
   fillSelect($('#rangeSel'), [{ value: 'month', label: t('range.month') }, { value: 'quarter', label: t('range.quarter') }, { value: 'full', label: t('range.full') }], state.range);
   fillSelect($('#weekSel'), [{ value: 'this', label: t('week.this') }, { value: 'last', label: t('week.last') }], state.week);
-  fillSelect($('#pRegion'), REGIONS.map(r => ({ value: r, label: regT(r) })), state.profile.region);
+  fillSelect($('#pRegion'), state.regions.map(r => ({ value: r, label: regT(r) })), state.profile.region);
   fillSelect($('#vCategory'), CATEGORIES.map(c => ({ value: c, label: catT(c) })), 'Venues');
-  fillSelect($('#vRegion'), REGIONS.map(r => ({ value: r, label: regT(r) })), 'Dar es Salaam');
+  fillSelect($('#vRegion'), state.regions.map(r => ({ value: r, label: regT(r) })), 'Dar es Salaam');
   $('#themeChips').innerHTML = THEMES.map(th => `<button type="button" class="chip ${state.profile.theme === th ? 'active' : ''}" data-theme="${th}">${t('theme.' + th)}</button>`).join('');
 }
 
@@ -812,6 +854,7 @@ const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
 function openAuth(view = 'login') {
   clearInterval(resendTimer);
   if (state.user) view = 'account';
+  if (view === 'signup' && !state.signupRole) view = 'roles';
   authView = view;
   const head = (title, sub) => `<div class="auth-head"><span class="auth-orb">${icon('heart')}</span><div><h3>${title}</h3><p class="modal-sub">${sub}</p></div></div>`;
   const tabs = `
@@ -827,7 +870,15 @@ function openAuth(view = 'login') {
       ${head(t('modal.account'), `${t('modal.loggedIn')} <strong>${esc(state.user.name)}</strong> (${esc(state.user.email)})${acct ? `<br><small class="auth-since">${t('auth.memberSince', fmtDate(acct.created))}</small>` : ''}`)}
       <div style="display:flex;gap:10px"><a href="#profile" class="btn btn-glass" data-action="close-modal" style="flex:1">${t('nav.profile')}</a>
       <button type="button" class="btn btn-danger" data-action="logout" style="flex:1">${icon('logout')}${t('modal.logout')}</button></div></div>`;
+  } else if (view === 'roles') {
+    html = `${modalClose}<div class="auth-swap" data-auth>${head(t('role.title'), t('role.sub'))}
+      <div class="role-cards">
+        <button type="button" class="role-card" data-role-pick="customer"><span class="rc-ic">${icon('heart')}</span><strong>${t('role.customerT')}</strong><small>${t('role.customerS')}</small><span class="rc-tag">${t('role.customerTag')}</span></button>
+        <button type="button" class="role-card" data-role-pick="vendor"><span class="rc-ic">${icon('grid')}</span><strong>${t('role.vendorT')}</strong><small>${t('role.vendorS')}</small><span class="rc-tag">${t('role.vendorTag')}</span></button>
+      </div>
+      <p class="role-admin-note">${icon('shield')}<span>${t('role.adminNote')}</span></p></div>`;
   } else if (view === 'login') {
+    const demo = state.accounts.filter(a => a.internal || ['customer', 'vendor', 'admin'].includes(a.role)).slice(0, 3);
     html = `${modalClose}<div class="auth-swap" data-auth>${head(t('auth.loginTitle'), t('auth.loginSub'))}${tabs}
       <form id="authForm" novalidate>
         ${textField('auEmail', t('auth.email'), 'email', 'amina@example.com', 'email')}
@@ -835,9 +886,12 @@ function openAuth(view = 'login') {
         <div class="auth-row"><button type="button" class="auth-link" data-auth-view="forgot">${t('auth.forgot')}</button></div>
         <button type="submit" class="btn btn-primary btn-lg btn-block">${t('auth.loginBtn')}${icon('arrow')}</button>
       </form>
+      ${demo.length ? `<div class="demo-accounts"><small>${t('role.demo')} — ${t('role.demoHint')}</small><div class="demo-chips">${demo.map(a => `<button type="button" class="demo-chip" data-demo="${esc(a.email)}" title="demo1234">${icon(a.role === 'admin' ? 'shield' : a.role === 'vendor' ? 'grid' : 'heart')}${esc(a.email.split('@')[0])}</button>`).join('')}</div></div>` : ''}
       <p class="auth-switch">${t('auth.noAccount')} <button type="button" data-auth-view="signup">${t('auth.signupTab')}</button></p></div>`;
   } else if (view === 'signup') {
+    const roleTag = state.signupRole === 'vendor' ? t('role.vendorTag') : t('role.customerTag');
     html = `${modalClose}<div class="auth-swap" data-auth>${head(t('auth.signupTitle'), t('auth.signupSub'))}${tabs}
+      <div class="role-chosen">${icon('check')}<span>${t('role.chosen', roleTag)}</span><button type="button" class="auth-link" data-auth-view="roles">${t('role.change')}</button></div>
       <form id="authForm" novalidate>
         ${textField('auName', t('auth.name'), 'text', 'Amina Hassan', 'name')}
         ${textField('auEmail', t('auth.email'), 'email', 'amina@example.com', 'email')}
@@ -872,6 +926,8 @@ function openAuth(view = 'login') {
   const root = $('#modalRoot');
   if (view === 'code') $('#auCode').setAttribute('inputmode', 'numeric');
   $$('[data-auth-view]', root).forEach(b => b.onclick = () => openAuth(b.dataset.authView));
+  $$('[data-role-pick]', root).forEach(b => b.onclick = () => { state.signupRole = b.dataset.rolePick; openAuth('signup'); });
+  $$('[data-demo]', root).forEach(b => b.onclick = () => { $('#auEmail').value = b.dataset.demo; $('#auPass').value = 'demo1234'; $('#auPass').focus(); });
   $$('.pw-eye', root).forEach(b => b.onclick = () => {
     const i = $('#' + b.dataset.eye); const show = i.type === 'password';
     i.type = show ? 'text' : 'password';
@@ -893,8 +949,8 @@ function openAuth(view = 'login') {
       const acct = findAccount(email);
       if (!acct) return setErr('auEmail', t('auth.errNoUser'));
       if (await hashPass($('#auPass').value, acct.hash) !== acct.hash) return setErr('auPass', t('auth.errWrongPass'));
-      state.user = { name: acct.name, email: acct.email };
-      save(); renderAuth(); renderStats(); closeModal();
+      state.user = { name: acct.name, email: acct.email, role: acct.role || 'customer' };
+      save(); renderAuth(); renderStats(); applyRole(); renderRoleSections(); closeModal();
       toast(t('auth.welcome', acct.name.split(' ')[0]), 'success');
     } else if (view === 'signup') {
       const name = $('#auName').value.trim();
@@ -904,9 +960,11 @@ function openAuth(view = 'login') {
       const p = $('#auPass').value, c = $('#auConfirm').value;
       if (p.length < 8) return setErr('auPass', t('auth.errPass'));
       if (p !== c) return setErr('auConfirm', t('auth.errMatch'));
-      state.accounts.push({ id: uid(), name, email, hash: await hashPass(p), created: isoDate(new Date()) });
-      state.user = { name, email };
-      save(); renderAuth(); renderStats(); closeModal();
+      const role = state.signupRole === 'vendor' ? 'vendor' : 'customer';
+      state.accounts.push({ id: uid(), name, email, role, hash: await hashPass(p), created: isoDate(new Date()) });
+      state.user = { name, email, role };
+      state.signupRole = null;
+      save(); renderAuth(); renderStats(); applyRole(); renderRoleSections(); closeModal();
       toast(t('auth.created', name.split(' ')[0]), 'success');
       pushNotif(I18N.en['auth.welcomeNotif'](name), I18N.sw['auth.welcomeNotif'](name), 'heart');
     } else if (view === 'forgot') {
@@ -1171,15 +1229,110 @@ function applyLang() {
   $$('.lang-toggle button').forEach(b => b.classList.toggle('active', b.dataset.lang === state.lang));
   applyTheme();
   renderSelects(); renderChips(); renderVendors(); renderBookings(); renderProfile(); renderNotifs(); renderAuth(); renderDashboard(); mountChats(); resetChat();
-  buildMobileMenu();
+  buildMobileMenu(); applyRole(); renderRoleSections();
+  applyRole(); renderRoleSections();
   $$('input[type="date"]').forEach(i => { if (i._gdSync) i._gdSync(); });
   if ($('#modalRoot [data-auth]')) openAuth(authView);
+}
+
+/* ---------------- roles / vendor dashboard / admin ---------------- */
+async function seedInternalAccounts() {
+  const defs = [
+    { email: 'couple@myday.co.tz', name: 'Amina Hassan', role: 'customer' },
+    { email: 'vendor@myday.co.tz', name: 'Zanzi Bloom Studios', role: 'vendor' },
+    { email: 'admin@myday.co.tz', name: 'MY DAY Platform Team', role: 'admin', internal: true },
+  ];
+  let added = false;
+  for (const d of defs) if (!findAccount(d.email)) {
+    state.accounts.push({ id: uid(), name: d.name, email: d.email, role: d.role, internal: !!d.internal, hash: await hashPass('demo1234'), created: isoDate(new Date()) });
+    added = true;
+  }
+  if (added) save();
+}
+const userRole = () => (state.user && state.user.role) || 'guest';
+function applyRole() {
+  const r = userRole();
+  const gated = r === 'vendor' || r === 'admin';
+  ['#dashboard', '#bookings', '#profile'].forEach(s => $(s) && $(s).classList.toggle('hidden', gated));
+  ['#navLinks a[href="#dashboard"]', '#navLinks a[href="#bookings"]', '#navLinks a[href="#profile"]', '#mobileMenu a[href="#dashboard"]', '#mobileMenu a[href="#bookings"]', '#mobileMenu a[href="#profile"]']
+    .forEach(s => $$(s).forEach(el => el.classList.toggle('hidden', gated)));
+  ['#navLinks a[href="#vendor"]', '#mobileMenu a[href="#vendor"]'].forEach(s => $$(s).forEach(el => el.classList.toggle('hidden', r === 'admin')));
+  $$('#navAdminLink, #mobileMenu a[href="#admin"]').forEach(el => el.classList.toggle('hidden', r !== 'admin'));
+  const adm = $('#admin'); if (adm) adm.classList.toggle('hidden', r !== 'admin');
+  const va = $('#vendorApply'); if (va) va.classList.toggle('hidden', r === 'vendor');
+  const vd = $('#vendorDash'); if (vd) vd.classList.toggle('hidden', r !== 'vendor');
+}
+function renderRoleSections() {
+  if (userRole() === 'vendor') renderVendorDash();
+  if (userRole() === 'admin') renderAdmin();
+}
+function renderVendorDash() {
+  const wrap = $('#vendorDash'); if (!wrap) return;
+  const reqs = state.vendorRequests.filter(r => r.status === 'new');
+  const past = state.vendorRequests.filter(r => r.status !== 'new');
+  const escrow = state.vendorRequests.filter(r => r.status === 'accepted').reduce((s, r) => s + r.deposit, 0);
+  const released = state.bookings.reduce((s, b) => s + b.deposit, 0);
+  wrap.innerHTML = `
+    <div class="vdash-head"><h3>${t('vdash.title')}</h3><span class="vc-verified">${icon('shield')}${t('vdash.verified')}</span></div>
+    <div class="vendor-stats"><div class="vstat glass"><strong>${fmtM(escrow)}</strong><span>${t('vdash.escrow')}</span></div><div class="vstat glass"><strong>${fmtM(released)}</strong><span>${t('vdash.released')}</span></div></div>
+    <h4 class="vdash-h">${t('vdash.requests')}</h4>
+    ${reqs.length ? reqs.map(r => `<div class="vr-row glass"><div class="vr-info"><strong>${esc(r.couple)}</strong><small>${esc(state.lang === 'sw' ? r.serviceSw : r.service)} · ${r.date} · ${r.guests} 👥</small><span>${fmtM(r.deposit)}</span></div><div class="vr-btns"><button type="button" class="btn btn-primary btn-sm" data-action="vr-accept" data-id="${r.id}">${t('vdash.accept')}</button><button type="button" class="btn btn-glass btn-sm" data-action="vr-decline" data-id="${r.id}">${t('vdash.decline')}</button></div></div>`).join('') : `<p class="modal-sub">${t('vdash.empty')}</p>`}
+    ${past.length ? `<h4 class="vdash-h">${t('adm.status')}</h4>` + past.map(r => `<div class="vr-row glass"><div class="vr-info"><strong>${esc(r.couple)}</strong><small>${esc(state.lang === 'sw' ? r.serviceSw : r.service)} · ${r.date}</small></div><span class="fchip ${r.status === 'accepted' ? 'ok' : 'warn'}">${r.status === 'accepted' ? t('vdash.accept') : t('vdash.decline')}</span></div>`).join('') : ''}`;
+}
+let admTab = 'overview';
+const admChip = (label, kind) => `<span class="fchip ${kind}">${label}</span>`;
+const admBtn = (labelKey, action, id, cls) => `<button type="button" class="btn ${cls || 'btn-glass'} btn-sm" data-action="${action}" data-id="${esc(id)}">${t(labelKey)}</button>`;
+const admTable = (heads, rows) => `<div class="adm-table"><table><thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+function renderAdmin() {
+  const tabsEl = $('#admTabs'), body = $('#admBody'); if (!tabsEl || !body) return;
+  const tabs = ['overview', 'customers', 'vendors', 'bookings', 'complaints', 'cats', 'settings'];
+  tabsEl.innerHTML = tabs.map(k => `<button type="button" class="adm-tab ${admTab === k ? 'active' : ''}" data-action="adm-tab" data-id="${k}">${t('adm.' + k)}</button>`).join('');
+  const S = state;
+  if (admTab === 'overview') {
+    const gmv = S.bookings.reduce((s, b) => s + b.total, 0);
+    const stats = [[S.accounts.filter(a => (a.role || 'customer') !== 'admin').length, t('adm.custCount')], [S.vendors.length, t('adm.vendorCount')], [S.bookings.length, t('adm.bookCount')], [fmtM(gmv), t('adm.gmv')]];
+    body.innerHTML = `<div class="vendor-stats adm-stats">${stats.map(([v, l]) => `<div class="vstat glass"><strong>${v}</strong><span>${l}</span></div>`).join('')}</div>`;
+  } else if (admTab === 'customers') {
+    body.innerHTML = admTable([t('auth.name'), t('adm.email'), t('adm.role'), t('adm.joined')], S.accounts.map(a => [esc(a.name), esc(a.email), admChip(a.role || 'customer', a.role === 'admin' ? 'warn' : 'ok'), fmtDate(a.created)]));
+  } else if (admTab === 'vendors') {
+    body.innerHTML = admTable([t('adm.vendor'), t('adm.status'), ''], S.vendors.map(v => [esc(v.name),
+      v.suspended ? admChip(t('vdash.suspended'), 'bad') : v.pending ? admChip(t('vdash.pending'), 'warn') : admChip(t('vdash.verified'), 'ok'),
+      v.suspended ? admBtn('adm.restore', 'adm-restore', v.id) : v.pending ? admBtn('adm.verify', 'adm-verify', v.id, 'btn-primary') + ' ' + admBtn('adm.suspend', 'adm-suspend', v.id) : admBtn('adm.suspend', 'adm-suspend', v.id)]));
+  } else if (admTab === 'bookings') {
+    body.innerHTML = admTable([t('adm.couple'), t('adm.vendor'), t('adm.amount'), t('adm.status'), t('adm.date')], S.bookings.map(b => {
+      const v = S.vendors.find(x => x.id === b.vendorId);
+      return [esc(S.profile.p1 + ' & ' + S.profile.p2), esc(v ? v.name : '—'), fmtM(b.total), admChip(b.status, 'ok'), b.date];
+    }));
+  } else if (admTab === 'complaints') {
+    const rows = S.complaints.map(c => `<div class="vr-row glass"><div class="vr-info"><strong>${esc(c.who)}</strong><small>${esc(state.lang === 'sw' ? c.sw : c.en)}</small></div>${c.status === 'open' ? admBtn('adm.resolve', 'adm-resolve', c.id, 'btn-primary') : admChip(t('adm.resolved'), 'ok')}</div>`);
+    body.innerHTML = rows.length ? rows.join('') : `<p class="modal-sub">${t('adm.noComplaints')}</p>`;
+  } else if (admTab === 'cats') {
+    const cats = [...new Set(S.vendors.map(v => v.category))];
+    body.innerHTML = `<div class="chip-row">${cats.map(c => `<span class="fchip">${esc(c)}</span>`).join('')}</div>
+      <div class="chip-row" style="margin-top:10px">${S.regions.map(r => `<span class="fchip region-chip">${esc(r)}<button type="button" class="chip-x" data-action="adm-delregion" data-id="${esc(r)}" aria-label="${t('adm.remove')}">${icon('x')}</button></span>`).join('')}</div>
+      <div class="field" style="margin-top:12px"><input type="text" id="admRegion" maxlength="24" placeholder="${t('adm.addRegion')}"></div>
+      <button type="button" class="btn btn-glass" data-action="adm-addregion">${icon('plus')}${t('adm.addRegion')}</button>`;
+  } else {
+    const st = S.settings;
+    body.innerHTML = `<label class="set-row"><input type="checkbox" data-action="adm-set" data-id="escrow" ${st.escrow ? 'checked' : ''}><span>${t('adm.escrowOn')}</span></label>
+      <label class="set-row"><input type="checkbox" data-action="adm-set" data-id="verifyReq" ${st.verifyReq ? 'checked' : ''}><span>${t('adm.verifyReq')}</span></label>
+      <label class="set-row"><span>${t('adm.fee')}</span><input type="number" min="0" max="30" value="${st.fee}" data-action="adm-fee"></label>`;
+  }
 }
 
 /* ---------------- nav / scroll / parallax ---------------- */
 function buildMobileMenu() {
   $('#mobileMenu').innerHTML = $$('#navLinks .nav-link').map(a => a.outerHTML).join('');
+  placeNavExtras();
 }
+const mqNavExtras = window.matchMedia('(max-width:760px)');
+function placeNavExtras() {
+  const extras = $('#navExtras');
+  if (!extras) return;
+  if (mqNavExtras.matches) $('#mobileMenu').appendChild(extras);
+  else $('#loginBtn').before(extras);
+}
+mqNavExtras.addEventListener('change', placeNavExtras);
 function initScroll() {
   const wrap = $('#navWrap');
   const backTop = $('#backTop');
@@ -1236,7 +1389,17 @@ function initEvents() {
       else if (a === 'close-drawer') closeDrawer();
       else if (a === 'close-modal') closeModal();
       else if (a === 'goto-bookings') { closeModal(); closeDrawer(); location.hash = '#bookings'; }
-      else if (a === 'logout') { state.user = null; save(); renderAuth(); renderStats(); closeModal(); toast(t('auth.logoutDone'), 'success'); }
+      else if (a === 'logout') { state.user = null; save(); renderAuth(); renderStats(); applyRole(); renderRoleSections(); closeModal(); toast(t('auth.logoutDone'), 'success'); }
+      else if (a === 'vr-accept') { const r = state.vendorRequests.find(x => x.id === id); if (r) { r.status = 'accepted'; save(); renderVendorDash(); toast(t('vdash.accepted'), 'success'); } }
+      else if (a === 'vr-decline') { const r = state.vendorRequests.find(x => x.id === id); if (r) { r.status = 'declined'; save(); renderVendorDash(); toast(t('vdash.declined'), 'info'); } }
+      else if (a === 'adm-tab') { admTab = id; renderAdmin(); }
+      else if (a === 'adm-verify') { const v = state.vendors.find(x => x.id === id); if (v) { v.pending = false; v.verified = true; save(); renderAdmin(); renderVendors(); toast(t('adm.verified'), 'success'); } }
+      else if (a === 'adm-suspend') { const v = state.vendors.find(x => x.id === id); if (v) { v.suspended = true; save(); renderAdmin(); renderVendors(); toast(t('adm.suspendedV'), 'info'); } }
+      else if (a === 'adm-restore') { const v = state.vendors.find(x => x.id === id); if (v) { v.suspended = false; save(); renderAdmin(); renderVendors(); toast(t('adm.restored'), 'success'); } }
+      else if (a === 'adm-resolve') { const c = state.complaints.find(x => x.id === id); if (c) { c.status = 'resolved'; save(); renderAdmin(); toast(t('adm.resolvedC'), 'success'); } }
+      else if (a === 'adm-delregion') { if (state.regions.length > 1) { state.regions = state.regions.filter(r => r !== id); save(); renderAdmin(); renderSelects(); toast(t('adm.regionRemoved'), 'info'); } }
+      else if (a === 'adm-addregion') { const v = ($('#admRegion')?.value || '').trim(); if (v && !state.regions.includes(v)) { state.regions.push(v); save(); renderAdmin(); renderSelects(); toast(t('adm.regionAdded'), 'success'); } }
+      else if (a === 'adm-set') { state.settings[id] = el.checked; save(); }
       else if (a === 'close-chat') $('#chatFloat').classList.add('hidden');
       else if (a === 'toggle-task') {
         const x = state.tasks.find(v => v.id === id); if (!x) return;
@@ -1374,10 +1537,15 @@ function initEvents() {
 }
 
 /* ---------------- init ---------------- */
+document.addEventListener('change', e => {
+  const el = e.target.closest('[data-action="adm-fee"]');
+  if (el) { state.settings.fee = Math.max(0, Math.min(30, +el.value || 0)); save(); }
+});
 applyTheme();
 applyLang();
 enhancePickers(document);
 initEvents();
 initScroll();
 initParallax();
+seedInternalAccounts().then(() => { renderAuth(); applyRole(); renderRoleSections(); });
 save();
