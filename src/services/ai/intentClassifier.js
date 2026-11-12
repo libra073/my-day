@@ -41,7 +41,9 @@ const FULL_PLAN_TRIGGERS = [
   /plan\s+everything/i, /make\s+the\s+plan/i, /build\s+the\s+budget/i,
   /do\s+everything/i, /pangilia\s+bajeti/i, /pangilia\s+kila\s+kitu/i,
   /fanya\s+(?:yote|kila\s+kitu)/i, /anze\s+kupanga/i, /nipange/i,
-  /nipa\s+(?:mpango|orodha|breakdown)/i
+  /nipa\s+(?:mpango|orodha|breakdown)/i,
+  /nipatie\s+mpango/i, /mpango\s+kamili/i, /plan\s+kamili/i, /nitengenezee/i,
+  /full\s+plan/i, /complete\s+plan/i, /kila\s+kitu\s+cha\s+harusi/i
 ];
 
 // Checklist / list request
@@ -252,7 +254,7 @@ export function classifyIntent(text = "", parsedEntities = {}, prevContext = {})
     return {
       intent: "feasibility_check",
       confidence: 0.97,
-      meta: { budget: budget ? budget.value : null, guests: guests ? guests.value : null }
+      meta: { budget: budget ? budget.value : null, guests: guests ? guests.value : null, category: parseCategory(lowered) }
     };
   }
 
@@ -262,7 +264,7 @@ export function classifyIntent(text = "", parsedEntities = {}, prevContext = {})
   if (/(that'?s\s*too\s*much|too\s*expensive|ghali|hiyo\s*ni\s*kubwa|make\s*it\s*cheaper|punguza\s*bajeti|cheaper|nafuu\s*zaidi|budget\s*saver|budget\s*plan)/i.test(lowered)) {
     return { intent: "cheaper_plan", confidence: 0.96, meta: {} };
   }
-  if (/(make\s*it\s*premium|luxury|kifahari|upgrade\s*plan|vip|premium\s*plan|premium\s*wedding)/i.test(lowered)) {
+  if (/(make\s*it\s*premium|luxury|kifahari|upgrade\s*plan|\bvip\b|premium\s*plan|premium\s*wedding)/i.test(lowered)) {
     return { intent: "premium_plan", confidence: 0.96, meta: {} };
   }
   if (/(balanced|mpango\s*wa\s*wastani|wastani|standard\s*plan)/i.test(lowered)) {
@@ -318,7 +320,7 @@ export function classifyIntent(text = "", parsedEntities = {}, prevContext = {})
   if (eventType !== null && (!prevContext.eventType || prevContext.eventType === "wedding") && wordCount <= 5) {
     return { intent: "event_type_provided", confidence: 0.95, meta: { eventType } };
   }
-  if (date !== null && wordCount <= 5) {
+  if (date !== null && (wordCount <= 8 || /tarehe|itakuwa|itafanyika|lini|date\s+is|on\s+\d|my\s+date|wedding\s+date/i.test(lowered))) {
     return { intent: "date_provided", confidence: 0.95, meta: { date: date.value } };
   }
 

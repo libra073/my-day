@@ -2,14 +2,14 @@
 // Professional Bilingual Response Composer for MY DAY Tanzania.
 // Generates natural, varied, non-repetitive responses from structured AI state.
 
-import { TANZANIAN_EVENT_TYPES } from "./eventKnowledge.js";
+import { TANZANIAN_EVENT_TYPES, SW_CHECKLIST_TASKS, SW_TIMELINES } from "./eventKnowledge.js";
 
 // ---------------------------------------------------------------------------
 // Response variation helpers — prevents "Nimekuelewa!" every time
 // ---------------------------------------------------------------------------
 const ACK_SW = [
-  "Sawa 😊", "Nimepata.", "Aah, nimekupata.", "Hapo sawa.", "Vizuri.", "Got it.",
-  "Okay, hiyo inabadilisha mambo.", "Perfect —", "Safi —", "Nzuri —"
+  "Sawa 😊", "Nimepata.", "Aah, nimekupata.", "Hapo sawa.", "Vizuri.",
+  "Nimepata kabisa.", "Sawa, hiyo inabadilisha mambo.", "Bomba —", "Safi —", "Nzuri —"
 ];
 const ACK_EN = [
   "Got it 👍", "Okay —", "Noted.", "Perfect —", "Sure —", "Alright —",
@@ -49,7 +49,7 @@ function buildChecklistText(eventType, isSwahili) {
       : ["Venue", "Catering", "Drinks", "Decoration", "MC", "Transport", "Photography", "Saloon/Makeup", "Emergency reserve"];
     return fallback.map((t, i) => `${i + 1}. ${t}`).join("\n");
   }
-  return ev.checklist.map((item, i) => `${i + 1}. ${item.task}`).join("\n");
+  return ev.checklist.map((item, i) => `${i + 1}. ${(isSwahili && SW_CHECKLIST_TASKS[item.id]) || item.task}`).join("\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -58,7 +58,8 @@ function buildChecklistText(eventType, isSwahili) {
 function buildTimelineText(eventType, isSwahili) {
   const ev = TANZANIAN_EVENT_TYPES[eventType || "wedding"];
   if (!ev || !ev.timeline) return "";
-  return ev.timeline.map(phase =>
+  const phases = (isSwahili && SW_TIMELINES[eventType || "wedding"]) || ev.timeline;
+  return phases.map(phase =>
     `📅 **${phase.timeframe}**\n${phase.tasks.map(t => `   • ${t}`).join("\n")}`
   ).join("\n\n");
 }
@@ -373,6 +374,41 @@ export function composeResponse({
     message = isSwahili
       ? `${nextAck(true)} eneo la sherehe ni ${currentState.location}. Makadirio na watoa huduma wamerekebishwa.`
       : `${nextAck(false)} event location is ${currentState.location}. Pricing and vendor matches updated accordingly.`;
+    if (curiosity && curiosity.hasMissingInfo) {
+      message += `\n\n${isSwahili ? curiosity.promptSw : curiosity.promptEn}`;
+    }
+    return { message, actions };
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // 11b. REQUIREMENT REMOVE / ADD — "Sitaki DJ", "Weka mpiga picha"
+  // ────────────────────────────────────────────────────────────────────────
+  if (intent === "requirement_remove" || intent === "requirement_add") {
+    const cat = meta && meta.category;
+    const labelsSw = { catering: "chakula na vinywaji", venue: "ukumbi/eneo", decor: "mapambo", photography: "picha na video", entertainment: "MC/DJ na burudani", transport: "usafiri", saloon: "urembo na saluni" };
+    const labelsEn = { catering: "catering & drinks", venue: "venue", decor: "decor", photography: "photography & video", entertainment: "MC/DJ & entertainment", transport: "transport", saloon: "saloon & beauty" };
+    const label = isSwahili ? (labelsSw[cat] || cat) : (labelsEn[cat] || cat);
+    message = intent === "requirement_remove"
+      ? (isSwahili
+        ? `${nextAck(true)} Nimeondoa ${label} kwenye mpango wako. Bajeti imegawanywa upya kwenye huduma zilizobaki.`
+        : `${nextAck(false)} removed ${label} from your plan. The budget has been redistributed across the remaining services.`)
+      : (isSwahili
+        ? `${nextAck(true)} Nimeongeza ${label} kwenye mpango wako. Nitakutafutia watoa huduma bora wa huduma hiyo.`
+        : `${nextAck(false)} added ${label} to your plan. I'll match you with strong vendors for it.`);
+    if (curiosity && curiosity.hasMissingInfo) {
+      message += `\n\n${isSwahili ? curiosity.promptSw : curiosity.promptEn}`;
+    }
+    return { message, actions };
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // 11c. DATE PROVIDED — "tarehe 20 Desemba 2026"
+  // ────────────────────────────────────────────────────────────────────────
+  if (intent === "date_provided") {
+    const d = currentState.eventDate;
+    message = isSwahili
+      ? `${nextAck(true)} tarehe ya sherehe ni ${d}. Nitarekebisha ratiba na hesabu ya muda uliobaki.`
+      : `${nextAck(false)} your event date is ${d}. I'll adjust the planning timeline and countdown accordingly.`;
     if (curiosity && curiosity.hasMissingInfo) {
       message += `\n\n${isSwahili ? curiosity.promptSw : curiosity.promptEn}`;
     }

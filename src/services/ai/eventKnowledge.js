@@ -310,6 +310,30 @@ export const TANZANIAN_EVENT_TYPES = {
 };
 
 // ---------------------------------------------------------------------------
+// Kiswahili localization for checklist tasks & planning timelines.
+// Keyed by stable checklist id / event type; English remains the fallback so
+// untranslated event types degrade gracefully instead of breaking.
+// ---------------------------------------------------------------------------
+export const SW_CHECKLIST_TASKS = {
+  "chk-w1": "Hifadhi ukumbi au bustani ya harusi (Kumbi)",
+  "chk-w2": "Kubaliana na mketeringi na kuthibitisha menyu ya mfano",
+  "chk-w3": "Ajiri MC wa kitaalamu na DJ",
+  "chk-w4": "Chagua mpambaji kwa ukumbi na meza kuu",
+  "chk-w5": "Hifadhi huduma ya picha na video",
+  "chk-w6": "Panga usafiri wa msafara wa bibi harusi",
+  "chk-w7": "Thibitisha amana ya 30% na watoa huduma wote"
+};
+
+export const SW_TIMELINES = {
+  wedding: [
+    { timeframe: "Miezi 3-6 Kabla", tasks: ["Idhinisha bajeti", "Hifadhi ukumbi", "Kubaliana na mketeringi"] },
+    { timeframe: "Miezi 1-2 Kabla", tasks: ["Ajiri MC na DJ", "Malizia mandhari ya mapambo", "Hifadhi mpiga picha"] },
+    { timeframe: "Wiki 2 Kabla", tasks: ["Thibitisha idadi ya mwisho ya wageni", "Kikao cha mpangilio wa siku na MC"] },
+    { timeframe: "Siku ya Sherehe", tasks: ["Ukaguzi wa mpangilio wa ukumbi", "Sherehe kuu na karibu"] }
+  ]
+};
+
+// ---------------------------------------------------------------------------
 // Tanzanian Terminology & Slang Lexicon
 // ---------------------------------------------------------------------------
 export const TANZANIAN_LEXICON = {

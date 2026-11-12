@@ -21,7 +21,14 @@ const SWAHILI_TOKENS = new Set([
   "nipangilie", "nipangie", "niandalie", "andaa", "pangilia", "tengeneza", "nipange",
   "orodha", "mpango", "mrejesho", "nipe", "niambie", "nionyeshe", "fanya", "basi",
   "huko", "uko", "niko", "upo", "naomba", "tafadhali", "sana", "kabisa",
-  "priority", "muhimu", "kwanza", "kwanza", "kipaumbele"
+  "priority", "muhimu", "kwanza", "kwanza", "kipaumbele",
+  // common verbs / function words so code-switched sentences stay Kiswahili
+  "naweza", "kumudu", "unaweza", "ninaweza", "tunaweza", "ningependa", "ungependa",
+  "tungependa", "nitapenda", "napenda", "nitumie", "nilitumie", "nieleze", "nishauri",
+  "nijibu", "tafuta", "nitafuta", "itakuwa", "itafanyika", "itafanya", "tarehe",
+  "sasa", "tena", "karibu", "samahani", "pongezi", "hakika", "kabisa", "ndiyo",
+  "si", "ya", "yake", "yetu", "wangu", "wako", "lake", "letu", "kwenye", "katika",
+  "hadi", "kuanzia", "takriban", "karibuni", "mnamo", "wenye", "wana", "una", "ina"
 ]);
 
 const ENGLISH_TOKENS = new Set([
@@ -426,9 +433,23 @@ const MONTHS_MAP = {
   oktoba: "October", october: "October", novemba: "November", november: "November", desemba: "December", december: "December"
 };
 
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
 export function parseDate(text = "") {
   if (!text || typeof text !== "string") return null;
   const lowered = text.toLowerCase();
+
+  // Numeric formats: 20/12/2026, 20-12-2026, 20/12 (day-first, Tanzanian convention)
+  const numeric = lowered.match(/\b([1-9]|[12]\d|3[01])[/\-]([1-9]|1[0-2])(?:[/\-](202[5-9]))?\b/);
+  if (numeric) {
+    const day = numeric[1];
+    const monthName = MONTH_NAMES[Number(numeric[2]) - 1] || numeric[2];
+    return {
+      value: numeric[3] ? `${monthName} ${day}, ${numeric[3]}` : `${monthName} ${day}`,
+      confidence: 0.95,
+      raw: numeric[0]
+    };
+  }
 
   for (const [monthKey, monthName] of Object.entries(MONTHS_MAP)) {
     const regex = new RegExp(`\\b${monthKey}\\b`, "i");
