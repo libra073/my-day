@@ -352,7 +352,7 @@ export default function HomePage() {
       {/* 6. Vendor Registration CTA (Liquid Glass Slab) */}
       <section style={{ padding: '1.5rem 0 3.5rem' }}>
         <div className="container" style={{ textAlign: 'center' }}>
-          <div className="glass-illuminated" style={{
+          <div className="glass-illuminated home-vendor-cta-card" style={{
             padding: '2.75rem 2rem',
             maxWidth: '820px',
             margin: '0 auto',
@@ -364,7 +364,7 @@ export default function HomePage() {
             <p style={{ fontSize: '1rem', color: 'var(--app-text-secondary)', maxWidth: '580px', margin: '0 auto 1.75rem', fontWeight: 500, lineHeight: 1.6 }}>
               {t('vendor_cta_desc')}
             </p>
-            <Link to="/become-vendor" className="btn-primary glass-puck" style={{ padding: '0.85rem 2.25rem', fontSize: '0.98rem' }}>
+            <Link to="/become-vendor" className="btn-primary glass-puck home-vendor-cta-btn">
               {t('vendor_cta_btn')}
             </Link>
           </div>

@@ -380,21 +380,31 @@ html[data-theme="dark"] #root .hero-editorial-shimmer * {
   color: transparent !important;
 }
 
-/* primary puck buttons must lose the blue radial glass */
-html[data-theme] #root .btn-primary.glass-puck,
-html[data-theme] #root .btn-primary.glass-puck::before,
-html[data-theme] #root .btn-primary.glass-puck::after,
-html[data-theme] #root .hero-cta-primary.glass-puck,
-html[data-theme] #root .hero-cta-primary.glass-puck::before,
-html[data-theme] #root .hero-cta-primary.glass-puck::after {
-  background-image: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 46%, #F472B6 100%) !important;
-}
+/* primary puck buttons use clean unified gradient without opaque pseudo-element overlap */
 html[data-theme] #root .btn-primary.glass-puck,
 html[data-theme] #root .hero-cta-primary.glass-puck {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  text-align: center !important;
+  max-width: 100% !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  background-image: linear-gradient(135deg, #8B6BFF 0%, #7C5CFC 46%, #F472B6 100%) !important;
   color: #fff !important;
   box-shadow:
     inset 0 1px 1px rgba(255, 255, 255, 0.55),
     0 18px 34px -16px rgba(124, 92, 252, 0.8) !important;
+}
+html[data-theme] #root .btn-primary.glass-puck:not(.btn-sweep)::before,
+html[data-theme] #root .btn-primary.glass-puck:not(.btn-sweep)::after,
+html[data-theme] #root .hero-cta-primary.glass-puck::before,
+html[data-theme] #root .hero-cta-primary.glass-puck::after {
+  content: none !important;
+  display: none !important;
 }
 
 /* hero search bar: translucent frosted, not a white slab */
@@ -1453,4 +1463,26 @@ html[data-theme] #root .ax-role__btn.is-active {
   box-shadow:
     inset 0 1px 1px rgba(255, 255, 255, 0.9),
     0 6px 16px -10px rgba(124, 92, 252, 0.6) !important;
+}
+
+
+/* AI orb: ai-pill.css targets ".ai-pill .ai-pill__orb" — match that specificity */
+html[data-theme] #root .ai-pill .ai-pill__orb,
+html[data-theme] #root .lg-floating-ai-assistant .ai-pill__orb {
+  background:
+    radial-gradient(120% 120% at 30% 8%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 46%),
+    linear-gradient(155deg, #C9B6FF 0%, #8B6BFF 40%, #7C5CFC 64%, #F472B6 100%) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
+    inset 0 -6px 12px -4px rgba(60, 20, 120, 0.5),
+    0 8px 18px -8px rgba(124, 92, 252, 0.9) !important;
+}
+html[data-theme] #root .ai-pill:hover .ai-pill__orb {
+  background:
+    radial-gradient(120% 120% at 30% 8%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 46%),
+    linear-gradient(155deg, #D8CCFF 0%, #9B80FF 40%, #8B6BFF 64%, #FF86C2 100%) !important;
+}
+html[data-theme] #root .ai-pill .ai-orb__glyph {
+  filter: drop-shadow(0 1px 2px rgba(50, 20, 90, 0.45)) !important;
 }
