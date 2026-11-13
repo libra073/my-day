@@ -856,7 +856,7 @@ function openAuth(view = 'login') {
   if (state.user) view = 'account';
   if (view === 'signup' && !state.signupRole) view = 'roles';
   authView = view;
-  const head = (title, sub) => `<div class="auth-head"><span class="auth-orb">${icon('heart')}</span><div><h3>${title}</h3><p class="modal-sub">${sub}</p></div></div>`;
+  const head = (title, sub) => `<span class="auth-lockup" aria-hidden="true"><span class="lockup-mask"></span></span><div class="auth-head"><div><h3>${title}</h3><p class="modal-sub">${sub}</p></div></div>`;
   const tabs = `
     <div class="auth-tabs">
       <button type="button" data-auth-view="login" class="${view === 'login' ? 'active' : ''}">${t('auth.loginTab')}</button>
