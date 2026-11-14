@@ -259,13 +259,14 @@ body{overflow-x:clip}
 .notif-panel li .ic{width:16px;height:16px;color:var(--violet);margin-top:1px}
 .notif-panel li time{display:block;font-size:10.5px;color:var(--ink-faint);margin-top:3px}
 .menu-btn{display:none}
-.mobile-menu{width:min(1460px,100%);margin-top:8px;border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:2px;animation:popIn .25s}
+.mobile-menu{width:min(1460px,100%);margin-top:8px;border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:2px;animation:popIn .25s;background:linear-gradient(150deg,rgba(255,255,255,.97),rgba(246,244,255,.94))}
 .mobile-menu .nav-link{padding:12px 14px;font-size:14.5px}
 .mobile-menu .nav-extras{display:flex;align-items:center;gap:8px;border-top:1px solid rgba(124,108,248,.14);margin-top:8px;padding-top:10px}
 .mobile-menu .theme-btn{width:auto;padding:10px 14px;display:flex;gap:8px}
 .mobile-menu .theme-btn span{display:inline}
 .mobile-menu .bell-wrap{margin-left:auto}
 .mobile-menu .notif-panel{position:static;width:auto;margin-top:8px}
+[data-theme="dark"] .mobile-menu{background:linear-gradient(150deg,rgba(34,29,54,.97),rgba(24,20,40,.95))}
 [data-theme="dark"] .mobile-menu .nav-extras{border-top-color:rgba(158,142,224,.18)}
 @keyframes popIn{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:none}}
 
