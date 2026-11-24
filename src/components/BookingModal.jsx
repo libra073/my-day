@@ -67,7 +67,7 @@ function BookingModal({ provider, selectedPackage, initialDate, onClose, onSucce
     }
   };
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
 
     // Re-validate date immediately before booking creation
@@ -89,9 +89,9 @@ function BookingModal({ provider, selectedPackage, initialDate, onClose, onSucce
     if (!isLoggedIn) {
       onClose();
       openAuthPrompt({
-        onAuthenticated: () => {
+        onAuthenticated: async () => {
           try {
-            const bookingId = createBooking(
+            const bookingId = await createBooking(
               provider.category,
               provider.id,
               pkgId || 'standard',
@@ -111,7 +111,7 @@ function BookingModal({ provider, selectedPackage, initialDate, onClose, onSucce
     }
 
     try {
-      const bookingId = createBooking(
+      const bookingId = await createBooking(
         provider.category,
         provider.id,
         pkgId || 'standard',
@@ -329,7 +329,7 @@ function BookingModal({ provider, selectedPackage, initialDate, onClose, onSucce
                 cursor: isDateInvalid ? 'not-allowed' : 'pointer'
               }}
             >
-              {language === 'sw' ? 'Hifadhi & Endelea na Malipo' : 'Reserve & Proceed to Payment'}
+              {language === 'sw' ? 'Hifadhi & Maelekezo ya Malipo' : 'Reserve & Payment Instructions'}
             </button>
           </div>
         </form>

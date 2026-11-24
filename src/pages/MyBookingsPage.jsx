@@ -9,6 +9,20 @@ function MyBookingsPage() {
   const [activePayment, setActivePayment] = useState(null);
   const isSw = language === 'sw';
 
+  const statusMeta = (status) => {
+    switch (status) {
+      case 'confirmed':
+        return { label: isSw ? 'IMETHIBITISHWA' : 'CONFIRMED', color: '#059669', bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.25)' };
+      case 'partial':
+        return { label: isSw ? 'MALIPO YA SEHEMU' : 'PARTIALLY PAID', color: '#D97706', bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.25)' };
+      case 'cancelled':
+        return { label: isSw ? 'IMEFUTWA' : 'CANCELLED', color: '#DC2626', bg: 'rgba(220, 38, 38, 0.1)', border: 'rgba(220, 38, 38, 0.25)' };
+      case 'pending_deposit':
+      default:
+        return { label: isSw ? 'INASUBIRI DHAMANA' : 'AWAITING DEPOSIT', color: '#D97706', bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.25)' };
+    }
+  };
+
   if (!isLoggedIn) {
     return (
       <div className="container" style={{ padding: '4rem 1.25rem', textAlign: 'center' }}>
@@ -67,7 +81,12 @@ function MyBookingsPage() {
     );
   }
 
-  const activeBookings = (bookings || []).map(b => ({ ...b, provider: providers.find(p => p.id === b.providerId) }));
+  const activeBookings = (bookings || []).map(b => {
+    const paid = b.paidAmount || 0;
+    const isDepositDue = b.status === 'pending_deposit';
+    const due = isDepositDue ? (b.deposit || Math.round(b.price * 0.3)) : (b.price - paid);
+    return { ...b, provider: providers.find(p => p.id === b.providerId), sm: statusMeta(b.status), due, isDepositDue };
+  });
 
   const handleDownloadReceipt = (booking) => {
     const vendorName = booking.provider?.name || 'Vendor';
@@ -166,15 +185,15 @@ function MyBookingsPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.35rem',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  color: '#059669',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  background: b.sm.bg,
+                  color: b.sm.color,
+                  border: `1px solid ${b.sm.border}`,
                   fontSize: '0.75rem',
                   fontWeight: 800,
                   padding: '0.3rem 0.75rem',
                   borderRadius: 'var(--radius-pill)'
                 }}>
-                  <CheckCircle2 size={13} /> {t('booking_status')} {b.status === 'confirmed' ? (t('nav_browse') === 'Tafuta Huduma' ? 'IMEKUBALIWA' : 'CONFIRMED') : b.status.toUpperCase()}
+                  <CheckCircle2 size={13} /> {t('booking_status')} {b.sm.label}
                 </div>
               </div>
 
@@ -192,10 +211,10 @@ function MyBookingsPage() {
                     <Download size={14} /> {t('download_receipt')}
                   </button>
                   {b.price > (b.paidAmount || 0) && (
-                    <button onClick={() => setActivePayment({ bookingId: b.id, amount: b.price - (b.paidAmount || 0) })} className="btn-primary" style={{
+                    <button onClick={() => setActivePayment({ bookingId: b.id, amount: b.due, isFullPayment: !b.isDepositDue })} className="btn-primary" style={{
                       fontSize: '0.8rem', padding: '0.5rem 0.95rem'
                     }}>
-                      {t('pay_remaining')} (TSh {(b.price - (b.paidAmount || 0)).toLocaleString()})
+                      {isSw ? 'Maelekezo ya Malipo' : 'Payment Instructions'} (TSh {b.due.toLocaleString()})
                     </button>
                   )}
                 </div>
@@ -206,7 +225,7 @@ function MyBookingsPage() {
       )}
 
       {activePayment && (
-        <PaymentModal bookingId={activePayment.bookingId} amount={activePayment.amount} isFullPayment={true} onClose={() => setActivePayment(null)} onSuccess={() => setActivePayment(null)} />
+        <PaymentModal bookingId={activePayment.bookingId} amount={activePayment.amount} isFullPayment={activePayment.isFullPayment} onClose={() => setActivePayment(null)} onSuccess={() => setActivePayment(null)} />
       )}
     </div>
   );

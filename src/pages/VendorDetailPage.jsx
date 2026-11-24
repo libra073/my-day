@@ -8,6 +8,7 @@ import PaymentModal from '../components/PaymentModal';
 import AppointmentModal from '../components/AppointmentModal';
 import VendorPortfolio from '../components/VendorPortfolio';
 import { peekSharedTransition, clearSharedTransition } from '../lib/sharedTransition';
+import api from '../services/api';
 import { getEffectiveVendorSchedule, getCurrentOfficeStatus, getTodayDarEsSalaam, isPastDateInDarEsSalaam } from '../services/businessSchedule';
 import { MapPin, Phone, CheckCircle, ShieldCheck, ArrowLeft, Clock, CalendarCheck } from 'lucide-react';
 
@@ -16,7 +17,27 @@ function VendorDetailPage() {
   const navigate = useNavigate();
   const { providers, wedding, isLoggedIn, openAuthPrompt, language = 'en' } = useAppContext();
 
-  const provider = providers.find(p => p.id === id);
+  const localProvider = providers.find(p => p.id === id);
+
+  // Registered vendors live in the server catalogue, not the bundled demo data
+  // (e.g. sponsored placements link straight to their ids).
+  const [remoteProvider, setRemoteProvider] = useState(null);
+  const [remoteChecked, setRemoteChecked] = useState(false);
+  useEffect(() => {
+    if (localProvider) return undefined;
+    let cancelled = false;
+    setRemoteChecked(false);
+    api.getVendors()
+      .then((res) => {
+        if (cancelled) return;
+        setRemoteProvider((res.vendors || []).find(v => v.id === id) || null);
+        setRemoteChecked(true);
+      })
+      .catch(() => { if (!cancelled) setRemoteChecked(true); });
+    return () => { cancelled = true; };
+  }, [id, localProvider]);
+
+  const provider = localProvider || remoteProvider;
 
   // fly the card photograph into the hero (shared-element transition)
   useEffect(() => {
@@ -143,6 +164,13 @@ function VendorDetailPage() {
   const vendorStatus = vendorSchedule ? getCurrentOfficeStatus(new Date(), vendorSchedule) : null;
 
   if (!provider) {
+    if (!remoteChecked) {
+      return (
+        <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+          {language === 'sw' ? 'Inapakia…' : 'Loading…'}
+        </div>
+      );
+    }
     return (
       <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center' }}>
         <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text)' }}>

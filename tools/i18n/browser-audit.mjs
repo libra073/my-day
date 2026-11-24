@@ -37,12 +37,17 @@ const ROUTES = [
   ['/login', 'login'],
   ['/register', 'register'],
   ['/become-vendor', 'become-vendor'],
+  ['/marketing', 'marketing'],
   ['/contact', 'contact'],
   ['/planner', 'planner'],
   ['/wedding', 'wedding'],
   ['/bookings', 'bookings'],
-  ['/vendor/kumbi/venue-1', 'vendor-detail'],
 ];
+
+// Resolve a real vendor detail route from the live catalogue (no demo ids).
+const vendorList = await fetch(BASE + '/api/vendors').then(r => r.json()).catch(() => ({ vendors: [] }));
+const firstVendor = (vendorList.vendors || [])[0];
+if (firstVendor) ROUTES.push([`/vendor/${firstVendor.category}/${firstVendor.id}`, 'vendor-detail']);
 
 const stats = (text) => {
   const words = (text.toLowerCase().match(/[a-z']{2,}/g) || []);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Heart, ShieldCheck, MapPin, Phone, Mail, Clock, MessageCircle, ArrowUpRight } from 'lucide-react';
+import { ShieldCheck, MapPin, Phone, Mail, Clock, MessageCircle, ArrowUpRight } from 'lucide-react';
 import { getCurrentOfficeStatus } from '../services/businessSchedule';
 import '../styles/site-footer.css';
 
@@ -12,6 +12,7 @@ const QUICK_LINKS = [
   { to: '/dashboard', key: 'nav_dashboard', fallback: 'Event Dashboard' },
   { to: '/bookings', key: 'nav_bookings', fallback: 'My Bookings' },
   { to: '/become-vendor', key: 'nav_become_vendor', fallback: 'Become a Vendor' },
+  { to: '/marketing', key: 'nav_marketing', fallback: 'Vendor Marketing' },
   { to: '/contact', key: 'nav_contact', fallback: 'Contact Us' },
 ];
 
@@ -76,7 +77,7 @@ function Footer({ variant }) {
           <div className="ft__brand">
             <Link to="/" className="ft__logo" aria-label="MY DAY home">
               <span className="ft__mark" aria-hidden="true">
-                <Heart size={17} fill="currentColor" stroke="none" />
+                <span className="brand-mark" style={{ width: 27, height: 20 }} />
               </span>
               <span className="ft__wordmark">
                 <strong>MY DAY</strong>

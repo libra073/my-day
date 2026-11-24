@@ -427,12 +427,10 @@ export default function AuthExperience({
       )}
 
       <section className={`ax-card ${mode === 'register' ? 'ax-card--tall' : ''}`} aria-labelledby="ax-title">
-        <header className="ax-card__head">
-          <a href="/" className="ax-brand" aria-label="MY DAY home">
-            <span className="ax-brand__mark"><Heart size={15} fill="currentColor" stroke="none" /></span>
-            <span className="ax-brand__name">MY DAY</span>
-          </a>
-
+        <a href="/" className="ax-lockup" aria-label="MY DAY home">
+          <span className="brand-lockup" aria-hidden="true" />
+        </a>
+        <header className="ax-card__head ax-card__head--controls">
           <div className="ax-lang" role="group" aria-label={isSw ? 'Lugha' : 'Language'}>
             <button type="button" className={language === 'en' ? 'is-active' : ''} onClick={() => setLanguage('en')}>English</button>
             <button type="button" className={language === 'sw' ? 'is-active' : ''} onClick={() => setLanguage('sw')}>Kiswahili</button>

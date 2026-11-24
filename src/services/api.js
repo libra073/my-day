@@ -25,12 +25,12 @@ class ApiClient {
     return this.token;
   }
 
-  async request(endpoint, options = {}) {
+  async authHeaders(extra = {}) {
     const activeLang = typeof window !== 'undefined' ? (localStorage.getItem('myday_lang') || 'en') : 'en';
     const headers = {
       'Content-Type': 'application/json',
       'Accept-Language': activeLang,
-      ...options.headers,
+      ...extra,
     };
 
     // Supabase session tokens take precedence when auth is configured.
@@ -38,6 +38,11 @@ class ApiClient {
     if (bearer) {
       headers['Authorization'] = `Bearer ${bearer}`;
     }
+    return headers;
+  }
+
+  async request(endpoint, options = {}) {
+    const headers = await this.authHeaders(options.headers);
 
     const res = await fetch(endpoint, {
       ...options,
@@ -54,6 +59,12 @@ class ApiClient {
     }
 
     return data;
+  }
+
+  // Same auth as request(), but returns the raw Response for binary payloads.
+  async rawRequest(endpoint, options = {}) {
+    const headers = await this.authHeaders(options.headers);
+    return fetch(endpoint, { ...options, headers });
   }
 
   // --- Auth Endpoints ---

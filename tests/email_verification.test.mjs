@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { createApiServer } from '../server/server.js';
 import { resetDatabase, loadDatabase, saveDatabase } from '../server/db.js';
 import { resetRateLimits } from '../server/routes.js';
+import { seedUser, seedWorkspace } from './fixtures.mjs';
 
 console.log('====================================================');
 console.log('📧 RUNNING EMAIL VERIFICATION & SECURITY TEST SUITE');
@@ -66,6 +67,10 @@ async function runTests() {
   try {
     resetRateLimits();
     resetDatabase();
+
+    // Self-created fixture: a workspace owner for the invitation flow (section 10).
+    const groom = seedUser({ name: 'John Msuya', email: 'groom.email@myday.test', password: 'password123' });
+    const workspace = seedWorkspace({ ownerId: groom.user.id, title: 'Fixture Wedding' });
 
     console.log('--- 1. Account Registration with Email Verification Code ---');
     const testEmail = `neema.bride.${Date.now()}@example.co.tz`;
@@ -223,15 +228,11 @@ async function runTests() {
     logPass('Password reset verification token flow functions correctly and preserves verified status');
 
     console.log('\n--- 10. Workspace Invitation Email Verification Flow Integrity ---');
-    // Login as groom to invite
-    const groomLogin = await request('/api/auth/login', {
-      method: 'POST',
-      body: { email: 'john@myday.co.tz', password: 'password123' }
-    });
-    const groomToken = groomLogin.data.token;
+    // Use the seeded workspace owner to invite.
+    const groomToken = groom.token;
 
     const inviteeEmail = `invitee.${Date.now()}@example.co.tz`;
-    const inviteRes = await request('/api/workspaces/wed-1/invitations', {
+    const inviteRes = await request(`/api/workspaces/${workspace.id}/invitations`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${groomToken}` },
       body: { email: inviteeEmail, role: 'partner' }

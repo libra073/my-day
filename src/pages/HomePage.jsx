@@ -5,6 +5,7 @@ import ModernHero from '../components/ModernHero';
 import PortfolioShowcase from '../components/PortfolioShowcase';
 import InteractiveBudgetWidget from '../components/InteractiveBudgetWidget';
 import ProviderCard from '../components/ProviderCard';
+import SponsoredStrip from '../components/marketing/SponsoredStrip';
 import StarRating from '../components/StarRating';
 import {
   Building2, Palette, Music, UtensilsCrossed, Scissors, Car,
@@ -227,6 +228,8 @@ export default function HomePage() {
       {/* 4. Featured Verified Vendors Grid */}
       <section style={{ padding: '2.5rem 0 3.5rem', background: 'transparent' }}>
         <div className="container">
+          <SponsoredStrip location="homepage" />
+          <SponsoredStrip location="featured" />
           <div style={{
             display: 'flex',
             alignItems: 'center',

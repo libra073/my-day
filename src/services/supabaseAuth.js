@@ -23,9 +23,6 @@ export async function signUp({ email, password, name, role = 'customer', vendorC
       emailRedirectTo: redirectTo,
       data: {
         full_name: name,
-        global_role: role,
-        vendor_category: vendorCategory || null,
-        vendor_location: vendorLocation || null,
         phone: phone || null,
       },
     },
@@ -106,10 +103,12 @@ export function toAppUser(supabaseUser) {
     email: supabaseUser.email,
     name: meta.full_name || supabaseUser.email?.split('@')[0] || 'MY DAY user',
     phone: meta.phone || '',
-    role: meta.global_role || 'customer',
-    globalRole: meta.global_role || 'customer',
-    vendorCategory: meta.vendor_category || null,
-    vendorLocation: meta.vendor_location || null,
+    // Placeholder only: the authoritative role comes from /api/auth/me,
+    // never from client-writable Supabase metadata.
+    role: 'customer',
+    globalRole: 'customer',
+    vendorCategory: null,
+    vendorLocation: null,
     emailVerified: Boolean(supabaseUser.email_confirmed_at),
   };
 }

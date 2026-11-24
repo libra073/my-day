@@ -186,6 +186,27 @@
   letter-spacing: 0.12em;
 }
 
+/* Full brand lockup (monogram + wordmark + tagline) as the auth card header. */
+.ax-lockup {
+  display: block;
+  width: min(100%, 340px);
+  margin: 0 auto 0.9rem;
+  color: var(--liquid-sapphire-500, #7C5CFC);
+  text-decoration: none;
+}
+.brand-lockup {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1168 / 288;
+  background: currentColor;
+  -webkit-mask: url('../assets/myday-lockup.png') center / contain no-repeat;
+  mask: url('../assets/myday-lockup.png') center / contain no-repeat;
+}
+.ax-card__head--controls {
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .ax-close {
   display: grid;
   place-items: center;

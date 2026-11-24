@@ -319,6 +319,19 @@ export const AppProvider = ({ children }) => {
     setNotifications([]);
   };
 
+  // The server owns roles: refresh from /api/auth/me so client-writable
+  // metadata or stale localStorage can never grant privileges.
+  const syncServerRole = async () => {
+    try {
+      const me = await api.getMe();
+      const serverUser = me?.user;
+      if (!serverUser?.globalRole) return;
+      setRole(serverUser.globalRole);
+      setUser(prev => (prev ? { ...prev, ...serverUser, token: prev.token } : prev));
+      try { localStorage.setItem('myday_user', JSON.stringify(serverUser)); } catch {}
+    } catch {}
+  };
+
   const loginUser = async ({ email, password }) => {
     if (!email || !password) {
       throw new Error(language === 'sw' ? 'Barua pepe na nenosiri vinahitajika.' : 'Email and password are required.');
@@ -329,6 +342,7 @@ export const AppProvider = ({ children }) => {
       const appUser = sbAuth.toAppUser(data.user);
       applySession(appUser, data.session?.access_token);
       await refreshWorkspace();
+      await syncServerRole();
       return { user: appUser };
     }
 
@@ -361,6 +375,7 @@ export const AppProvider = ({ children }) => {
       const { data } = await sbAuth.getSession();
       applySession(appUser, data?.session?.access_token);
       await refreshWorkspace();
+      await syncServerRole();
       return { user: appUser, needsEmailConfirmation: false };
     }
 
@@ -448,6 +463,7 @@ export const AppProvider = ({ children }) => {
       const appUser = sbAuth.toAppUser(data.session.user);
       applySession(appUser, data.session.access_token);
       await refreshWorkspace();
+      await syncServerRole();
     })();
     const unsubscribe = sbAuth.onAuthChange((event, session) => {
       if (cancelled) return;
@@ -455,6 +471,7 @@ export const AppProvider = ({ children }) => {
       else if (session?.user) {
         const appUser = sbAuth.toAppUser(session.user);
         applySession(appUser, session.access_token);
+        syncServerRole();
       }
     });
     return () => { cancelled = true; unsubscribe?.(); };
@@ -522,13 +539,46 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  const createBooking = (category, vendorId, packageId, price, date, deposit) => {
-    // Immediate pre-creation date validation
+  const createBooking = async (category, vendorId, packageId, price, date, deposit) => {
     const validation = validateBookingDate(date, language);
     if (!validation.valid) {
       throw new Error(validation.error);
     }
 
+    const markDateUnavailable = () =>
+      setProviders(prev =>
+        prev.map(p =>
+          p.id === vendorId
+            ? { ...p, unavailableDates: [...(p.unavailableDates || []), date] }
+            : p
+        )
+      );
+
+    // The server owns price, deposit and status. A reservation is only ever
+    // 'pending_deposit' with paidAmount 0 until a verified provider callback
+    // confirms payment — the client must never mark a booking paid/confirmed.
+    if (user?.token) {
+      try {
+        const res = await api.createBooking({
+          category,
+          providerId: vendorId,
+          packageId,
+          price,
+          date,
+          weddingId: wedding?.id || undefined,
+          language,
+        });
+        if (res?.booking) {
+          setBookings(prev => [...prev, res.booking]);
+          markDateUnavailable();
+          return res.booking.id;
+        }
+      } catch (err) {
+        console.warn('Booking server sync pending, reserving locally:', err.message);
+      }
+    }
+
+    // Offline / not-yet-synced fallback: still an unpaid pending_deposit hold.
     const bookingId = `bk-${Date.now()}`;
     const newBooking = {
       id: bookingId,
@@ -540,49 +590,13 @@ export const AppProvider = ({ children }) => {
       date,
       price,
       deposit,
-      paidAmount: deposit,
+      paidAmount: 0,
       commission: Math.round(price * commissionRate),
-      status: 'confirmed',
+      status: 'pending_deposit',
     };
     setBookings(prev => [...prev, newBooking]);
-    setProviders(prev =>
-      prev.map(p =>
-        p.id === vendorId
-          ? { ...p, unavailableDates: [...(p.unavailableDates || []), date] }
-          : p
-      )
-    );
-    // Background sync to authoritative database if wedding exists
-    if (wedding?.id) {
-      api.createBooking({ category, providerId: vendorId, packageId, price, date, weddingId: wedding.id, language }).catch(err => {
-        console.warn('Booking offline or sync pending:', err.message);
-      });
-    }
+    markDateUnavailable();
     return bookingId;
-  };
-
-  const recordPayment = (bookingId, amount, full = false) => {
-    const booking = bookings.find(b => b.id === bookingId);
-    if (booking?.date) {
-      const validation = validateBookingDate(booking.date, language);
-      if (!validation.valid) {
-        throw new Error(validation.error);
-      }
-    }
-    const paymentId = `pay-${Date.now()}`;
-    setPayments(prev => [...prev, { id: paymentId, bookingId, amount, date: new Date().toISOString() }]);
-    setBookings(prev =>
-      prev.map(b =>
-        b.id === bookingId
-          ? { ...b, status: full ? 'confirmed' : 'partial', paidAmount: (b.paidAmount || 0) + amount }
-          : b
-      )
-    );
-    // Background sync to authoritative database
-    api.createPayment({ bookingId, amount, isFullPayment: full }).catch(err => {
-      console.warn('Payment offline or sync pending:', err.message);
-    });
-    return paymentId;
   };
 
   // --- Phase 2 Actions ---
@@ -751,7 +765,6 @@ export const AppProvider = ({ children }) => {
     verifyEmail,
     sendVerificationEmail,
     createBooking,
-    recordPayment,
   };
 
   return (

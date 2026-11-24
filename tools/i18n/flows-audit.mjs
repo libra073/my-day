@@ -119,7 +119,7 @@ try {
   // form state must survive a language switch (use the hero search field)
   await page.goto(BASE + '/', { waitUntil: 'networkidle', timeout: 60000 });
   await page.waitForTimeout(1600);
-  const search = page.locator('.hero-glass-instrument input').first();
+  const search = page.locator('.md-search input').first();
   await search.fill('kumbi');
   await page.locator('.cl-lang button').nth(1).click();
   await page.waitForTimeout(800);
@@ -175,7 +175,10 @@ try {
   record('SW: AI planner replies in Kiswahili', chatStats.sw >= 3 && chatStats.sw > chatStats.en, `sw=${chatStats.sw} en=${chatStats.en}`);
 
   /* ---------------- vendor flow in Kiswahili ---------------- */
-  await page.goto(BASE + '/vendor/kumbi/venue-1', { waitUntil: 'networkidle', timeout: 60000 });
+  const vendorList = await fetch(BASE + '/api/vendors').then(r => r.json()).catch(() => ({ vendors: [] }));
+  const firstVendor = (vendorList.vendors || [])[0];
+  const vendorRoute = firstVendor ? `/vendor/${firstVendor.category}/${firstVendor.id}` : '/marketplace';
+  await page.goto(BASE + vendorRoute, { waitUntil: 'networkidle', timeout: 60000 });
   await page.waitForTimeout(2200);
   const detailLeak = await page.evaluate(() => {
     const nodes = [...document.querySelectorAll('h1,h2,h3,button,label,th,span')].filter((el) => el.children.length === 0);
@@ -185,9 +188,9 @@ try {
   record('SW: vendor detail interface labels', detailJunk.length === 0, detailJunk.slice(0, 3).join(' | '));
 
   /* ---------------- booking modal ---------------- */
-  await page.locator('.cal-day:not(.is-booked):not(.is-past)').nth(12).click().catch(() => {});
+  await page.locator('.cal-day:not([disabled])').last().click();
   await page.waitForTimeout(500);
-  await page.getByText(/Weka Nafasi|Book Now|Reserve Now/i).first().click().catch(() => {});
+  await page.getByText(/Weka Nafasi|Book Now|Reserve Now/i).first().click();
   await page.waitForTimeout(1800);
   const modalText = await page.locator('.modal-card').innerText().catch(() => '');
   const modalStats = stats(modalText);

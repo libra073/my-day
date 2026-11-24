@@ -100,33 +100,42 @@ export const ROLE_PERMISSIONS = {
 
 /**
  * Maps a verified Supabase user onto the local user table.
- * Creates the row on first contact, links it by email if it already exists,
- * and keeps MY DAY roles/vendor fields in sync with Supabase metadata.
+ * Creates the row on first contact and links it by email if it already exists.
+ * Roles are server-owned: client-writable Supabase metadata never grants
+ * privileges. Admins come only from the MYDAY_ADMIN_EMAILS bootstrap list;
+ * vendor status comes from server-side business approval.
  */
-export function upsertUserFromSupabase(supaUser) {
+// Read at call time so the bootstrap list is authoritative per request and
+// configurable without a restart. Only server-env emails ever become admin.
+export function isAdminBootstrapEmail(email) {
+  const list = (process.env.MYDAY_ADMIN_EMAILS || '')
+    .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  return list.includes(String(email || '').toLowerCase());
+}
+
+export async function upsertUserFromSupabase(supaUser) {
   const db = loadDatabase();
   const email = (supaUser.email || '').toLowerCase();
   const meta = supaUser.user_metadata || {};
 
-  let user = db.users.find((u) => u.supabaseId === supaUser.id)
+  let user = db.users.find((u) => u.supabaseId === supaUser.id || u.id === supaUser.id)
     || db.users.find((u) => (u.email || '').toLowerCase() === email);
 
   if (!user) {
     user = {
-      id: 'usr-' + crypto.randomBytes(6).toString('hex'),
+      // Canonical id is the auth.users uuid: profiles.id and every owner_id /
+      // user_id / customer_id foreign key reference it, so they must match.
+      id: supaUser.id,
       supabaseId: supaUser.id,
       name: meta.full_name || email.split('@')[0] || 'MY DAY user',
       email,
       phone: meta.phone || '',
-      globalRole: meta.global_role || 'customer',
+      globalRole: isAdminBootstrapEmail(email) ? 'admin' : 'customer',
       emailVerified: Boolean(supaUser.email_confirmed_at),
       createdAt: new Date().toISOString(),
-      ...(meta.vendor_category
-        ? { vendorCategory: meta.vendor_category, vendorLocation: meta.vendor_location || '' }
-        : {}),
     };
     db.users.push(user);
-    saveDatabase();
+    await saveDatabase();
     return user;
   }
 
@@ -134,7 +143,8 @@ export function upsertUserFromSupabase(supaUser) {
   if (user.supabaseId !== supaUser.id) { user.supabaseId = supaUser.id; dirty = true; }
   if (supaUser.email_confirmed_at && !user.emailVerified) { user.emailVerified = true; dirty = true; }
   if (meta.full_name && !user.name) { user.name = meta.full_name; dirty = true; }
-  if (dirty) saveDatabase();
+  if (isAdminBootstrapEmail(email) && user.globalRole !== 'admin') { user.globalRole = 'admin'; dirty = true; }
+  if (dirty) await saveDatabase();
   return user;
 }
 

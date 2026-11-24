@@ -25,6 +25,7 @@ const ContactUsPage = lazy(() => import('./pages/ContactUsPage'));
 const LabLensPage = lazy(() => import('./pages/LabLensPage'));
 const ProviderDashboardPage = lazy(() => import('./pages/ProviderDashboardPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const MarketingServicesPage = lazy(() => import('./pages/MarketingServicesPage'));
 const AcceptInvitationPage = lazy(() => import('./pages/AcceptInvitationPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 
@@ -107,6 +108,7 @@ function AppContent() {
               <Route path="/vendor/:category/:id" element={<VendorDetailPage />} />
               <Route path="/bookings" element={<MyBookingsPage />} />
               <Route path="/become-vendor" element={<BecomeVendorPage />} />
+              <Route path="/marketing" element={<MarketingServicesPage />} />
               <Route path="/contact" element={<ContactUsPage />} />
               {import.meta.env.DEV && (
                 <Route path="/lab/lens" element={<LabLensPage />} />

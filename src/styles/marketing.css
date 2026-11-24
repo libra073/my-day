@@ -1,0 +1,239 @@
+/* MY DAY Vendor Marketing Services — layout on the existing glass tokens. */
+
+.mktg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1.1rem;
+}
+
+.mktg-card { min-width: 0; }
+
+.mktg-deliverables {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.mktg-deliverables li {
+  font-size: 0.78rem;
+  color: var(--app-text-muted, #64748B);
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.45;
+}
+.mktg-deliverables li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.42em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--puck-bg, linear-gradient(135deg, #7c6cf8, #ec4899));
+}
+
+.mktg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.7rem;
+  border-radius: 9999px;
+  border: 1px solid;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.mktg-btn {
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
+  border: none;
+  background: var(--puck-bg, linear-gradient(135deg, #7c6cf8, #ec4899));
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(124, 108, 248, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mktg-btn:hover { transform: translateY(-1px); }
+.mktg-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.mktg-btn--ghost {
+  background: transparent;
+  color: var(--app-text-primary, #0F172A);
+  border: 1px solid var(--slab-border, rgba(255, 255, 255, 0.35));
+  box-shadow: none;
+}
+.mktg-btn--danger { background: linear-gradient(135deg, #dc2626, #f43f5e); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); }
+
+.mktg-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  font-size: 0.82rem;
+  font-weight: 650;
+  margin-bottom: 1rem;
+}
+.mktg-error button {
+  border: none;
+  background: #b91c1c;
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mktg-loading {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--app-text-muted, #64748B);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.mktg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border-radius: 18px;
+  border: 1px solid var(--slab-border, rgba(255, 255, 255, 0.3));
+  background: var(--lens-bg, rgba(255, 255, 255, 0.4));
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.mktg-row:hover { transform: translateY(-1px); }
+.mktg-row--static { cursor: default; }
+.mktg-row--static:hover { transform: none; }
+
+.mktg-field { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.mktg-field label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--app-text-muted, #64748B);
+  letter-spacing: 0.02em;
+}
+.mktg-field input,
+.mktg-field textarea,
+.mktg-field select {
+  padding: 0.55rem 0.8rem;
+  border-radius: 14px;
+  border: 1px solid var(--slab-border, rgba(255, 255, 255, 0.35));
+  background: var(--lens-bg, rgba(255, 255, 255, 0.55));
+  color: var(--app-text-primary, #0F172A);
+  font-size: 0.85rem;
+  font-family: inherit;
+  width: 100%;
+}
+.mktg-field textarea { resize: vertical; min-height: 74px; }
+
+.mktg-timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.mktg-timeline li {
+  position: relative;
+  padding-left: 1.15rem;
+  font-size: 0.78rem;
+  color: var(--app-text-muted, #64748B);
+  line-height: 1.5;
+}
+.mktg-timeline li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.4em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--puck-bg, linear-gradient(135deg, #7c6cf8, #ec4899));
+}
+.mktg-timeline li::after {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 1.1em;
+  bottom: -0.55rem;
+  width: 1px;
+  background: var(--slab-border, rgba(124, 108, 248, 0.25));
+}
+.mktg-timeline li:last-child::after { display: none; }
+
+.mktg-sponsored-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(217, 119, 6, 0.14);
+  border: 1px solid rgba(217, 119, 6, 0.45);
+  color: #b45309;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mktg-messages { display: flex; flex-direction: column; gap: 0.5rem; max-height: 260px; overflow-y: auto; padding-right: 0.3rem; }
+.mktg-message {
+  padding: 0.55rem 0.85rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  max-width: 85%;
+  background: var(--lens-bg, rgba(255, 255, 255, 0.5));
+  border: 1px solid var(--slab-border, rgba(255, 255, 255, 0.3));
+  color: var(--app-text-primary, #0F172A);
+}
+.mktg-message--admin {
+  align-self: flex-end;
+  background: rgba(124, 108, 248, 0.12);
+  border-color: rgba(124, 108, 248, 0.35);
+}
+.mktg-message small { display: block; font-size: 0.66rem; color: var(--app-text-muted, #64748B); margin-top: 0.2rem; }
+
+.mktg-hero {
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+.mktg-hero h1 {
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-weight: 950;
+  letter-spacing: -0.03em;
+  color: var(--app-text-primary, #0F172A);
+  margin: 0;
+}
+.mktg-hero p { max-width: 620px; font-size: 0.95rem; line-height: 1.65; color: var(--app-text-muted, #64748B); margin: 0; }
+
+.mktg-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
+.mktg-step { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.mktg-step strong { font-size: 0.92rem; font-weight: 850; color: var(--app-text-primary, #0F172A); }
+.mktg-step span { font-size: 0.8rem; color: var(--app-text-muted, #64748B); line-height: 1.55; }
+.mktg-step em {
+  font-style: normal;
+  width: 30px; height: 30px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  background: var(--puck-bg, linear-gradient(135deg, #7c6cf8, #ec4899));
+  color: #fff; font-weight: 900; font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .mktg-hero { padding: 2rem 1.2rem; }
+  .mktg-row { padding: 0.75rem 0.8rem; }
+  .mktg-message { max-width: 100%; }
+}

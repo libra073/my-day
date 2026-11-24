@@ -14,10 +14,17 @@ export function createApiServer() {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Set CORS headers (allowlist, never a wildcard)
+    const origin = req.headers.origin || '';
+    const allowedOrigins = process.env.MYDAY_ALLOWED_ORIGINS
+      ? process.env.MYDAY_ALLOWED_ORIGINS.split(',').map(s => s.trim())
+      : ['https://my-day-rust-five.vercel.app', 'http://localhost:5173', 'http://127.0.0.1:5173'];
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Language, X-Myday-Signature');
 
     if (req.method === 'OPTIONS') {
       res.statusCode = 204;

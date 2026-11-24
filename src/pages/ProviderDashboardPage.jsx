@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import AvailabilityCalendar from '../components/AvailabilityCalendar';
 import VendorScheduleSettings from '../components/VendorScheduleSettings';
+import VendorMarketingPanel from '../components/marketing/VendorMarketingPanel';
 import { isPastDateInDarEsSalaam } from '../services/businessSchedule';
-import { Store, Plus, ShieldCheck, MapPin, Calendar, Clock, Wallet, Percent, PiggyBank } from 'lucide-react';
+import { Store, Plus, ShieldCheck, MapPin, Calendar, Clock, Wallet, Percent, PiggyBank, Megaphone } from 'lucide-react';
 
 function ProviderDashboardPage() {
   const { providers, setProviders, bookings, setBookings, commissionRate, user, language } = useAppContext();
@@ -18,7 +19,8 @@ function ProviderDashboardPage() {
   const totalCommissionDeducted = Math.round(grossRevenue * commissionRate);
   const netPayout = grossRevenue - totalCommissionDeducted;
 
-  const [activeTab, setActiveTab] = useState('bookings');
+  const [activeTab, setActiveTab] = useState(() =>
+    new URLSearchParams(window.location.search).get('tab') === 'marketing' ? 'marketing' : 'bookings');
   const [showPackageForm, setShowPackageForm] = useState(false);
   const [newPkg, setNewPkg] = useState({ name: '', price: 1000000, description: '' });
 
@@ -138,7 +140,7 @@ function ProviderDashboardPage() {
       </div>
 
       {/* Optical Capsule Tab Switcher */}
-      <div className="glass-lens" style={{ display: 'inline-flex', gap: '0.4rem', background: 'var(--lens-bg)', padding: '0.3rem', borderRadius: '9999px', border: 'var(--lens-border)', marginBottom: '2rem', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)' }}>
+      <div className="glass-lens" style={{ display: 'inline-flex', flexWrap: 'wrap', maxWidth: '100%', gap: '0.4rem', background: 'var(--lens-bg)', padding: '0.3rem', borderRadius: '22px', border: 'var(--lens-border)', marginBottom: '2rem', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)' }}>
         <button
           type="button"
           onClick={() => setActiveTab('bookings')}
@@ -182,10 +184,34 @@ function ProviderDashboardPage() {
         >
           <Clock size={15} /> {isSw ? 'Ratiba ya Kazi na Ushauri' : 'Operating Schedule & Consultations'}
         </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('marketing')}
+          style={{
+            padding: '0.5rem 1.25rem',
+            borderRadius: '9999px',
+            border: 'none',
+            background: activeTab === 'marketing' ? 'var(--puck-bg)' : 'transparent',
+            color: activeTab === 'marketing' ? '#ffffff' : 'var(--app-text-muted)',
+            fontWeight: 750,
+            fontSize: '0.84rem',
+            cursor: 'pointer',
+            boxShadow: activeTab === 'marketing' ? '0 4px 12px rgba(0, 102, 238, 0.35)' : 'none',
+            transition: 'all 0.2s ease',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem'
+          }}
+        >
+          <Megaphone size={15} /> {isSw ? 'Masoko na Promosheni' : 'Marketing & Promotion'}
+        </button>
       </div>
 
       {activeTab === 'schedule' ? (
         <VendorScheduleSettings vendorId={provider.id} />
+      ) : activeTab === 'marketing' ? (
+        <VendorMarketingPanel />
       ) : (
         <div className="provider-dashboard-grid">
           {/* Left Column: Bookings & Package Builder */}

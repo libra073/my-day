@@ -27,7 +27,8 @@ import {
   validateBookingDate,
 } from '../server/businessSchedule.js';
 import { handleApiRequest, resetRateLimits } from '../server/routes.js';
-import { loadDatabase, saveDatabase } from '../server/db.js';
+import { loadDatabase, saveDatabase, resetDatabase } from '../server/db.js';
+import { seedUser, seedVendor, seedWorkspace } from './fixtures.mjs';
 
 let passedTests = 0;
 let failedTests = 0;
@@ -81,6 +82,14 @@ async function apiRequest(path, { method = 'GET', headers = {}, body = null } = 
 async function runAllTests() {
   await new Promise(resolve => server.listen(PORT, resolve));
   resetRateLimits();
+  resetDatabase();
+
+  // Self-created fixtures: a customer, a venue priced at TSh 2,500,000, and a
+  // workspace the customer owns (appointments require workspace membership).
+  const groom = seedUser({ name: 'John Msuya', email: 'groom.fixture@myday.test' });
+  const vendor = seedVendor({ id: 'test-venue-1', name: 'Grand Imperial Hall', category: 'kumbi', priceRate: 2500000 });
+  const workspace = seedWorkspace({ ownerId: groom.user.id, title: 'Fixture Wedding' });
+  const authHeaders = { Authorization: `Bearer ${groom.token}` };
 
   try {
     // -----------------------------------------------------------------
@@ -169,14 +178,6 @@ async function runAllTests() {
     // 6: Direct API Booking Rejection on Past Dates
     // -----------------------------------------------------------------
     console.log('\n--- 3. Direct Server API Past-Date Rejection ---');
-    
-    // Acquire active session token for John Msuya (Groom)
-    const loginRes = await apiRequest('/api/auth/login', {
-      method: 'POST',
-      body: { email: 'john@myday.co.tz', password: 'password123' },
-    });
-    assert.equal(loginRes.status, 200, 'Login must succeed to obtain auth token');
-    const authHeaders = { Authorization: `Bearer ${loginRes.data.token}` };
 
     // Requirement 6: Past dates rejected when submitted directly to booking API
     const pastApiBooking = await apiRequest('/api/bookings', {
@@ -184,7 +185,7 @@ async function runAllTests() {
       headers: authHeaders,
       body: {
         category: 'kumbi',
-        providerId: 'venue-1',
+        providerId: vendor.id,
         packageId: 'standard',
         date: yesterdayStr,
         price: 2000000,
@@ -205,7 +206,8 @@ async function runAllTests() {
     assert.equal(leakedBooking, undefined, 'No booking record must be created for a rejected past date');
     logPass('Database integrity verified: zero bookings created for invalid date request');
 
-    // Invalid / fabricated booking ID cannot trigger payment
+    // Online payments are disabled on this deployment: the endpoint must refuse
+    // to record any money movement (no simulated success), even for a fake id.
     const fakePayAttempt = await apiRequest('/api/payments', {
       method: 'POST',
       headers: authHeaders,
@@ -215,22 +217,23 @@ async function runAllTests() {
         gateway: 'mpesa',
       },
     });
-    assert.equal(fakePayAttempt.status, 404, 'Payment for non-existent booking must return HTTP 404');
-    logPass('Payment attempt on non-existent or uncreated booking safely rejected (HTTP 404)');
+    assert.equal(fakePayAttempt.status, 503, 'Payments must be refused (503) when no gateway is configured');
+    assert.ok(/not enabled/i.test(fakePayAttempt.data.error), 'Error explains online payments are not enabled');
+    logPass('Payment endpoint refuses money movement while online payments are disabled (HTTP 503)');
 
     // Even if a booking object exists in storage with a past date, payment endpoint rejects it
     const testPastBookingId = `bk-test-past-${Date.now()}`;
     db.bookings.push({
       id: testPastBookingId,
-      customerId: 'usr-groom',
-      providerId: 'venue-1',
+      customerId: groom.user.id,
+      providerId: vendor.id,
       category: 'kumbi',
       packageId: 'standard',
       date: yesterdayStr, // Past date
       price: 2000000,
       deposit: 600000,
       paidAmount: 0,
-      status: 'confirmed',
+      status: 'pending_deposit',
       createdAt: new Date().toISOString(),
     });
     await saveDatabase();
@@ -244,8 +247,10 @@ async function runAllTests() {
         gateway: 'mpesa',
       },
     });
-    assert.equal(pastBookingPayment.status, 422, 'Payment on past-date booking must be intercepted with HTTP 422');
-    logPass('Payment endpoint defense verified: payments on past-date bookings blocked with HTTP 422');
+    assert.equal(pastBookingPayment.status, 503, 'No payment recorded for past-date booking while payments are disabled');
+    const dbAfterPay = loadDatabase();
+    assert.equal((dbAfterPay.payments || []).some(p => p.bookingId === testPastBookingId), false, 'Zero payment rows created');
+    logPass('No payment row is created for a past-date booking (payments disabled, HTTP 503)');
 
     // Clean up test booking
     const dbClean = loadDatabase();
@@ -263,7 +268,7 @@ async function runAllTests() {
       headers: authHeaders,
       body: {
         category: 'kumbi',
-        providerId: 'venue-1',
+        providerId: vendor.id,
         packageId: 'standard',
         date: validFutureDateStr,
         price: 2500000,
@@ -330,7 +335,7 @@ async function runAllTests() {
       headers: { ...authHeaders, 'Accept-Language': 'en' },
       body: {
         category: 'kumbi',
-        providerId: 'venue-1',
+        providerId: vendor.id,
         packageId: 'standard',
         date: '2020-01-01',
         price: 1500000,
@@ -351,7 +356,7 @@ async function runAllTests() {
       headers: { ...authHeaders, 'Accept-Language': 'sw-TZ' },
       body: {
         category: 'kumbi',
-        providerId: 'venue-1',
+        providerId: vendor.id,
         packageId: 'standard',
         date: '2020-01-01',
         price: 1500000,
@@ -366,7 +371,7 @@ async function runAllTests() {
     const invalidFormatEn = await apiRequest('/api/bookings', {
       method: 'POST',
       headers: { ...authHeaders, 'Accept-Language': 'en' },
-      body: { category: 'kumbi', providerId: 'venue-1', packageId: 'standard', date: 'not-a-date', price: 100000 },
+      body: { category: 'kumbi', providerId: vendor.id, packageId: 'standard', date: 'not-a-date', price: 100000 },
     });
     assert.equal(invalidFormatEn.status, 422);
     assert.equal(invalidFormatEn.data.error, 'Please select a valid event date.');
@@ -374,7 +379,7 @@ async function runAllTests() {
     const invalidFormatSw = await apiRequest('/api/bookings', {
       method: 'POST',
       headers: { ...authHeaders, 'Accept-Language': 'sw' },
-      body: { category: 'kumbi', providerId: 'venue-1', packageId: 'standard', date: 'not-a-date', price: 100000 },
+      body: { category: 'kumbi', providerId: vendor.id, packageId: 'standard', date: 'not-a-date', price: 100000 },
     });
     assert.equal(invalidFormatSw.status, 422);
     assert.equal(invalidFormatSw.data.error, 'Tafadhali chagua tarehe sahihi ya tukio.');
@@ -388,7 +393,8 @@ async function runAllTests() {
       method: 'POST',
       headers: authHeaders,
       body: {
-        vendorId: 'venue-1',
+        workspaceId: workspace.id,
+        vendorId: vendor.id,
         title: 'Hall Walkthrough',
         startIso: '2020-05-10T08:00:00.000Z',
         endIso: '2020-05-10T09:00:00.000Z',

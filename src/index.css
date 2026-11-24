@@ -1000,6 +1000,14 @@ textarea::placeholder {
   transform: rotate(-10deg) scale(1.08);
 }
 
+/* MY DAY monogram (from the brand logo) tinted by the surrounding chip color. */
+.brand-mark {
+  display: inline-block;
+  background: currentColor;
+  -webkit-mask: url('./assets/myday-mark.png') center / contain no-repeat;
+  mask: url('./assets/myday-mark.png') center / contain no-repeat;
+}
+
 .nav-brand-name {
   display: block;
   font-family: var(--font-header);

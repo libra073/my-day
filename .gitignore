@@ -31,8 +31,14 @@ dist-ssr
 *.tmp
 server/data/*.tmp
 
+# Runtime JSON store: never commit or deploy demo/test/PII data.
+# Production starts empty via getInitialDatabase(); on Vercel this lives in /tmp.
+server/data/db.json
+server/data/uploads/
+
 # local dev artefacts
 scratch/
 test-results/
 playwright-report/
 .env.local
+.env*

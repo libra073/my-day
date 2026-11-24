@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
 import {
-  Heart, Sparkles, User, LogOut, Phone, Menu, X, Home,
+  Sparkles, User, LogOut, Phone, Menu, X, Home,
   LayoutGrid, LayoutDashboard, Store, UserRound, CalendarDays,
   BadgePlus, Shield, Sun, Moon, ShieldAlert
 } from 'lucide-react';
@@ -179,7 +179,7 @@ export default function LiquidGlassNav({ onOpenAuth }) {
             justifyContent: 'center',
             color: 'var(--liquid-sapphire-500)'
           }}>
-            <Heart size={18} fill="currentColor" stroke="none" />
+            <span className="brand-mark" style={{ width: 26, height: 20 }} />
           </span>
           <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, textAlign: 'left' }}>
             <span className="cl-brand__name" style={{ fontSize: '1.1rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--app-text-primary)' }}>MY DAY</span>

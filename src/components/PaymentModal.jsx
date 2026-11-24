@@ -1,74 +1,46 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { createPortal } from 'react-dom';
 import { useAppContext } from '../context/AppContext';
-import { X, Smartphone, CreditCard, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { X, ShieldCheck, Phone, Info, CheckCircle2 } from 'lucide-react';
 import { useBodyScrollLock } from '../lib/overlayLock';
 
-const PAYMENT_PROVIDERS = [
-  { id: 'mpesa', name: 'M-Pesa (Vodacom)', color: '#E60000', code: '*150*00#' },
-  { id: 'tigopesa', name: 'Tigo Pesa (MixByYas)', color: '#0033A0', code: '*150*01#' },
-  { id: 'airtelmoney', name: 'Airtel Money', color: '#FF0000', code: '*150*60#' },
-  { id: 'halopesa', name: 'HaloPesa (Halotel)', color: '#FF6600', code: '*150*88#' },
-  { id: 'card', name: 'Visa / Mastercard', color: '#1A1F71', code: 'Card Online' },
-];
-
+// Online checkout is intentionally not enabled for launch. This modal never
+// collects card/PIN data and never marks a booking paid — it explains how to
+// settle the deposit directly with the vendor. Payment status only changes
+// server-side after a verified provider callback.
 function PaymentModal({ bookingId, amount, isFullPayment = false, onClose, onSuccess }) {
-  const { recordPayment, bookings, providers, language = 'en' } = useAppContext();
+  const { bookings, providers, language = 'en' } = useAppContext();
+  const isSw = language === 'sw';
 
   const booking = bookings.find(b => b.id === bookingId);
   const provider = booking ? providers.find(p => p.id === booking.providerId) : null;
+  const vendorPhone = provider?.contact || '+255 700 000 000';
 
-  const [selectedGateway, setSelectedGateway] = useState('mpesa');
-  const [phoneNumber, setPhoneNumber] = useState('0754 123 456');
-  const [pin, setPin] = useState('');
-  const [step, setStep] = useState('input'); // 'input' | 'processing' | 'success'
-  const [txnRef, setTxnRef] = useState('');
+  useBodyScrollLock(true, onClose);
 
-  useBodyScrollLock(true, () => {
-    if (step !== 'processing') onClose?.();
-  });
-
-  const triggerSuccessEffects = () => {
-    import('canvas-confetti')
-      .then((mod) => {
-        const confetti = mod.default;
-        confetti?.({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-      })
-      .catch(() => {});
+  const finish = () => {
+    onClose?.();
+    onSuccess?.();
   };
 
-  const handlePaymentSubmit = (e) => {
-    e.preventDefault();
-    if (selectedGateway !== 'card' && pin.length < 4) {
-      alert(language === 'sw' ? 'Tafadhali weka PIN halali ya tarakimu 4' : 'Please enter a valid 4-digit PIN');
-      return;
-    }
-
-    setStep('processing');
-
-    setTimeout(() => {
-      const generatedRef = `TXN-${Math.floor(100000 + Math.random() * 900000)}`;
-      setTxnRef(generatedRef);
-      recordPayment(bookingId, amount, isFullPayment);
-      setStep('success');
-      triggerSuccessEffects();
-    }, 1800);
-  };
-
-  const selectedMethodObj = PAYMENT_PROVIDERS.find(p => p.id === selectedGateway);
+  const steps = isSw
+    ? [
+        `Wasiliana na ${provider?.name || 'mtoa huduma'} kwa ${vendorPhone} kuthibitisha upatikanaji na bei ya mwisho.`,
+        'Lipa kiasi kilichoonyeshwa moja kwa moja kwa mtoa huduma kupitia M-Pesa, Tigo Pesa, Airtel Money, HaloPesa au uhamisho wa benki kwenda akaunti yake rasmi.',
+        'Mtoa huduma atathibitisha nafasi yako mara tu dhamana itakapopokelewa. Hifadhi kumbukumbu yako ya malipo.',
+      ]
+    : [
+        `Contact ${provider?.name || 'the vendor'} on ${vendorPhone} to confirm availability and final pricing.`,
+        'Pay the amount shown directly to the vendor via M-Pesa, Tigo Pesa, Airtel Money, HaloPesa or bank transfer to their official account.',
+        'The vendor confirms your reservation once the deposit is received. Keep your payment reference.',
+      ];
 
   return createPortal(
     <div
       className="modal-backdrop motion-modal-backdrop"
       role="dialog"
       aria-modal="true"
-      onClick={() => {
-        if (step !== 'processing') onClose?.();
-      }}
+      onClick={onClose}
       style={{
         position: 'fixed',
         inset: 0,
@@ -97,282 +69,134 @@ function PaymentModal({ bookingId, amount, isFullPayment = false, onClose, onSuc
           position: 'relative'
         }}
       >
-        {step !== 'processing' && (
-          <button
-            onClick={onClose}
-            className="modal-close-btn"
-            style={{
-              position: 'absolute',
-              top: '1.25rem',
-              right: '1.25rem',
-              background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
-              border: '1px solid var(--app-border, rgba(255, 255, 255, 0.95))',
-              color: 'var(--app-text-muted, #64748b)',
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-              cursor: 'pointer'
-            }}
-          >
-            <X size={18} />
-          </button>
-        )}
+        <button
+          onClick={onClose}
+          className="modal-close-btn"
+          aria-label={isSw ? 'Funga' : 'Close'}
+          style={{
+            position: 'absolute',
+            top: '1.25rem',
+            right: '1.25rem',
+            background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.85))',
+            border: '1px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+            color: 'var(--app-text-muted, #64748b)',
+            width: 34,
+            height: 34,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            cursor: 'pointer'
+          }}
+        >
+          <X size={18} />
+        </button>
 
-        {step === 'input' && (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-              <div style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, rgba(10, 132, 255, 0.15) 0%, rgba(0, 199, 190, 0.15) 100%)',
-                border: '1.5px solid var(--app-border, rgba(10, 132, 255, 0.25))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <ShieldCheck size={20} color="var(--color-primary, #0071E3)" />
-              </div>
-              <h2 style={{ fontSize: '1.35rem', color: 'var(--app-text-primary, #0f172a)', fontWeight: 850, letterSpacing: '-0.02em', margin: 0 }}>
-                {language === 'sw' ? 'Malipo ya Mtandao ya MY DAY' : 'MY DAY Mobile Money Checkout'}
-              </h2>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)', marginBottom: '1.25rem' }}>
-              {language === 'sw' ? `Malipo salama kwa ajili ya ${provider?.name || 'Huduma ya Harusi'}` : `Secure payment for ${provider?.name || 'Wedding Booking'}`}
-            </p>
-
-            <div style={{
-              background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.72))',
-              borderRadius: 'var(--radius-lg)',
-              padding: '1.15rem',
-              marginBottom: '1.25rem',
-              border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)', marginBottom: '0.35rem' }}>
-                <span>{language === 'sw' ? 'Kumbukumbu ya Nafasi:' : 'Booking Reference:'}</span>
-                <span style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--app-text-primary, #0f172a)' }}>{bookingId}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)', marginBottom: '0.45rem' }}>
-                <span>{language === 'sw' ? 'Aina ya Malipo:' : 'Payment Type:'}</span>
-                <span style={{ fontWeight: 700, color: 'var(--app-text-primary, #0f172a)' }}>{isFullPayment ? (language === 'sw' ? 'Malipo Kamili' : 'Full Payment') : (language === 'sw' ? 'Dhamana ya Awali 30%' : '30% Deposit Guarantee')}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.15rem', fontWeight: 850, color: 'var(--app-text-primary, #0f172a)', paddingTop: '0.45rem', borderTop: '1px solid rgba(148, 163, 184, 0.2)' }}>
-                <span>{language === 'sw' ? 'Kiasi cha Kulipa:' : 'Amount to Pay:'}</span>
-                <span style={{ color: 'var(--color-primary, #0071E3)' }}>TSh {amount.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <form onSubmit={handlePaymentSubmit}>
-              <div style={{ marginBottom: '1.15rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 750, marginBottom: '0.45rem', color: 'var(--app-text-primary, #0f172a)' }}>
-                  {language === 'sw' ? 'Chagua Njia ya Malipo / Mtandao' : 'Select Mobile Money / Payment Channel'}
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem' }}>
-                  {PAYMENT_PROVIDERS.map((p, idx) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setSelectedGateway(p.id)}
-                      className={`motion-payment-option ${selectedGateway === p.id ? 'is-selected' : ''}`}
-                      style={{
-                        '--idx': idx,
-                        background: selectedGateway === p.id
-                          ? 'var(--clay-selected-bg, linear-gradient(145deg, rgba(10, 132, 255, 0.15) 0%, rgba(240, 248, 255, 0.95) 100%))'
-                          : 'var(--app-card-bg, #ffffff)',
-                        color: selectedGateway === p.id ? 'var(--clay-selected-text, var(--color-primary, #0071E3))' : 'var(--app-text-secondary, #475569)',
-                        border: selectedGateway === p.id
-                          ? '2px solid var(--clay-selected-border, var(--color-primary, #0071E3))'
-                          : '1.5px solid var(--clay-line)',
-                        borderRadius: 'var(--radius-pill)',
-                        padding: '0.7rem 0.6rem',
-                        fontSize: '0.85rem',
-                        fontWeight: 750,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        boxShadow: selectedGateway === p.id
-                          ? '0 6px 18px -2px rgba(10, 132, 255, 0.35)'
-                          : '0 2px 6px rgba(15, 23, 42, 0.04)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <span style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: '50%',
-                        background: p.color,
-                        boxShadow: `0 0 8px ${p.color}`,
-                        display: 'inline-block'
-                      }} />
-                      {p.id === 'card' ? <CreditCard size={14} color="var(--color-primary, #0071E3)" /> : null}
-                      <span>{p.name.split(' ')[0]}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {selectedGateway !== 'card' ? (
-                <>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 750, marginBottom: '0.35rem', color: 'var(--app-text-primary, #0f172a)' }}>
-                      {language === 'sw' ? `Nambari ya Simu Iliyosajiliwa (${selectedMethodObj?.name})` : `Registered Mobile Number (${selectedMethodObj?.name})`}
-                    </label>
-                    <input
-                      type="text"
-                      value={phoneNumber}
-                      onChange={e => setPhoneNumber(e.target.value)}
-                      placeholder={language === 'sw' ? 'Mfano: 0754 123 456' : 'E.g. 0754 123 456'}
-                      required
-                    />
-                  </div>
-
-                  <div style={{ marginBottom: '1.35rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 750, marginBottom: '0.35rem', color: 'var(--app-text-primary, #0f172a)' }}>
-                      {language === 'sw' ? 'Weka PIN kwa Uigaji wa Muamala wa USSD' : 'Enter PIN for USSD Prompt Simulator'}
-                    </label>
-                    <input
-                      type="password"
-                      maxLength="4"
-                      placeholder="••••"
-                      value={pin}
-                      onChange={e => setPin(e.target.value)}
-                      style={{ letterSpacing: '0.2rem' }}
-                      required
-                    />
-                  </div>
-                </>
-              ) : (
-                <div style={{ marginBottom: '1.35rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 750, marginBottom: '0.35rem', color: 'var(--app-text-primary, #0f172a)' }}>
-                    {language === 'sw' ? 'Nambari ya Kadi' : 'Card Number'}
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="4000 1234 5678 9010"
-                    style={{ marginBottom: '0.5rem' }}
-                  />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                    <input type="text" placeholder="MM/YY" />
-                    <input type="password" placeholder="CVV" maxLength="3" />
-                  </div>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="btn-primary btn-sweep"
-                style={{
-                  width: '100%',
-                  padding: '0.85rem',
-                  fontSize: '0.95rem'
-                }}
-              >
-                {language === 'sw' ? `Lipa TSh ${amount.toLocaleString()} Sasa` : `Pay TSh ${amount.toLocaleString()} Now`}
-              </button>
-            </form>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+          <div style={{
+            width: 36,
+            height: 36,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, rgba(10, 132, 255, 0.15) 0%, rgba(0, 199, 190, 0.15) 100%)',
+            border: '1.5px solid var(--app-border, rgba(10, 132, 255, 0.25))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <ShieldCheck size={20} color="var(--color-primary, #0071E3)" />
           </div>
-        )}
+          <h2 style={{ fontSize: '1.3rem', color: 'var(--app-text-primary, #0f172a)', fontWeight: 850, letterSpacing: '-0.02em', margin: 0 }}>
+            {isSw ? 'Maelekezo ya Dhamana na Malipo' : 'Deposit & Payment Instructions'}
+          </h2>
+        </div>
+        <p style={{ fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)', marginBottom: '1.25rem' }}>
+          {isSw
+            ? 'Nafasi yako imehifadhiwa. Kamilisha dhamana moja kwa moja na mtoa huduma.'
+            : 'Your reservation is held. Complete the deposit directly with the vendor.'}
+        </p>
 
-        {step === 'processing' && (
-          <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
-            <div style={{
-              width: 58,
-              height: 58,
-              borderRadius: '50%',
-              background: 'var(--p3d-grad-champagne-btn, linear-gradient(135deg, #FFFFFF 0%, #F0F6FF 100%))',
-              border: '2px solid var(--color-primary, #0071E3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.25rem',
-              animation: 'aiAmbientGlow 2.5s infinite'
-            }}>
-              <Smartphone size={28} color="var(--color-primary, #0071E3)" />
-            </div>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.65rem', color: 'var(--color-text)', fontWeight: 800 }}>
-              {language === 'sw' ? 'Inashughulikia Malipo ya Amana...' : 'Processing Escrow Deposit...'}
-            </h3>
-            <div className="motion-payment-progress-bar" style={{ maxWidth: 280, margin: '0 auto 1rem' }}>
-              <div className="motion-payment-progress-fill" />
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)' }}>
-              {selectedGateway === 'card'
-                ? (language === 'sw' ? 'Inathibitisha kadi na mtandao wa benki...' : 'Verifying card authorization with 3D Secure...')
-                : (language === 'sw' ? `Tafadhali kagua simu yako (${phoneNumber}) kuthibitisha kwa PIN ya ${selectedMethodObj?.name}` : `Please check your phone (${phoneNumber}) to enter your ${selectedMethodObj?.name} PIN`)}
-            </p>
+        <div style={{
+          background: 'var(--app-surface-elevated, rgba(255, 255, 255, 0.72))',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.15rem',
+          marginBottom: '1rem',
+          border: '1.5px solid var(--app-border, rgba(255, 255, 255, 0.95))',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)', marginBottom: '0.35rem' }}>
+            <span>{isSw ? 'Kumbukumbu ya Nafasi:' : 'Booking Reference:'}</span>
+            <span style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--app-text-primary, #0f172a)' }}>{bookingId}</span>
           </div>
-        )}
-
-        {step === 'success' && (
-          <div style={{ textAlign: 'center' }}>
-            <div className="motion-success-pulse" style={{ display: 'inline-flex', borderRadius: '50%', marginBottom: '1rem' }}>
-              <CheckCircle2 size={64} color="#10B981" />
-            </div>
-            <h2 style={{ fontSize: '1.4rem', color: 'var(--color-text)', marginBottom: '0.25rem', fontWeight: 800 }}>
-              {language === 'sw' ? 'Malipo Yamethibitishwa!' : 'Payment Confirmed!'}
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
-              {language === 'sw' ? (
-                <>Muamala wako wa <strong>TSh {amount.toLocaleString()}</strong> umethibitishwa kikamilifu.</>
-              ) : (
-                <>Your transaction of <strong>TSh {amount.toLocaleString()}</strong> has been verified.</>
-              )}
-            </p>
-
-            <div style={{
-              background: 'var(--color-success-bg)',
-              border: '1px solid rgba(56, 161, 105, 0.3)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '1rem',
-              textAlign: 'left',
-              marginBottom: '1.25rem',
-              fontSize: '0.85rem'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                <span>{language === 'sw' ? 'Kumbukumbu ya Muamala:' : 'Transaction Ref:'}</span>
-                <strong style={{ fontFamily: 'monospace' }}>{txnRef}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                <span>{language === 'sw' ? 'Mtoa Huduma:' : 'Vendor:'}</span>
-                <strong>{provider?.name}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                <span>{language === 'sw' ? 'Njia ya Malipo:' : 'Channel:'}</span>
-                <span>{selectedMethodObj?.name}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{language === 'sw' ? 'Hali:' : 'Status:'}</span>
-                <strong style={{ color: 'var(--color-success)' }}>
-                  {language === 'sw' ? 'IMETHIBITISHWA' : 'CONFIRMED'}
-                </strong>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                onClick={() => {
-                  onClose();
-                  if (onSuccess) onSuccess();
-                }}
-                style={{
-                  flex: 1,
-                  background: 'var(--color-primary)',
-                  color: '#fff',
-                  borderRadius: 'var(--radius-pill)',
-                  boxShadow: 'var(--shadow-glow)'
-                }}
-              >
-                {language === 'sw' ? 'Rudi kwenye Dashibodi' : 'Return to Dashboard'}
-              </button>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)', marginBottom: '0.35rem' }}>
+            <span>{isSw ? 'Mtoa Huduma:' : 'Vendor:'}</span>
+            <span style={{ fontWeight: 700, color: 'var(--app-text-primary, #0f172a)' }}>{provider?.name || (isSw ? 'Huduma ya Harusi' : 'Wedding Vendor')}</span>
           </div>
-        )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--app-text-muted, #64748b)', marginBottom: '0.45rem' }}>
+            <span>{isSw ? 'Aina ya Malipo:' : 'Payment Type:'}</span>
+            <span style={{ fontWeight: 700, color: 'var(--app-text-primary, #0f172a)' }}>
+              {isFullPayment ? (isSw ? 'Salio Kamili' : 'Full Balance') : (isSw ? 'Dhamana ya Awali 30%' : '30% Deposit')}
+            </span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.15rem', fontWeight: 850, color: 'var(--app-text-primary, #0f172a)', paddingTop: '0.45rem', borderTop: '1px solid rgba(148, 163, 184, 0.2)' }}>
+            <span>{isSw ? 'Kiasi cha Kulipa:' : 'Amount Due:'}</span>
+            <span style={{ color: 'var(--color-primary, #0071E3)' }}>TSh {Number(amount || 0).toLocaleString()}</span>
+          </div>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          gap: '0.6rem',
+          alignItems: 'flex-start',
+          background: 'rgba(245, 158, 11, 0.1)',
+          border: '1.5px solid rgba(245, 158, 11, 0.3)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '0.9rem 1rem',
+          marginBottom: '1.15rem'
+        }}>
+          <Info size={18} color="#D97706" style={{ flexShrink: 0, marginTop: 2 }} />
+          <p style={{ fontSize: '0.82rem', color: 'var(--app-text-secondary, #475569)', margin: 0, lineHeight: 1.55 }}>
+            {isSw
+              ? 'Malipo ya mtandaoni bado hayajawashwa. Kwa sasa, lipa mtoa huduma moja kwa moja — MY DAY haichukui nambari za kadi wala PIN za pesa za simu.'
+              : 'Online checkout is not yet enabled. For now, pay the vendor directly — MY DAY never collects card numbers or mobile-money PINs.'}
+          </p>
+        </div>
+
+        <ol style={{ margin: '0 0 1.15rem', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          {steps.map((s, i) => (
+            <li key={i} style={{ fontSize: '0.85rem', color: 'var(--app-text-secondary, #475569)', lineHeight: 1.55 }}>{s}</li>
+          ))}
+        </ol>
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          background: 'var(--app-surface-secondary, rgba(245, 238, 255, 0.72))',
+          border: '1.5px solid var(--app-border, rgba(142, 98, 248, 0.2))',
+          borderRadius: 'var(--radius-pill)',
+          padding: '0.7rem 1rem',
+          marginBottom: '1.35rem'
+        }}>
+          <Phone size={16} color="var(--color-primary, #0071E3)" />
+          <span style={{ fontSize: '0.85rem', fontWeight: 750, color: 'var(--app-text-primary, #0f172a)' }}>
+            {isSw ? 'Simu ya Mtoa Huduma:' : 'Vendor Contact:'} {vendorPhone}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', fontSize: '0.8rem', color: 'var(--app-text-muted, #64748b)' }}>
+          <CheckCircle2 size={15} color="#D97706" />
+          <span>{isSw ? 'Hali ya nafasi: Inasubiri Dhamana' : 'Reservation status: Awaiting Deposit'}</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={finish}
+          className="btn-primary btn-sweep"
+          style={{ width: '100%', padding: '0.85rem', fontSize: '0.95rem' }}
+        >
+          {isSw ? 'Rudi kwenye Dashibodi' : 'Return to Dashboard'}
+        </button>
       </div>
     </div>,
     document.body

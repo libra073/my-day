@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Percent, ShieldCheck, Wallet, Store, CalendarCheck } from 'lucide-react';
+import AdminMarketingPanel from '../components/marketing/AdminMarketingPanel';
 
 function AdminDashboardPage() {
   const { providers, setProviders, bookings, commissionRate, setCommissionRate, language = 'en' } = useAppContext();
@@ -140,8 +141,8 @@ function AdminDashboardPage() {
       </div>
 
       {/* Optical Capsule Tab Switcher */}
-      <div className="glass-lens" style={{ display: 'inline-flex', gap: '0.4rem', background: 'var(--lens-bg)', padding: '0.3rem', borderRadius: '9999px', border: 'var(--lens-border)', marginBottom: '2rem', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)' }}>
-        {['overview', 'ledger'].map(tab => (
+      <div className="glass-lens" style={{ display: 'inline-flex', flexWrap: 'wrap', maxWidth: '100%', gap: '0.4rem', background: 'var(--lens-bg)', padding: '0.3rem', borderRadius: '22px', border: 'var(--lens-border)', marginBottom: '2rem', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)' }}>
+        {['overview', 'ledger', 'marketing'].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -160,10 +161,15 @@ function AdminDashboardPage() {
           >
             {tab === 'overview'
               ? (language === 'sw' ? 'Uthibitishaji wa Watoa Huduma' : 'Provider Verifications')
-              : (language === 'sw' ? `Daftari Kuu la Uhifadhi (${bookings.length})` : `Master Booking Ledger (${bookings.length})`)}
+              : tab === 'ledger'
+                ? (language === 'sw' ? `Daftari Kuu la Uhifadhi (${bookings.length})` : `Master Booking Ledger (${bookings.length})`)
+                : (language === 'sw' ? 'Masoko ya Wauzaji' : 'Vendor Marketing')}
           </button>
         ))}
       </div>
+
+      {/* Tab 3: Vendor Marketing Management */}
+      {activeTab === 'marketing' && <AdminMarketingPanel />}
 
       {/* Tab 1: Provider Verification Queue */}
       {activeTab === 'overview' && (

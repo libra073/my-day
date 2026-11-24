@@ -20,6 +20,7 @@ import './styles/sunset-glass.css'
 import './styles/md-hero.css'
 import './styles/back-to-top.css'
 import './styles/mobile.css'
+import './styles/marketing.css'
 import App from './App.jsx'
 import { AppProvider } from './context/AppContext'
 

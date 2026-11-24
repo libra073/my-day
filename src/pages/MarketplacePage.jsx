@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import ProviderCard from '../components/ProviderCard';
+import SponsoredStrip from '../components/marketing/SponsoredStrip';
 import {
   Search, X, Sparkles, MapPin, SlidersHorizontal,
   Building2, Palette, Music, UtensilsCrossed, Scissors, Car,
@@ -142,6 +143,8 @@ export default function MarketplacePage() {
 
   return (
     <div className="container" style={{ padding: '3rem 1.25rem 6.5rem' }}>
+      <SponsoredStrip location="banner" />
+      <SponsoredStrip location="category" category={activeCategory} />
       {/* Top Hero Section with ample clearance */}
       <div className="mkt-hero">
         <div className="mkt-badge">

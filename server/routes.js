@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { loadDatabase, saveDatabase, hashPassword } from './db.js';
+import { loadDatabase, saveDatabase, databaseReady, hashPassword } from './db.js';
 import { isSupabaseConfigured, getUserFromToken } from './supabaseAdmin.js';
 import {
   createSessionToken,
@@ -7,6 +7,8 @@ import {
   upsertUserFromSupabase,
   revokeSessionToken,
   checkWorkspaceAccess,
+  getWorkspaceMembership,
+  isAdminBootstrapEmail,
   ROLE_PERMISSIONS,
   WORKSPACE_ROLES,
 } from './auth.js';
@@ -21,6 +23,7 @@ import {
   canDeliverNotification,
   validateBookingDate,
 } from './businessSchedule.js';
+import { handleMarketingRequest } from './marketing.js';
 
 // In-memory sliding window rate limiter
 const rateLimitMap = new Map();
@@ -78,11 +81,15 @@ export function handleApiRequest(req, res, urlObj) {
 
   const db = loadDatabase();
 
-  // Helper to read JSON body
+  // Helper to read JSON body (raw text kept for webhook signature checks)
   const readBody = () => {
     if (req.body !== undefined && req.body !== null) {
-      if (typeof req.body === 'object') return Promise.resolve(req.body);
+      if (typeof req.body === 'object') {
+        req._rawBody = JSON.stringify(req.body);
+        return Promise.resolve(req.body);
+      }
       if (typeof req.body === 'string') {
+        req._rawBody = req.body;
         try {
           return Promise.resolve(JSON.parse(req.body));
         } catch (e) {
@@ -94,6 +101,7 @@ export function handleApiRequest(req, res, urlObj) {
       let body = '';
       req.on('data', chunk => { body += chunk; });
       req.on('end', () => {
+        req._rawBody = body;
         if (!body) return resolve({});
         try {
           resolve(JSON.parse(body));
@@ -106,16 +114,22 @@ export function handleApiRequest(req, res, urlObj) {
   };
 
   // Helper to get authenticated user.
-  // A Supabase access token is resolved once per request; legacy session
-  // tokens keep working for local development and the test suite.
+  // A Supabase access token is resolved once per request. Legacy session
+  // tokens work only in local development/tests: on Vercel without Supabase
+  // configured the API fails closed instead of accepting seeded tokens.
   let supabaseUser = null;
+  const legacyAuthEnabled = !isSupabaseConfigured && !process.env.VERCEL;
   const authenticate = () => {
     const token = parseBearerToken(req);
-    const user = supabaseUser || getUserByToken(token);
+    const user = supabaseUser || (legacyAuthEnabled ? getUserByToken(token) : null);
     return { token, user };
   };
 
   return (async () => {
+    // Block until the durable store is hydrated (Postgres cold start) so no
+    // request ever reads an empty cache. Resolves immediately in JSON mode.
+    await databaseReady();
+
     // Rate limit check on sensitive endpoints (prevent brute-force and spam)
     if (['/api/auth/register', '/api/auth/login', '/api/auth/forgot-password', '/api/auth/reset-password', '/api/auth/send-verification', '/api/auth/verify-email', '/api/payments'].includes(pathname)) {
       if (!checkRateLimit(req, res, 20, 60000)) {
@@ -127,12 +141,12 @@ export function handleApiRequest(req, res, urlObj) {
     const bearer = parseBearerToken(req);
     if (bearer && isSupabaseConfigured) {
       const supaUser = await getUserFromToken(bearer);
-      if (supaUser) supabaseUser = upsertUserFromSupabase(supaUser);
+      if (supaUser) supabaseUser = await upsertUserFromSupabase(supaUser);
     }
 
     // When Supabase owns identity, the legacy password endpoints are a bypass:
     // they would still accept the seeded local accounts. Refuse them instead.
-    if (isSupabaseConfigured && [
+    if ((isSupabaseConfigured || process.env.VERCEL) && [
       '/api/auth/register',
       '/api/auth/login',
       '/api/auth/forgot-password',
@@ -151,7 +165,7 @@ export function handleApiRequest(req, res, urlObj) {
     // -------------------------------------------------------------
     if (pathname === '/api/auth/register' && method === 'POST') {
       const body = await readBody();
-      const { name, email, password, phone, role = 'customer', vendorCategory, vendorLocation } = body;
+      const { name, email, password, phone } = body;
 
       if (!name || !email || !password) {
         return err('Name, email, and password are required', 400);
@@ -172,12 +186,12 @@ export function handleApiRequest(req, res, urlObj) {
         email: email.toLowerCase(),
         phone: phone || '',
         passwordHash: hashPassword(password),
-        globalRole: role,
+        // Public registration never grants provider or admin from client input:
+        // vendor status comes from business approval, admin only from the
+        // server-side MYDAY_ADMIN_EMAILS bootstrap allowlist.
+        globalRole: isAdminBootstrapEmail(email) ? 'admin' : 'customer',
         emailVerified: false,
         createdAt: new Date().toISOString(),
-        ...(role === 'provider' && vendorCategory
-          ? { vendorCategory, vendorLocation: vendorLocation || '' }
-          : {})
       };
 
       if (!db.email_verifications) db.email_verifications = [];
@@ -398,8 +412,10 @@ export function handleApiRequest(req, res, urlObj) {
       if (contact.replace(/\D/g, '').length < 9) return err('A valid phone / WhatsApp number is required.', 422);
       if (!Number.isFinite(priceRate) || priceRate <= 0) return err('A valid starting price is required.', 422);
 
+      const { user: applicant } = authenticate();
       const vendor = {
         id: `vendor-${Date.now()}`,
+        ownerId: applicant?.id || null,
         name,
         category,
         location,
@@ -1538,6 +1554,11 @@ export function handleApiRequest(req, res, urlObj) {
         return err('userId, title, and message are required', 400);
       }
 
+      // Notifications may only target members of this workspace.
+      if (!getWorkspaceMembership(workspaceId, userId)) {
+        return err('Forbidden: notification target is not a member of this workspace', 403);
+      }
+
       // Check delivery rules against business hours (Rule 4)
       const delivery = canDeliverNotification(type, new Date(), DEFAULT_OPERATING_SCHEDULE);
 
@@ -1666,7 +1687,7 @@ export function handleApiRequest(req, res, urlObj) {
       } else if (user.globalRole === 'provider') {
         list = list.filter(a => a.vendorId === user.id);
       } else {
-        list = list.filter(a => a.customerId === user.id || (workspaceIdFilter && a.workspaceId === workspaceIdFilter));
+        list = list.filter(a => a.customerId === user.id || (a.workspaceId && getWorkspaceMembership(a.workspaceId, user.id)));
       }
 
       if (vendorIdFilter) {
@@ -1692,7 +1713,7 @@ export function handleApiRequest(req, res, urlObj) {
 
       const body = await readBody();
       const {
-        workspaceId = 'wed-1',
+        workspaceId,
         vendorId,
         title,
         startIso,
@@ -1705,6 +1726,11 @@ export function handleApiRequest(req, res, urlObj) {
       if (!vendorId || !title || !startIso || !endIso) {
         return err('vendorId, title, startIso, and endIso are required', 400);
       }
+      if (!workspaceId) {
+        return err('workspaceId is required', 400);
+      }
+      const apptAccess = checkWorkspaceAccess(workspaceId, user.id);
+      if (!apptAccess.authorized) return err(apptAccess.error, apptAccess.status);
 
       // Reject appointments in the past
       const rawAppLang = body.language || urlObj.searchParams.get('lang') || req.headers['x-language'] || req.headers['accept-language'] || user.language || 'en';
@@ -1949,10 +1975,12 @@ export function handleApiRequest(req, res, urlObj) {
       if (user.globalRole === 'admin') {
         // Admin views all platform bookings
       } else if (user.globalRole === 'provider') {
-        userBookings = userBookings.filter(b => b.providerId === user.id || b.providerId === 'venue-1');
+        userBookings = userBookings.filter(b => b.providerId === user.id);
       } else {
-        // Customers/Planners see their bookings
-        userBookings = userBookings.filter(b => b.customerId === user.id || b.weddingId === 'wed-1');
+        // Customers see their own bookings plus bookings of workspaces they belong to
+        userBookings = userBookings.filter(
+          b => b.customerId === user.id || (b.weddingId && getWorkspaceMembership(b.weddingId, user.id))
+        );
       }
 
       return json({ bookings: userBookings });
@@ -1963,19 +1991,31 @@ export function handleApiRequest(req, res, urlObj) {
       if (!user) return err('Unauthorized', 401);
 
       const body = await readBody();
-      const { category, providerId, packageId = 'standard', weddingId = 'wed-1', date, price } = body;
+      const { category, providerId, packageId = 'standard', weddingId, date } = body;
 
       // Detect requested language
       const rawLang = body.language || urlObj.searchParams.get('lang') || req.headers['x-language'] || req.headers['accept-language'] || user.language || 'en';
       const lang = String(rawLang).toLowerCase().startsWith('sw') ? 'sw' : 'en';
 
-      if (!category || !providerId || !date || !price) {
+      if (!category || !providerId || !date) {
         return err(
           lang === 'sw'
-            ? 'Kundi, kitambulisho cha mtoa huduma, tarehe, na bei vinahitajika'
-            : 'Category, providerId, date, and price are required',
+            ? 'Kundi, kitambulisho cha mtoa huduma, na tarehe vinahitajika'
+            : 'Category, providerId, and date are required',
           400
         );
+      }
+
+      // Price is server-owned: taken from the vendor record, never the client.
+      const vendor = (db.vendors || []).find(v => v.id === providerId);
+      if (!vendor) return err('Vendor not found', 404);
+      if (vendor.status === 'suspended') {
+        return err(lang === 'sw' ? 'Mtoa huduma huyu hapokei maombi kwa sasa.' : 'This vendor is not accepting bookings.', 422);
+      }
+
+      if (weddingId) {
+        const access = checkWorkspaceAccess(weddingId, user.id);
+        if (!access.authorized) return err(access.error, access.status);
       }
 
       // Authoritative validation of event date in Africa/Dar_es_Salaam
@@ -1992,9 +2032,9 @@ export function handleApiRequest(req, res, urlObj) {
         return err('This provider is already booked for the selected date. Please choose another date.', 409);
       }
 
-      const numPrice = Number(price);
-      if (isNaN(numPrice) || numPrice <= 0) {
-        return err('Price must be a positive number', 422);
+      const numPrice = Number(vendor.priceRate);
+      if (!Number.isFinite(numPrice) || numPrice <= 0) {
+        return err('Vendor has no valid price configured.', 422);
       }
 
       // Authoritative server-side deposit calculation (30%) & commission (5%)
@@ -2008,13 +2048,14 @@ export function handleApiRequest(req, res, urlObj) {
         providerId,
         category,
         packageId,
-        weddingId,
+        weddingId: weddingId || null,
         date,
         price: numPrice,
         deposit,
-        paidAmount: deposit,
+        paidAmount: 0,
         commission,
-        status: 'confirmed',
+        // Nothing is paid or confirmed until a verified provider callback lands.
+        status: 'pending_deposit',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -2022,22 +2063,8 @@ export function handleApiRequest(req, res, urlObj) {
       if (!db.bookings) db.bookings = [];
       db.bookings.push(newBooking);
 
-      // Auto-record initial deposit payment record
-      const paymentId = `pay-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
-      if (!db.payments) db.payments = [];
-      db.payments.push({
-        id: paymentId,
-        bookingId,
-        customerId: user.id,
-        amount: deposit,
-        gateway: body.gateway || 'mpesa',
-        txnRef: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
-        status: 'success',
-        createdAt: new Date().toISOString()
-      });
-
       await saveDatabase();
-      return json({ booking: newBooking, paymentId }, 201);
+      return json({ booking: newBooking }, 201);
     }
 
     // Match /api/bookings/:id
@@ -2071,7 +2098,20 @@ export function handleApiRequest(req, res, urlObj) {
       }
 
       const body = await readBody();
-      if (body.status !== undefined) booking.status = body.status;
+      if (body.status !== undefined) {
+        const next = String(body.status);
+        const isCustomer = booking.customerId === user.id;
+        const isProvider = booking.providerId === user.id;
+        const allowed =
+          user.globalRole === 'admin' ? ['pending_deposit', 'partial', 'confirmed', 'cancelled']
+            : isCustomer ? ['cancelled']
+              : isProvider ? ['cancelled', ...(booking.paidAmount >= booking.deposit ? ['confirmed'] : [])]
+                : [];
+        if (!allowed.includes(next)) {
+          return err('Forbidden: this status change is not allowed for your role', 403);
+        }
+        booking.status = next;
+      }
       booking.updatedAt = new Date().toISOString();
       await saveDatabase();
 
@@ -2088,6 +2128,11 @@ export function handleApiRequest(req, res, urlObj) {
       const bookingId = urlObj.searchParams.get('bookingId');
       let paymentsList = db.payments || [];
       if (bookingId) {
+        const booking = (db.bookings || []).find(b => b.id === bookingId);
+        if (!booking) return err('Booking not found', 404);
+        if (user.globalRole !== 'admin' && booking.customerId !== user.id && booking.providerId !== user.id) {
+          return err('Forbidden: You do not have access to this booking', 403);
+        }
         paymentsList = paymentsList.filter(p => p.bookingId === bookingId);
       } else if (user.globalRole !== 'admin') {
         paymentsList = paymentsList.filter(p => p.customerId === user.id);
@@ -2100,8 +2145,14 @@ export function handleApiRequest(req, res, urlObj) {
       const { user } = authenticate();
       if (!user) return err('Unauthorized', 401);
 
+      // No licensed gateway configured: refuse to record money movement rather
+      // than simulate success. Bookings stay pending_deposit with offline instructions.
+      if (!process.env.PAYMENTS_PROVIDER) {
+        return err('Online payments are not enabled on this deployment yet. Follow the deposit instructions sent with your booking.', 503);
+      }
+
       const body = await readBody();
-      const { bookingId, amount, gateway = 'mpesa', isFullPayment = false } = body;
+      const { bookingId, amount, gateway = 'mpesa' } = body;
 
       if (!bookingId || !amount) {
         return err('Booking ID and payment amount are required', 400);
@@ -2110,6 +2161,9 @@ export function handleApiRequest(req, res, urlObj) {
       const booking = (db.bookings || []).find(b => b.id === bookingId);
       if (!booking) {
         return err('Booking not found', 404);
+      }
+      if (user.globalRole !== 'admin' && booking.customerId !== user.id) {
+        return err('Forbidden: You cannot pay for this booking', 403);
       }
 
       // Block payment if target booking has a past date
@@ -2127,11 +2181,20 @@ export function handleApiRequest(req, res, urlObj) {
         }
       }
 
+      // Amount must match a server-computed due: deposit due or remaining balance.
+      const paid = booking.paidAmount || 0;
+      const depositDue = Math.max(booking.deposit - paid, 0);
+      const balanceDue = Math.max(booking.price - paid, 0);
+      const numAmount = Number(amount);
+      if (!Number.isFinite(numAmount) || numAmount <= 0 || (numAmount !== depositDue && numAmount !== balanceDue)) {
+        return err('Amount must equal the deposit due or the remaining balance for this booking.', 422);
+      }
+
       // Duplicate payment protection / Idempotency guard (5-second window)
       const nowMs = Date.now();
       const duplicate = (db.payments || []).find(
         p => p.bookingId === bookingId &&
-             p.amount === Number(amount) &&
+             p.amount === numAmount &&
              (nowMs - new Date(p.createdAt).getTime()) < 5000
       );
       if (duplicate) {
@@ -2140,37 +2203,43 @@ export function handleApiRequest(req, res, urlObj) {
 
       const paymentId = `pay-${nowMs}-${crypto.randomBytes(4).toString('hex')}`;
       const txnRef = body.txnRef || `TXN-${Math.floor(100000 + Math.random() * 900000)}`;
-      const numAmount = Number(amount);
 
       const newPayment = {
         id: paymentId,
         bookingId,
-        customerId: user.id,
+        customerId: booking.customerId,
         amount: numAmount,
         gateway,
         txnRef,
-        status: 'success',
+        // Awaits a verified provider callback; never success at initiation.
+        status: 'pending',
         createdAt: new Date().toISOString()
       };
 
       if (!db.payments) db.payments = [];
       db.payments.push(newPayment);
 
-      booking.paidAmount = (booking.paidAmount || 0) + numAmount;
-      if (isFullPayment || booking.paidAmount >= booking.price) {
-        booking.status = 'confirmed';
-      } else {
-        booking.status = 'partial';
-      }
-      booking.updatedAt = new Date().toISOString();
-
       await saveDatabase();
       return json({ payment: newPayment, booking }, 201);
     }
 
-    // Simulated Webhook Callback for Tanzanian Mobile Money Gateways (M-Pesa, Tigo Pesa, Airtel Money)
+    // Provider callback: accepted only when a gateway is configured and the
+    // payload carries a valid HMAC-SHA256 signature over the raw body.
     if (pathname === '/api/payments/webhook' && method === 'POST') {
+      const secret = process.env.PAYMENTS_WEBHOOK_SECRET || '';
+      if (!process.env.PAYMENTS_PROVIDER || !secret) {
+        return err('Payment callbacks are not enabled on this deployment.', 503);
+      }
+
       const body = await readBody();
+      const signature = String(req.headers['x-myday-signature'] || '');
+      const expected = crypto.createHmac('sha256', secret).update(req._rawBody || '').digest('hex');
+      const sigBuf = Buffer.from(signature);
+      const expBuf = Buffer.from(expected);
+      if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+        return err('Invalid webhook signature', 401);
+      }
+
       const { bookingId, txnRef, status = 'success', amount } = body;
 
       if (!bookingId || !txnRef) {
@@ -2183,30 +2252,121 @@ export function handleApiRequest(req, res, urlObj) {
       }
 
       if (!db.payments) db.payments = [];
-      const existingPay = db.payments.find(p => p.txnRef === txnRef);
+      const existingPay = db.payments.find(p => p.txnRef === txnRef && p.bookingId === bookingId);
       if (!existingPay) {
-        db.payments.push({
-          id: `pay-hook-${Date.now()}`,
-          bookingId,
-          customerId: booking.customerId,
-          amount: Number(amount) || booking.deposit,
-          gateway: body.gateway || 'mobile_money_webhook',
-          txnRef,
-          status,
-          createdAt: new Date().toISOString()
-        });
+        return err('No initiated payment matches this callback', 404);
       }
+      if (existingPay.status === 'success') {
+        return json({ received: true, status: booking.status });
+      }
+      existingPay.status = status === 'success' ? 'success' : 'failed';
+      if (status === 'success' && Number(amount) > 0) existingPay.amount = Number(amount);
 
-      if (status === 'success') {
-        booking.paidAmount = Math.max(booking.paidAmount || 0, Number(amount) || booking.deposit);
-        booking.status = 'confirmed';
-      } else if (status === 'failed') {
-        booking.status = 'pending_deposit';
-      }
+      const paidSum = db.payments
+        .filter(p => p.bookingId === bookingId && p.status === 'success')
+        .reduce((s, p) => s + p.amount, 0);
+      booking.paidAmount = paidSum;
+      booking.status = paidSum >= booking.price ? 'confirmed' : paidSum >= booking.deposit ? 'partial' : 'pending_deposit';
       booking.updatedAt = new Date().toISOString();
 
       await saveDatabase();
       return json({ received: true, status: booking.status });
+    }
+
+    // -------------------------------------------------------------
+    // COMPLAINTS & DISPUTES (customer-owned, admin-resolved)
+    // -------------------------------------------------------------
+    if (pathname === '/api/complaints' && method === 'POST') {
+      const { user } = authenticate();
+      if (!user) return err('Unauthorized', 401);
+      const body = await readBody();
+      const subject = String(body.subject || '').trim().slice(0, 200);
+      const message = String(body.message || '').trim().slice(0, 2000);
+      if (!subject || !message) return err('Subject and message are required', 400);
+      const complaint = {
+        id: `cp-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
+        userId: user.id,
+        bookingId: body.bookingId || null,
+        subject,
+        message,
+        status: 'open',
+        createdAt: new Date().toISOString(),
+      };
+      db.complaints = [...(db.complaints || []), complaint];
+      await saveDatabase();
+      return json({ complaint }, 201);
+    }
+
+    if (pathname === '/api/complaints' && method === 'GET') {
+      const { user } = authenticate();
+      if (!user) return err('Unauthorized', 401);
+      const list = (db.complaints || []).filter(c => user.globalRole === 'admin' || c.userId === user.id);
+      return json({ complaints: list });
+    }
+
+    // -------------------------------------------------------------
+    // ADMIN PLATFORM MANAGEMENT (server-authoritative)
+    // -------------------------------------------------------------
+    if (pathname.startsWith('/api/admin/')) {
+      const { user } = authenticate();
+      if (!user) return err('Unauthorized', 401);
+      if (user.globalRole !== 'admin') return err('Forbidden: administrator access required', 403);
+
+      if (pathname === '/api/admin/vendors' && method === 'GET') {
+        return json({ vendors: db.vendors || [] });
+      }
+
+      const adminVendorMatch = pathname.match(/^\/api\/admin\/vendors\/([a-zA-Z0-9_-]+)$/);
+      if (adminVendorMatch && method === 'PATCH') {
+        const body = await readBody();
+        const vendor = (db.vendors || []).find(v => v.id === adminVendorMatch[1]);
+        if (!vendor) return err('Vendor not found', 404);
+        const action = String(body.action || '');
+        if (action === 'approve' || action === 'restore') { vendor.status = 'verified'; vendor.verified = true; }
+        else if (action === 'suspend') { vendor.status = 'suspended'; vendor.verified = false; }
+        else return err('Unknown admin action', 422);
+        const owner = db.users.find(u => u.id === vendor.ownerId);
+        if (owner) owner.globalRole = action === 'suspend' ? 'customer' : 'provider';
+        await saveDatabase();
+        return json({ vendor });
+      }
+
+      if (pathname === '/api/admin/users' && method === 'GET') {
+        return json({ users: (db.users || []).map(({ passwordHash, ...u }) => u) });
+      }
+
+      if (pathname === '/api/admin/bookings' && method === 'GET') {
+        return json({ bookings: db.bookings || [] });
+      }
+
+      if (pathname === '/api/admin/payments' && method === 'GET') {
+        return json({ payments: db.payments || [] });
+      }
+
+      if (pathname === '/api/admin/complaints' && method === 'GET') {
+        return json({ complaints: db.complaints || [] });
+      }
+
+      const adminComplaintMatch = pathname.match(/^\/api\/admin\/complaints\/([a-zA-Z0-9_-]+)$/);
+      if (adminComplaintMatch && method === 'PATCH') {
+        const body = await readBody();
+        const complaint = (db.complaints || []).find(c => c.id === adminComplaintMatch[1]);
+        if (!complaint) return err('Complaint not found', 404);
+        complaint.status = body.status === 'resolved' ? 'resolved' : 'open';
+        complaint.resolution = String(body.resolution || '').slice(0, 500);
+        complaint.updatedAt = new Date().toISOString();
+        await saveDatabase();
+        return json({ complaint });
+      }
+
+      return err(`API endpoint not found: ${method} ${pathname}`, 404);
+    }
+
+    // -------------------------------------------------------------
+    // VENDOR MARKETING SERVICES (managed services, audited lifecycle)
+    // -------------------------------------------------------------
+    if (pathname.startsWith('/api/marketing')) {
+      return handleMarketingRequest({ req, res, method, pathname, urlObj, json, err, readBody, authenticate, db });
     }
 
     return err(`API endpoint not found: ${method} ${pathname}`, 404);
