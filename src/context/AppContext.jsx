@@ -453,6 +453,23 @@ export const AppProvider = ({ children }) => {
     return null;
   };
 
+  // Supabase metadata only carries a placeholder role; resolving /me before
+  // applySession prevents a customer-role flash that redirects protected
+  // routes (e.g. /admin) on full page loads and token refreshes.
+  const resolveSessionUser = async (appUser, token) => {
+    api.setToken(token || null);
+    try {
+      const me = await api.getMe();
+      if (me?.user?.globalRole) return { ...appUser, ...me.user };
+    } catch {
+      try {
+        const cached = JSON.parse(localStorage.getItem('myday_user') || 'null');
+        if (cached && cached.id === appUser.id) return { ...appUser, ...cached };
+      } catch {}
+    }
+    return appUser;
+  };
+
   // On first load, adopt any Supabase session that survived a refresh.
   useEffect(() => {
     if (!isSupabaseConfigured) return undefined;
@@ -461,7 +478,9 @@ export const AppProvider = ({ children }) => {
       const { data } = await sbAuth.getSession();
       if (cancelled || !data?.session) return;
       const appUser = sbAuth.toAppUser(data.session.user);
-      applySession(appUser, data.session.access_token);
+      const resolved = await resolveSessionUser(appUser, data.session.access_token);
+      if (cancelled) return;
+      applySession(resolved, data.session.access_token);
       await refreshWorkspace();
       await syncServerRole();
     })();
@@ -469,9 +488,12 @@ export const AppProvider = ({ children }) => {
       if (cancelled) return;
       if (event === 'SIGNED_OUT') logoutUser();
       else if (session?.user) {
-        const appUser = sbAuth.toAppUser(session.user);
-        applySession(appUser, session.access_token);
-        syncServerRole();
+        (async () => {
+          const resolved = await resolveSessionUser(sbAuth.toAppUser(session.user), session.access_token);
+          if (cancelled) return;
+          applySession(resolved, session.access_token);
+          syncServerRole();
+        })();
       }
     });
     return () => { cancelled = true; unsubscribe?.(); };
